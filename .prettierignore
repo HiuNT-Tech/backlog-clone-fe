@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env*
+!.env.example
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Config files
+*.config.js
+*.config.ts
+*.config.mjs
+
+# Generated files
+*.min.js
+*.min.css
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Docker
+Dockerfile*
+docker-compose*
+
+# Documentation
+*.md
+!README.md
+
+# Images and assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
