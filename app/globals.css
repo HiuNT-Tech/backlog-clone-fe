@@ -5,19 +5,20 @@
   --background: var(--theme-neutral-1);
   --foreground: var(--theme-neutral-11);
 
-  /* Theme variables */
-  --theme-main: #2f6ec7;
-  --theme-hover: #2f6ec790;
-  --theme-filter-main: invert(34%) sepia(81%) saturate(1056%) hue-rotate(190deg) brightness(91%) contrast(86%);
-  --theme-main-light: #e8f8f9;
+  /* Theme variables - Backlog Green/Teal palette */
+  --theme-main: #42CE9F;
+  --theme-hover: #3ab88d;
+  --theme-filter-main: invert(72%) sepia(42%) saturate(503%) hue-rotate(111deg) brightness(94%) contrast(87%);
+  --theme-main-light: #e6f9f3;
+  --theme-header: #323232;
 
-  --theme-main-1: #82a7da;
-  --theme-main-2: #6395db;
-  --theme-main-3: #427dcf;
-  --theme-main-4: #2f6ec7;
-  --theme-main-5: #1859b4;
-  --theme-main-6: #09418f;
-  --theme-main-7: #01224f;
+  --theme-main-1: #e6f9f3;
+  --theme-main-2: #a8e6cf;
+  --theme-main-3: #6dd5b1;
+  --theme-main-4: #42CE9F;
+  --theme-main-5: #36a880;
+  --theme-main-6: #2a8264;
+  --theme-main-7: #1e5c48;
 
   --theme-neutral-1: #ffffff;
   --theme-neutral-2: #fafafa;
@@ -36,6 +37,7 @@
   --color-theme-main: var(--theme-main);
   --color-theme-hover: var(--theme-hover);
   --color-theme-main-light: var(--theme-main-light);
+  --color-theme-header: var(--theme-header);
   --color-theme-main-1: var(--theme-main-1);
   --color-theme-main-2: var(--theme-main-2);
   --color-theme-main-3: var(--theme-main-3);
