@@ -8,7 +8,6 @@ alwaysApply: true
 - File ngôn ngữ riêng:
   - Tiếng Việt: [i18n/locales/vi.ts](mdc:i18n/locales/vi.ts)
   - Tiếng Anh: [i18n/locales/en.ts](mdc:i18n/locales/en.ts)
-  - Tiếng Nhật: [i18n/locales/ja.ts](mdc:i18n/locales/ja.ts)
 - Provider: [components/i18n-provider.tsx](mdc:components/i18n-provider.tsx)
 
 #### Sử dụng

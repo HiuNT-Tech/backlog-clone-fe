@@ -8,6 +8,7 @@ import Code from '@/assets/images/gray/code.svg';
 import Password from '@/assets/images/gray/password.svg';
 import Gender from '@/assets/images/gray/gender.svg';
 import Store from '@/assets/images/gray/store.svg';
+import Search from '@/assets/images/gray/search.svg';
 
 const GrayImages = {
   Email,
@@ -20,6 +21,7 @@ const GrayImages = {
   Password,
   Gender,
   Store,
+  Search,
 };
 
 export default GrayImages;
