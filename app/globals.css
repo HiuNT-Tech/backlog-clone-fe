@@ -1,26 +1,99 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--theme-neutral-1);
+  --foreground: var(--theme-neutral-11);
+
+  /* Theme variables */
+  --theme-main: #2f6ec7;
+  --theme-hover: #2f6ec790;
+  --theme-filter-main: invert(34%) sepia(81%) saturate(1056%) hue-rotate(190deg) brightness(91%) contrast(86%);
+  --theme-main-light: #e8f8f9;
+
+  --theme-main-1: #82a7da;
+  --theme-main-2: #6395db;
+  --theme-main-3: #427dcf;
+  --theme-main-4: #2f6ec7;
+  --theme-main-5: #1859b4;
+  --theme-main-6: #09418f;
+  --theme-main-7: #01224f;
+
+  --theme-neutral-1: #ffffff;
+  --theme-neutral-2: #fafafa;
+  --theme-neutral-3: #f5f5f5;
+  --theme-neutral-4: #f0f0f0;
+  --theme-neutral-5: #d9d9d9;
+  --theme-neutral-6: #bfbfbf;
+  --theme-neutral-7: #8c8c8c;
+  --theme-neutral-8: #595959;
+  --theme-neutral-9: #444444;
+  --theme-neutral-10: #262626;
+  --theme-neutral-11: #1f1f1f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-theme-main: var(--theme-main);
+  --color-theme-hover: var(--theme-hover);
+  --color-theme-main-light: var(--theme-main-light);
+  --color-theme-main-1: var(--theme-main-1);
+  --color-theme-main-2: var(--theme-main-2);
+  --color-theme-main-3: var(--theme-main-3);
+  --color-theme-main-4: var(--theme-main-4);
+  --color-theme-main-5: var(--theme-main-5);
+  --color-theme-main-6: var(--theme-main-6);
+  --color-theme-main-7: var(--theme-main-7);
+  --color-theme-neutral-1: var(--theme-neutral-1);
+  --color-theme-neutral-2: var(--theme-neutral-2);
+  --color-theme-neutral-3: var(--theme-neutral-3);
+  --color-theme-neutral-4: var(--theme-neutral-4);
+  --color-theme-neutral-5: var(--theme-neutral-5);
+  --color-theme-neutral-6: var(--theme-neutral-6);
+  --color-theme-neutral-7: var(--theme-neutral-7);
+  --color-theme-neutral-8: var(--theme-neutral-8);
+  --color-theme-neutral-9: var(--theme-neutral-9);
+  --color-theme-neutral-10: var(--theme-neutral-10);
+  --color-theme-neutral-11: var(--theme-neutral-11);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.animate-fadeIn {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Global scrollbar from theme migration */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #dcdde1;
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: white;
+}
+
+/* Custom scrollbar for horizontal scroll table */
+.table-horizontal-scroll::-webkit-scrollbar {
+  height: 4px;
+  cursor: pointer;
+}
+
+.table-horizontal-scroll::-webkit-scrollbar-track {
+  background: var(--theme-neutral-4);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.table-horizontal-scroll::-webkit-scrollbar-thumb {
+  background: var(--theme-neutral-6);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.table-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-neutral-7);
+  cursor: pointer;
 }
