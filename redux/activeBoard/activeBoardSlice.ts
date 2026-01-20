@@ -4,26 +4,21 @@ import {
   PayloadAction,
   ActionReducerMapBuilder,
 } from '@reduxjs/toolkit';
-import { mockData } from '@/lib/apis/mock-data';
 import { mapOrder } from '@/utils/sorts';
 import { isEmpty } from 'lodash';
 import { generatePlaceholderCard } from '@/utils/formatters';
 import type { Board, ActiveBoardState } from '@/config/interface';
+import { BoardService } from '@/lib/apis/board';
 
 // Initial state with proper typing
 const initialState: ActiveBoardState = {
   currentActiveBoard: null,
 };
-
-// Async thunk for fetching board details (currently using mock data)
+// Async thunk for fetching board details
 export const fetchBoardDetailsAPI = createAsyncThunk<Board, string>(
   'activeBoard/fetchBoardDetailsAPI',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (_boardId: string) => {
-    // TODO: Replace with actual API call
-    // const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`)
-    // return response.data
-    return Promise.resolve(mockData.board as Board);
+  async (boardId: string) => {
+    return await BoardService.getBoardById(boardId);
   }
 );
 

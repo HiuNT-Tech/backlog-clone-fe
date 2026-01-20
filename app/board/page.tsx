@@ -11,14 +11,18 @@ import {
 } from '@/redux/activeBoard/activeBoardSlice';
 import type { AppDispatch } from '@/redux/store';
 import type { Board } from '@/config/interface';
+import { useSearchParams } from 'next/navigation';
 
 function BoardPageContent() {
   const dispatch = useDispatch<AppDispatch>();
   const board = useSelector(selectCurrentActiveBoard) as Board | null;
+  const searchParams = useSearchParams();
+  const boardId = searchParams.get('boardId');
 
   useEffect(() => {
-    dispatch(fetchBoardDetailsAPI('board-id-01'));
-  }, [dispatch]);
+    if (!boardId) return;
+    dispatch(fetchBoardDetailsAPI(boardId));
+  }, [dispatch, boardId]);
 
   if (!board) {
     return (

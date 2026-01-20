@@ -18,7 +18,7 @@ import {
   selectCurrentActiveBoard,
 } from '@/redux/activeBoard/activeBoardSlice';
 import type { Column as ColumnType, Board } from '@/config/interface';
-
+import { useColumn } from '@/hooks/use-column';
 interface ListColumnsProps {
   columns: ColumnType[];
 }
@@ -30,6 +30,7 @@ function ListColumns({ columns }: ListColumnsProps) {
 
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState('');
+  const { createNewColumn } = useColumn(board?._id || '');
 
   const toggleOpenNewColumnForm = () =>
     setOpenNewColumnForm(!openNewColumnForm);
@@ -39,19 +40,13 @@ function ListColumns({ columns }: ListColumnsProps) {
       return;
     }
 
-    // Create mock column data (API call would go here)
-    const createdColumn: ColumnType = {
-      _id: `column-${Date.now()}`,
-      boardId: board?._id || '',
+    const newColumnData = {
       title: newColumnTitle,
-      cardOrderIds: [],
-      cards: [],
     };
-
-    // Add placeholder card for empty column
-    const placeholderCard = generatePlaceholderCard(createdColumn);
-    createdColumn.cards = [placeholderCard];
-    createdColumn.cardOrderIds = [placeholderCard._id];
+    const createdColumn = await createNewColumn({
+      ...newColumnData,
+      boardId: board?._id || '',
+    });
 
     if (board) {
       const newBoard = cloneDeep(board);

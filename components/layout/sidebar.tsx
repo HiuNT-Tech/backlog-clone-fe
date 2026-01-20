@@ -137,7 +137,6 @@ export function Sidebar(
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -206,11 +205,7 @@ export function Sidebar(
           )}
           <nav className="space-y-2">
             {menuItems.map(item => (
-              <RowItem
-                key={item.href}
-                item={item}
-                isCollapsed={isCollapsed}
-              />
+              <RowItem key={item.href} item={item} isCollapsed={isCollapsed} />
             ))}
           </nav>
         </div>
