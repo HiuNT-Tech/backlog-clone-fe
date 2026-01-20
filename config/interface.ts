@@ -31,7 +31,27 @@ export interface Board {
   columnOrderIds: string[];
   columns: Column[];
 }
+export interface BoardListResponse {
+  boards: Board[];
+}
 
 export interface ActiveBoardState {
   currentActiveBoard: Board | null;
+}
+
+export interface MoveCardToDifferentColumnRequest {
+  boardId: string;
+  columnId: string;
+  cardId: string;
+  newColumnId: string;
+}
+
+export interface CreateNewColumnRequest {
+  boardId: string;
+  column: Column;
+}
+
+export interface UpdateColumnDetailsRequest {
+  columnId: string;
+  updateData: Column;
 }
