@@ -7,6 +7,8 @@ import {
   CreateNewColumnRequest,
   MoveCardToDifferentColumnRequest,
   UpdateColumnDetailsRequest,
+  UpdateBoardDetailRequest,
+  CreateNewCardRequest,
 } from '@/config/interface';
 
 export const BoardService = {
@@ -27,16 +29,13 @@ export const BoardService = {
     ).data;
   },
 
-  moveCardToDifferentColumn: async ({
-    boardId,
-    columnId,
-    cardId,
-    newColumnId,
-  }: MoveCardToDifferentColumnRequest) => {
+  moveCardToDifferentColumn: async (
+    updateData: MoveCardToDifferentColumnRequest
+  ) => {
     return (
-      await authorizedAxiosInstance.post(
-        `${API_ROOT}/v1/boards/${boardId}/columns/${columnId}/cards/${cardId}/move`,
-        { newColumnId }
+      await authorizedAxiosInstance.put(
+        `${API_ROOT}/v1/boards/supports/moving_card`,
+        updateData
       )
     ).data;
   },
@@ -53,25 +52,38 @@ export const BoardService = {
     ).data;
   },
 
+  updateBoardDetail: async ({
+    boardId,
+    updateData,
+  }: UpdateBoardDetailRequest) => {
+    return (
+      await authorizedAxiosInstance.put(
+        `${API_ROOT}/v1/boards/${boardId}`,
+        updateData
+      )
+    ).data;
+  },
+
   deleteColumnDetails: async ({ columnId }: { columnId: string }) => {
     return (
       await authorizedAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`)
     ).data;
   },
 
-  createNewCard: async ({ card }: { card: Card }) => {
+  createNewCard: async (card: CreateNewCardRequest) => {
     return (await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards`, card))
       .data;
   },
 
   registerUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return (await authorizedAxiosInstance.post(`${API_ROOT}/v1/users`, user))
-      .data;
+    return (
+      await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/register`, user)
+    ).data;
   },
 
   verifyUser: async ({ user }: { user: Record<string, unknown> }) => {
     return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/verify`, user)
+      await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/verify`, user)
     ).data;
   },
 };

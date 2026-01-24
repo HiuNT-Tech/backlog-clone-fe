@@ -16,14 +16,14 @@ export function Header() {
   return (
     <div className="bg-theme-header flex justify-between overflow-auto sticky top-0 z-50">
       <div className="flex gap-3 items-center p-3">
-        <Button className="px-2">
+        <button className="px-2">
           <Image src={Images.IconDashboard} alt="logo" width={24} height={24} />
-        </Button>
+        </button>
         <Title>{t('appBar.title.dashboard')}</Title>
         <Title>{t('appBar.title.project')}</Title>
-        <Button>
+        <button>
           <Image src={Images.IconAdd} alt="logo" width={24} height={24} />
-        </Button>
+        </button>
       </div>
       <div className="flex gap-2 items-center p-3">
         <Input
@@ -32,23 +32,20 @@ export function Header() {
         />
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button size="xs">
+            <button>
               <Image src={Images.Alert} alt="logo" />
-            </Button>
+            </button>
           </TooltipTrigger>
           <TooltipContent>
             <p>{t('tooltip.notification')}</p>
           </TooltipContent>
         </Tooltip>
-        <Button
-          size="icon"
-          className="rounded-full bg-theme-neutral-1 hover:bg-theme-neutral-2"
-        >
+        <Button className="w-10 h-10 p-0 rounded-full bg-theme-neutral-1 hover:bg-theme-neutral-2 border border-theme-neutral-5">
           <Image
             src={Images.defaultAvatar}
             alt="avatar"
-            width={20}
-            height={20}
+            width={24}
+            height={24}
           />
         </Button>
       </div>

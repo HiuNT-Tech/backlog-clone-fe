@@ -40,10 +40,11 @@ export interface ActiveBoardState {
 }
 
 export interface MoveCardToDifferentColumnRequest {
-  boardId: string;
-  columnId: string;
-  cardId: string;
-  newColumnId: string;
+  currentCardId: string;
+  prevColumnId: string;
+  prevCardOrderIds: string[];
+  nextColumnId: string;
+  nextCardOrderIds: string[];
 }
 
 export interface CreateNewColumnRequest {
@@ -53,5 +54,16 @@ export interface CreateNewColumnRequest {
 
 export interface UpdateColumnDetailsRequest {
   columnId: string;
-  updateData: Column;
+  updateData: Partial<Column>;
+}
+
+export interface UpdateBoardDetailRequest {
+  boardId: string;
+  updateData: Partial<Board>;
+}
+
+export interface CreateNewCardRequest {
+  boardId: string;
+  columnId: string;
+  title: string;
 }

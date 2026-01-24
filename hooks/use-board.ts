@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
 import { toastHelpers } from '@/hooks/use-toast';
 import {
+  Board,
   Card,
   Column,
   MoveCardToDifferentColumnRequest,
@@ -44,10 +45,29 @@ export const useBoard = (boardId: string, columnId: string) => {
     isPending: isUpdatePending,
     error: updateColumnDetailsError,
   } = useMutation({
-    mutationFn: async (column: Column) => {
+    mutationFn: async (column: Partial<Column>) => {
       return await BoardService.updateColumnDetails({
-        columnId,
+        columnId: column._id || columnId,
         updateData: column,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boards'] });
+    },
+    onError: () => {
+      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
+    },
+  });
+
+  const {
+    mutateAsync: updateBoardDetail,
+    isPending: isUpdateBoardDetailPending,
+    error: updateBoardDetailError,
+  } = useMutation({
+    mutationFn: async (board: Partial<Board>) => {
+      return await BoardService.updateBoardDetail({
+        boardId: board._id || boardId,
+        updateData: board,
       });
     },
     onSuccess: () => {
@@ -79,18 +99,8 @@ export const useBoard = (boardId: string, columnId: string) => {
     isPending: isMovePending,
     error: moveCardToDifferentColumnError,
   } = useMutation({
-    mutationFn: async ({
-      boardId,
-      columnId,
-      cardId,
-      newColumnId,
-    }: MoveCardToDifferentColumnRequest) => {
-      return await BoardService.moveCardToDifferentColumn({
-        boardId,
-        columnId,
-        cardId,
-        newColumnId,
-      });
+    mutationFn: async (data: MoveCardToDifferentColumnRequest) => {
+      return await BoardService.moveCardToDifferentColumn(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
@@ -105,8 +115,12 @@ export const useBoard = (boardId: string, columnId: string) => {
     isPending: isCreateCardPending,
     error: createNewCardError,
   } = useMutation({
-    mutationFn: async (card: Card) => {
-      return await BoardService.createNewCard({ card });
+    mutationFn: async (card: {
+      boardId: string;
+      columnId: string;
+      title: string;
+    }) => {
+      return await BoardService.createNewCard(card);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
@@ -129,6 +143,10 @@ export const useBoard = (boardId: string, columnId: string) => {
     updateColumnDetails,
     isUpdatePending,
     updateColumnDetailsError,
+
+    updateBoardDetail,
+    isUpdateBoardDetailPending,
+    updateBoardDetailError,
 
     deleteColumnDetails,
     isDeletePending,
