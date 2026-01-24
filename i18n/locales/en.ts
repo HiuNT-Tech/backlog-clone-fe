@@ -1,4 +1,8 @@
 const en = {
+  common: {
+    add: 'Add',
+    cancel: 'Cancel',
+  },
   appBar: {
     title: {
       dashboard: 'Dashboard',
@@ -23,6 +27,14 @@ const en = {
     },
     error: {
       userVerificationFailed: 'User verification failed',
+    },
+  },
+  column: {
+    addNewCard: {
+      popup: {
+        title: 'Add new Card',
+        placeholder: 'Enter card title',
+      },
     },
   },
 };

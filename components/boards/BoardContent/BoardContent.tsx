@@ -82,11 +82,32 @@ function BoardContent({
   const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] =
     useState<ColumnType | null>(null);
 
+  // Store callback data to invoke after state update completes
+  const [dragEndCallbackData, setDragEndCallbackData] = useState<{
+    cardId: string;
+    oldColumnId: string;
+    newColumnId: string;
+    columns: ColumnType[];
+  } | null>(null);
+
   const lastOverId = useRef<UniqueIdentifier | null>(null);
 
   useEffect(() => {
     setOrderedColumns(board.columns);
   }, [board]);
+
+  // Invoke moveCardToDifferentColumn callback after state update completes
+  useEffect(() => {
+    if (dragEndCallbackData && moveCardToDifferentColumn) {
+      moveCardToDifferentColumn(
+        dragEndCallbackData.cardId,
+        dragEndCallbackData.oldColumnId,
+        dragEndCallbackData.newColumnId,
+        dragEndCallbackData.columns
+      );
+      setDragEndCallbackData(null);
+    }
+  }, [dragEndCallbackData, moveCardToDifferentColumn]);
 
   // Find column by card ID
   const findColumnByCardId = (
@@ -170,13 +191,14 @@ function BoardContent({
         );
       }
 
-      if (triggerFrom === 'handleDragEnd' && moveCardToDifferentColumn) {
-        moveCardToDifferentColumn(
-          activeDraggingCardId as string,
-          oldColumnWhenDraggingCard?._id || '',
-          nextOverColumn?._id || '',
-          nextColumns
-        );
+      if (triggerFrom === 'handleDragEnd') {
+        // Store callback data to invoke after state update
+        setDragEndCallbackData({
+          cardId: activeDraggingCardId as string,
+          oldColumnId: oldColumnWhenDraggingCard?._id || '',
+          newColumnId: nextOverColumn?._id || '',
+          columns: nextColumns,
+        });
       }
 
       return nextColumns;
