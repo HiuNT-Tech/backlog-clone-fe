@@ -67,3 +67,24 @@ export interface CreateNewCardRequest {
   columnId: string;
   title: string;
 }
+
+// Auth Request/Response types
+export interface RegisterUserRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterUserResponse {
+  email: string;
+  _id: string;
+}
+
+export interface VerifyUserRequest {
+  email: string;
+  token: string;
+}
+
+export interface LoginUserRequest {
+  email: string;
+  password: string;
+}
