@@ -21,7 +21,6 @@ import { ConfigProvider } from 'antd';
 import theme from '@/lib/theme';
 import StyledComponentsRegistry from '@/lib/AntdRegistry';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import ClientProviders from '@/components/client-provider';
 
 import { Toaster } from '@/components/ui/toaster';
 
@@ -38,10 +37,8 @@ export default function RootLayout({
         <StyledComponentsRegistry>
           <ConfigProvider theme={theme}>
             <TooltipProvider>
-              <ClientProviders>
-                {children}
-                <Toaster />
-              </ClientProviders>
+              {children}
+              <Toaster />
             </TooltipProvider>
           </ConfigProvider>
         </StyledComponentsRegistry>

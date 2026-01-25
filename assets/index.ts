@@ -1,4 +1,3 @@
-
 import defaultAvatar from '@/assets/images/default-avatar.svg';
 import defaultAvatarFullFilled from '@/assets/images/default-avatar-full-filled.svg';
 import GrayImages from '@/assets/images/gray';
@@ -11,6 +10,9 @@ import IconHome from '@/assets/images/icon-home.svg';
 import IconCreate from '@/assets/images/icon-create.svg';
 import IconList from '@/assets/images/icon-list.svg';
 import IconBoard from '@/assets/images/icon-board.svg';
+import IconLock from '@/assets/images/icon-lock.svg';
+import IconTrello from '@/assets/images/icon-trello.svg';
+
 const Images = {
   defaultAvatar,
   defaultAvatarFullFilled,
@@ -23,7 +25,9 @@ const Images = {
   IconHome,
   IconCreate,
   IconList,
-  IconBoard
+  IconBoard,
+  IconLock,
+  IconTrello,
 };
 
 export default Images;

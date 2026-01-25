@@ -74,16 +74,4 @@ export const BoardService = {
     return (await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards`, card))
       .data;
   },
-
-  registerUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/register`, user)
-    ).data;
-  },
-
-  verifyUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return (
-      await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/verify`, user)
-    ).data;
-  },
 };
