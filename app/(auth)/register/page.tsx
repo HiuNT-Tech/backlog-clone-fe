@@ -10,12 +10,16 @@ import { Button } from '@/components/ui/button';
 import { RegisterUserRequest } from '@/config/interface';
 import { AuthService } from '@/lib/apis/auth';
 import { toastHelpers } from '@/hooks/use-toast';
-import { EMAIL_RULE, PASSWORD_RULE } from '@/utils/validators';
+import { registerFormSchema } from '@/validation/register-form-schemas';
 import Images from '@/assets';
+import z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface RegisterFormData extends RegisterUserRequest {
   passwordConfirmation: string;
 }
+
+type FormData = z.infer<typeof registerFormSchema>;
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -25,10 +29,15 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch,
-  } = useForm<RegisterFormData>();
+  } = useForm<FormData>({
+    resolver: zodResolver(registerFormSchema),
+  });
 
-  const submitRegister = async (data: RegisterFormData) => {
+  const getFieldError = (field: keyof FormData): string | undefined => {
+    return errors[field]?.message;
+  };
+
+  const onSubmit = async (data: RegisterFormData) => {
     try {
       const { email, password } = data;
       const response = await AuthService.registerUser({
@@ -45,8 +54,12 @@ export default function RegisterPage() {
     }
   };
 
+  const onError = (formErrors: typeof errors) => {
+    setTimeout(() => {}, 200);
+  };
+
   return (
-    <form onSubmit={handleSubmit(submitRegister)} className="w-full max-w-sm">
+    <form className="w-full max-w-sm">
       <div className="mt-24 mx-4 p-6 bg-white rounded-lg shadow-xl animate-in fade-in zoom-in duration-300">
         {/* Header Icons */}
         <div className="flex justify-center gap-2 mb-4">
@@ -80,51 +93,39 @@ export default function RegisterPage() {
           <Input
             type="text"
             placeholder={t('auth.register.emailLabel')}
-            error={errors.email?.message}
+            error={getFieldError('email')}
             {...register('email', {
-              required: t('validation.fieldRequired'),
-              pattern: {
-                value: EMAIL_RULE,
-                message: t('validation.emailInvalid'),
-              },
+              setValueAs: (value: string) => value?.trim() || '',
             })}
+            disabled={isSubmitting}
           />
 
           <Input
             type="password"
             placeholder={t('auth.register.passwordLabel')}
-            error={errors.password?.message}
+            error={getFieldError('password')}
             {...register('password', {
-              required: t('validation.fieldRequired'),
-              pattern: {
-                value: PASSWORD_RULE,
-                message: t('validation.passwordRule'),
-              },
+              setValueAs: (value: string) => value?.trim() || '',
             })}
+            disabled={isSubmitting}
           />
 
           <Input
             type="password"
             placeholder={t('auth.register.confirmPasswordLabel')}
-            error={errors.passwordConfirmation?.message}
+            error={getFieldError('passwordConfirmation')}
             {...register('passwordConfirmation', {
-              validate: (value: string) => {
-                if (value === watch('password')) return true;
-                return t('validation.passwordConfirmation');
-              },
-              pattern: {
-                value: PASSWORD_RULE,
-                message: t('validation.passwordRule'),
-              },
+              setValueAs: (value: string) => value?.trim() || '',
             })}
+            disabled={isSubmitting}
           />
         </div>
 
         {/* Submit Button */}
         <Button
-          type="submit"
           disabled={isSubmitting}
           className="w-full mt-6 bg-theme-main hover:bg-theme-hover text-white interceptor-loading"
+          onClick={handleSubmit(onSubmit, onError)}
         >
           {t('auth.register.submitButton')}
         </Button>

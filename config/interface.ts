@@ -88,3 +88,13 @@ export interface LoginUserRequest {
   email: string;
   password: string;
 }
+
+export interface LoginUserResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    _id: string;
+    email: string;
+    displayName?: string;
+  };
+}

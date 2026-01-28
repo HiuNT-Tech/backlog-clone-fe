@@ -24,6 +24,7 @@ const en = {
   toast: {
     success: {
       userVerified: 'User verified successfully',
+      userLoggedIn: 'Logged in successfully! Welcome back!',
     },
     error: {
       userVerificationFailed: 'User verification failed',
@@ -73,7 +74,7 @@ const en = {
   },
   validation: {
     fieldRequired: 'This field is required.',
-    emailInvalid: 'Email is invalid. (example@trungquandev.com)',
+    email: 'Email is invalid. (example@gmail.com)',
     passwordRule:
       'Password must include at least 1 letter, a number, and at least 8 characters.',
     passwordConfirmation: 'Password Confirmation does not match!',

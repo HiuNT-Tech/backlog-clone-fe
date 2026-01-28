@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { LoginUserRequest } from '@/config/interface';
 import { useRouter } from 'next/navigation';
 import { EMAIL_RULE, PASSWORD_RULE } from '@/utils/validators';
+import { AuthService } from '@/lib/apis/auth';
+import { toastHelpers } from '@/hooks/use-toast';
 import Images from '@/assets';
 
 function LoginForm() {
@@ -24,12 +26,23 @@ function LoginForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginUserRequest>();
 
-  const submitLogin = (data: LoginUserRequest) => {
-    console.log('Login data:', data);
-    // TODO: Implement login API call
+  const submitLogin = async (data: LoginUserRequest) => {
+    try {
+      const { email, password } = data;
+      await AuthService.loginUser({
+        user: { email, password },
+      });
+
+      toastHelpers.success({
+        description: t('toast.success.userLoggedIn'),
+      });
+      router.push('/boards');
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
 
   return (
@@ -107,6 +120,7 @@ function LoginForm() {
         {/* Submit Button */}
         <Button
           type="submit"
+          disabled={isSubmitting}
           className="w-full mt-6 bg-theme-main hover:bg-theme-hover text-white interceptor-loading"
         >
           {t('auth.login.submitButton')}
