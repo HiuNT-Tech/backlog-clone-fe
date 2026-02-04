@@ -11,16 +11,19 @@ import { Button } from '@/components/ui/button';
 import { LoginUserRequest } from '@/config/interface';
 import { useRouter } from 'next/navigation';
 import { EMAIL_RULE, PASSWORD_RULE } from '@/utils/validators';
-import { AuthService } from '@/lib/apis/auth';
 import { toastHelpers } from '@/hooks/use-toast';
 import Images from '@/assets';
+import { useAppDispatch } from '@/redux/hooks';
+import { loginUserAPI } from '@/redux/user/userSlice';
 
 function LoginForm() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const registeredEmail = searchParams.get('registeredEmail');
   const verifiedEmail = searchParams.get('verifiedEmail');
+  const redirectUrl = searchParams.get('redirect');
 
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const {
@@ -31,18 +34,17 @@ function LoginForm() {
 
   const submitLogin = async (data: LoginUserRequest) => {
     try {
-      const { email, password } = data;
-      await AuthService.loginUser({
-        user: { email, password },
-      });
+      await dispatch(loginUserAPI(data)).unwrap();
 
       toastHelpers.success({
         description: t('toast.success.userLoggedIn'),
       });
-      router.push('/boards');
-    } catch (error) {
-      console.error('Login error:', error);
-    }
+
+      // Redirect to the original destination or default to board
+      const destination =
+        redirectUrl || '/board?boardId=6957793c6042bc901f2a1c46';
+      router.push(destination);
+    } catch (error) {}
   };
 
   return (

@@ -27,6 +27,7 @@ const en = {
       userLoggedIn: 'Logged in successfully! Welcome back!',
     },
     error: {
+      userLoginFailed: 'User login failed',
       userVerificationFailed: 'User verification failed',
     },
   },

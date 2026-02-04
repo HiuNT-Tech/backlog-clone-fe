@@ -1,3 +1,4 @@
+#!/bin/sh
 echo "🔍 Checking commit message format..."
 
 # Use commitlint to validate commit message

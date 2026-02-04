@@ -34,7 +34,7 @@ export const menuItems = [
   {
     titleKey: 'sidebar.board',
     icon: Images.IconBoard,
-    href: '/board',
+    href: '/board?boardId=6957793c6042bc901f2a1c46',
   },
 ];
 
