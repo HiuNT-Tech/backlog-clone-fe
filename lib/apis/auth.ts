@@ -11,17 +11,34 @@ export const AuthService = {
 
   verifyUser: async ({ user }: { user: Record<string, unknown> }) => {
     return (
-      await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/verify`, user)
+      await authorizedAxiosInstance.post(
+        `${API_ROOT}/v1/users/verify-account`,
+        user
+      )
     ).data;
   },
 
-  loginUser: async ({
-    user,
-  }: {
-    user: LoginUserRequest;
-  }): Promise<LoginUserResponse> => {
+  loginUser: async (user: LoginUserRequest): Promise<LoginUserResponse> => {
     return (
       await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/login`, user)
     ).data;
+  },
+
+  checkAuth: async (): Promise<{
+    authenticated: boolean;
+    user?: LoginUserResponse['user'];
+  }> => {
+    try {
+      const response = await authorizedAxiosInstance.get(
+        `${API_ROOT}/v1/users/me`
+      );
+      return { authenticated: true, user: response.data };
+    } catch (error) {
+      return { authenticated: false };
+    }
+  },
+
+  logout: async (): Promise<void> => {
+    await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/logout`);
   },
 };

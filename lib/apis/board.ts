@@ -3,7 +3,6 @@ import { API_ROOT } from '@/utils/constants';
 import {
   Board,
   BoardListResponse,
-  Card,
   CreateNewColumnRequest,
   MoveCardToDifferentColumnRequest,
   UpdateColumnDetailsRequest,

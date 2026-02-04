@@ -25,7 +25,6 @@ function VerifyContent() {
             description: t('toast.success.userVerified'),
           });
         } catch (error) {
-          console.error('Verification error:', error);
           toastHelpers.error({
             description: t('toast.error.userVerificationFailed'),
           });
@@ -36,13 +35,6 @@ function VerifyContent() {
 
     verifyAccount();
   }, [email, token, router, t]);
-
-  // Redirect to 404 if no email or token
-  useEffect(() => {
-    if (!email || !token) {
-      router.push('/404');
-    }
-  }, [email, token, router]);
 
   // Redirect to login after verification
   useEffect(() => {
