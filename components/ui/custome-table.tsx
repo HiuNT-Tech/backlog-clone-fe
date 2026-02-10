@@ -39,18 +39,18 @@ export interface CustomTableProps<T = any> {
 
   // Pagination props
   pagination?:
-  | {
-    current: number;
-    total: number;
-    pageSize: number;
-    showSizeChanger?: boolean;
-    showQuickJumper?: boolean;
-    showTotal?: boolean;
-    rightAreaRender?: () => React.ReactNode;
-    onChange?: (page: number, pageSize?: number) => void;
-    onShowSizeChange?: (size: number) => void;
-  }
-  | false;
+    | {
+        current: number;
+        total: number;
+        pageSize: number;
+        showSizeChanger?: boolean;
+        showQuickJumper?: boolean;
+        showTotal?: boolean;
+        rightAreaRender?: () => React.ReactNode;
+        onChange?: (page: number, pageSize?: number) => void;
+        onShowSizeChange?: (size: number) => void;
+      }
+    | false;
 
   // Loading and error states
   emptyText?: React.ReactNode;
@@ -200,7 +200,7 @@ const CustomTable = <T extends Record<string, any>>({
       ...columns,
       {
         key: 'actions',
-        title: t('table.actions.title'),
+        title: t('common.actions'),
         minWidth: '60px',
         align: 'center' as const,
         render: (value: any, record: T, index: number) => (
@@ -257,8 +257,6 @@ const CustomTable = <T extends Record<string, any>>({
     () => hasNestedColumns(computedColumns),
     [computedColumns]
   );
-
-
 
   const perPageOptions = React.useMemo(() => [10, 15, 20], []);
 
@@ -380,7 +378,6 @@ const CustomTable = <T extends Record<string, any>>({
                 </>
               ) : (
                 <tr>
-
                   {computedColumns.map((column, index) => (
                     <th
                       key={column.key}
@@ -420,25 +417,19 @@ const CustomTable = <T extends Record<string, any>>({
             >
               {loading && dataSource.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={flattenedColumns.length}
-                  >
+                  <td colSpan={flattenedColumns.length}>
                     <TableLoading text={loadingText} />
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td
-                    colSpan={flattenedColumns.length}
-                  >
+                  <td colSpan={flattenedColumns.length}>
                     <TableError text={errorText} onRetry={onRetry} />
                   </td>
                 </tr>
               ) : dataSource.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={flattenedColumns.length}
-                  >
+                  <td colSpan={flattenedColumns.length}>
                     <TableEmpty
                       text={emptyText || t('common.noMatchingResults')}
                     />
@@ -463,7 +454,6 @@ const CustomTable = <T extends Record<string, any>>({
                       onDoubleClick={rowProps.onDoubleClick}
                       onContextMenu={rowProps.onContextMenu}
                     >
-
                       {flattenedColumns.map((column, colIndex) => {
                         const value = column.dataIndex
                           ? record[column.dataIndex]
@@ -513,7 +503,7 @@ const CustomTable = <T extends Record<string, any>>({
               onPageChange={page =>
                 pagination.onChange?.(page, pagination.pageSize)
               }
-              onItemsPerPageChange={pagination?.onShowSizeChange || (() => { })}
+              onItemsPerPageChange={pagination?.onShowSizeChange || (() => {})}
             />
           </div>
         )}

@@ -24,17 +24,22 @@ export const menuItems = [
   {
     titleKey: 'sidebar.addIssue',
     icon: Images.IconCreate,
-    href: '#2',
+    href: '/add-issue',
   },
   {
     titleKey: 'sidebar.issue',
     icon: Images.IconList,
-    href: '#3',
+    href: '/issues',
   },
   {
     titleKey: 'sidebar.board',
     icon: Images.IconBoard,
-    href: '/board?boardId=6957793c6042bc901f2a1c46',
+    href: '/board',
+  },
+  {
+    titleKey: 'sidebar.settings',
+    icon: Images.IconSetting,
+    href: '/settings',
   },
 ];
 
