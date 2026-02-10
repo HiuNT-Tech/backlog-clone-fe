@@ -24,20 +24,6 @@ export const AuthService = {
     ).data;
   },
 
-  checkAuth: async (): Promise<{
-    authenticated: boolean;
-    user?: LoginUserResponse['user'];
-  }> => {
-    try {
-      const response = await authorizedAxiosInstance.get(
-        `${API_ROOT}/v1/users/me`
-      );
-      return { authenticated: true, user: response.data };
-    } catch (error) {
-      return { authenticated: false };
-    }
-  },
-
   logout: async (): Promise<void> => {
     await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/logout`);
   },
