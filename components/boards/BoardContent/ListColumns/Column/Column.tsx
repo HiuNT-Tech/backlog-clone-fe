@@ -7,7 +7,9 @@ import { CSS } from '@dnd-kit/utilities';
 import ListCards from './ListCards/ListCards';
 import type { Column as ColumnType } from '@/config/interface';
 import { Plus } from 'lucide-react';
-import AddNewCardPopup from '@/components/shared/popup/AddNewCardPopup';
+import AddNewCardPopup, {
+  type CardFormData,
+} from '@/components/shared/popup/AddNewCardPopup';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectCurrentActiveBoard,
@@ -48,13 +50,13 @@ function Column({ column }: ColumnProps) {
 
   const orderedCards = column.cards;
 
-  const handleAddCardConfirm = async (title: string) => {
+  const handleAddCardConfirm = async (cardData: CardFormData) => {
     if (!board) return;
 
     try {
       // 1. Call API to create a new card
       const createdCard = await BoardService.createNewCard({
-        title,
+        title: cardData.title,
         columnId: column._id,
         boardId: board._id,
       });
