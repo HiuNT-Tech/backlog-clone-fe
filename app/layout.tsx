@@ -22,6 +22,8 @@ import theme from '@/lib/theme';
 import StyledComponentsRegistry from '@/lib/AntdRegistry';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
+import StoreProvider from '@/redux/StoreProvider';
+
 import { Toaster } from '@/components/ui/toaster';
 
 export default function RootLayout({
@@ -34,14 +36,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <StyledComponentsRegistry>
-          <ConfigProvider theme={theme}>
-            <TooltipProvider>
-              {children}
-              <Toaster />
-            </TooltipProvider>
-          </ConfigProvider>
-        </StyledComponentsRegistry>
+        <StoreProvider>
+          <StyledComponentsRegistry>
+            <ConfigProvider theme={theme}>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+              </TooltipProvider>
+            </ConfigProvider>
+          </StyledComponentsRegistry>
+        </StoreProvider>
       </body>
     </html>
   );

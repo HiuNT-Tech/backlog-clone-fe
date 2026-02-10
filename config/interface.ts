@@ -5,7 +5,6 @@ export interface Card {
   boardId: string;
   columnId: string;
   title?: string;
-  description?: string | null;
   cover?: string | null;
   memberIds?: string[];
   comments?: string[];
@@ -90,11 +89,13 @@ export interface LoginUserRequest {
 }
 
 export interface LoginUserResponse {
+  _id: string;
+  email: string;
+  username: string;
+  displayName: string;
+  avatar: string | null;
+  role: string;
+  isActive: boolean;
   accessToken: string;
   refreshToken: string;
-  user: {
-    _id: string;
-    email: string;
-    displayName?: string;
-  };
 }

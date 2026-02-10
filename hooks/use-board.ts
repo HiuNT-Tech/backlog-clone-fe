@@ -14,17 +14,6 @@ export const useBoard = (boardId: string, columnId: string) => {
   const queryClient = useQueryClient();
 
   const {
-    data: board,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ['board', boardId],
-    queryFn: () => BoardService.getBoard(),
-    enabled: !!boardId,
-  });
-
-  const {
     mutateAsync: createNewColumn,
     isPending: isCreatePending,
     error: createNewColumnError,
@@ -131,11 +120,6 @@ export const useBoard = (boardId: string, columnId: string) => {
   });
 
   return {
-    board,
-    isLoading,
-    error,
-    refetch,
-
     createNewColumn,
     isCreatePending,
     createNewColumnError,
