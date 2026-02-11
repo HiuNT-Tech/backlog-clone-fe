@@ -15,6 +15,7 @@ interface ClientProvidersProps {
 // Lazy import layout components
 import { Sidebar } from './layout/sidebar';
 import { Header } from './layout/header';
+import { ModalConfirmInstance } from './modal/static-method-confirm';
 
 export default function ClientProviders({
   children,
@@ -29,6 +30,7 @@ export default function ClientProviders({
             <Sidebar />
             {children}
           </div>
+          <ModalConfirmInstance />
         </QueryClientProvider>
       </Provider>
     );
@@ -36,7 +38,10 @@ export default function ClientProviders({
 
   return (
     <Provider store={store}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <ModalConfirmInstance />
+      </QueryClientProvider>
     </Provider>
   );
 }

@@ -12,7 +12,10 @@ import IconList from '@/assets/images/icon-list.svg';
 import IconBoard from '@/assets/images/icon-board.svg';
 import IconLock from '@/assets/images/icon-lock.svg';
 import IconTrello from '@/assets/images/icon-trello.svg';
-
+import IconSetting from '@/assets/images/icon-setting.svg';
+import FlagVN from '@/assets/images/flag-vn.svg';
+import FlagUSA from '@/assets/images/flag-usa.svg';
+import IconTrash from '@/assets/images/icon-trash.svg';
 const Images = {
   defaultAvatar,
   defaultAvatarFullFilled,
@@ -28,6 +31,10 @@ const Images = {
   IconBoard,
   IconLock,
   IconTrello,
+  IconSetting,
+  FlagVN,
+  FlagUSA,
+  IconTrash,
 };
 
 export default Images;

@@ -70,7 +70,6 @@ function ListColumns({ columns }: ListColumnsProps) {
           <Column key={column._id} column={column} />
         ))}
 
-        {/* Add new column CTA */}
         {!openNewColumnForm ? (
           <div
             onClick={toggleOpenNewColumnForm}
@@ -81,7 +80,7 @@ function ListColumns({ columns }: ListColumnsProps) {
               icon={<Plus className="h-4 w-4" />}
               className="w-full justify-start text-theme-neutral-1 hover:text-theme-neutral-1 py-4 pl-4"
             >
-              {t('board.addNewColumn', { defaultValue: 'Add new column' })}
+              {t('column.addNewColumn')}
             </Button>
           </div>
         ) : (

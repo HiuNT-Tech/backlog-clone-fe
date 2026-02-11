@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import type React from 'react';
 import {
   forwardRef,
@@ -7,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { Select as AntdSelect } from 'antd';
 import { cn } from '@/lib/utils';
 
 type NativeOnChange = React.ChangeEventHandler<HTMLSelectElement>;
@@ -14,17 +14,18 @@ type ValueOnChange = (value: string, option?: SelectOption) => void;
 
 export interface SelectOption {
   value: string;
-  label: string;
+  label: React.ReactNode;
   className?: string;
   disabled?: boolean;
 }
 
 export interface SelectProps extends Omit<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  'onChange' | 'value'
+  React.HTMLAttributes<HTMLDivElement>,
+  'onChange' | 'defaultValue'
 > {
   label?: string;
   error?: string;
+  showSearch?: boolean;
   options: SelectOption[];
   notShowErrorMessage?: boolean;
   required?: boolean;
@@ -36,11 +37,14 @@ export interface SelectProps extends Omit<
   allowClear?: boolean;
   onChange?: NativeOnChange;
   onValueChange?: ValueOnChange;
+  onFocus?: React.FocusEventHandler<HTMLDivElement>;
+  onBlur?: React.FocusEventHandler<HTMLDivElement>;
 }
 
 const Select = forwardRef<HTMLInputElement, SelectProps>(
   (
     {
+      showSearch = false,
       className,
       label,
       error,
@@ -54,26 +58,17 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       defaultValue,
       disabled,
       placeholder,
-      allowClear = false,
       onFocus,
       onBlur,
-      ...props
+      allowClear = true,
     },
     ref
   ) => {
-    const [open, setOpen] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
     const [internalValue, setInternalValue] = useState(
       (value as string | undefined) ??
         (defaultValue as string | undefined) ??
         ''
     );
-    const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>(
-      'bottom'
-    );
-    const [searchTerm, setSearchTerm] = useState('');
-    const triggerRef = useRef<HTMLDivElement | null>(null);
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
     const hiddenInputRef = useRef<HTMLInputElement | null>(null);
 
     useImperativeHandle(ref, () => hiddenInputRef.current as HTMLInputElement);
@@ -84,91 +79,15 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       }
     }, [value]);
 
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as Node;
-        if (
-          triggerRef.current?.contains(target) ||
-          dropdownRef.current?.contains(target)
-        ) {
-          return;
-        }
-        setOpen(false);
-      };
-
-      if (open) {
-        if (triggerRef.current) {
-          const rect = triggerRef.current.getBoundingClientRect();
-          const viewportHeight = window.innerHeight;
-          const estimatedItemHeight = 40; // px per option
-          const maxDropdownHeight = 240; // max-h-60 ~ 15rem
-          const estimatedDropdownHeight = Math.min(
-            options.length * estimatedItemHeight,
-            maxDropdownHeight
-          );
-
-          const spaceBelow = viewportHeight - rect.bottom;
-          const spaceAbove = rect.top;
-
-          if (spaceBelow < estimatedDropdownHeight && spaceAbove > spaceBelow) {
-            setDropdownPosition('top');
-          } else {
-            setDropdownPosition('bottom');
-          }
-        }
-
-        document.addEventListener('mousedown', handleClickOutside);
-      }
-
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }, [open]);
-
-    const selectedOption = options.find(opt => opt.value === internalValue);
-
-    const handleSelect = (option: SelectOption) => {
-      setInternalValue(option.value);
-      onValueChange?.(option.value, option);
-
+    const triggerNativeChange = (nextValue: string) => {
       if (onChange) {
         const syntheticEvent = {
           target: {
-            value: option.value,
+            value: nextValue,
             name,
           } as unknown as HTMLSelectElement,
           currentTarget: {
-            value: option.value,
-            name,
-          } as unknown as HTMLSelectElement,
-        } as React.ChangeEvent<HTMLSelectElement>;
-
-        onChange(syntheticEvent);
-      }
-
-      setOpen(false);
-    };
-
-    const handleTriggerFocus = (event: React.FocusEvent<HTMLButtonElement>) => {
-      onFocus?.(event);
-    };
-
-    const handleTriggerBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
-      onBlur?.(event);
-    };
-
-    const handleClear = (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      setInternalValue('');
-      onValueChange?.('', undefined);
-
-      if (onChange) {
-        const syntheticEvent = {
-          target: {
-            value: '',
-            name,
-          } as unknown as HTMLSelectElement,
-          currentTarget: {
-            value: '',
+            value: nextValue,
             name,
           } as unknown as HTMLSelectElement,
         } as React.ChangeEvent<HTMLSelectElement>;
@@ -177,7 +96,14 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       }
     };
 
-    const showClearIcon = allowClear && isHovered && internalValue && !disabled;
+    const handleAntdChange = (nextValue: string) => {
+      setInternalValue(nextValue ?? '');
+      const selectedOption = options.find(
+        opt => opt.value === (nextValue ?? '')
+      );
+      onValueChange?.(nextValue ?? '', selectedOption);
+      triggerNativeChange(nextValue ?? '');
+    };
 
     return (
       <div className="space-y-1">
@@ -188,76 +114,35 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
           </label>
         )}
 
-        <div className={cn('relative', { 'mt-1': !!label })} ref={triggerRef}>
-          <button
-            type="button"
+        <div className={cn('relative', { 'mt-1': !!label })}>
+          <AntdSelect
             className={cn(
-              'flex h-10 w-full items-center justify-between rounded-lg border px-3 text-left text-sm transition-all duration-200',
-              'bg-theme-neutral-2 text-theme-neutral-11',
-              'focus:outline-none',
-              disabled && 'cursor-not-allowed opacity-50',
-              error ? 'border-red-500 error-class' : 'border-theme-neutral-5',
+              'w-full',
+              'h-10 rounded-md border border-theme-neutral-5 bg-theme-neutral-2 px-3 shadow-none  text-theme-neutral-11 items-center',
+              '[&_.ant-select-selector]:h-10! [&_.ant-select-selector]:rounded-md! [&_.ant-select-selector]:border-theme-neutral-5!',
+              '[&_.ant-select-selector]:bg-theme-neutral-2! [&_.ant-select-selector]:px-3!',
+              '[&_.ant-select-selector]:shadow-none! [&_.ant-select-selection-placeholder]:text-theme-neutral-6!',
+              '[&_.ant-select-selection-item]:text-theme-neutral-11!',
+              '[&_.ant-select-selector]:items-center!',
+              error && '[&_.ant-select-selector]:border-red-500! error-class',
               className
             )}
-            onClick={() => !disabled && setOpen(prev => !prev)}
-            onFocus={handleTriggerFocus}
-            onBlur={handleTriggerBlur}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            aria-haspopup="listbox"
-            aria-expanded={open}
-            {...props}
-          >
-            <span
-              className={cn(
-                'flex-1 truncate text-theme-neutral-11',
-                !selectedOption && 'text-theme-neutral-6'
-              )}
-            >
-              {selectedOption?.label ?? placeholder ?? ''}
-            </span>
-            {showClearIcon ? (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-theme-neutral-6 text-white hover:bg-theme-neutral-7 transition-colors"
-                aria-label="Clear selection"
-              >
-                <svg
-                  className="h-2.5 w-2.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            ) : (
-              <svg
-                className={cn(
-                  'h-4 w-4 text-theme-neutral-7 transition-transform duration-200',
-                  open && 'rotate-180'
-                )}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            )}
-          </button>
+            value={internalValue || undefined}
+            defaultValue={defaultValue}
+            options={options}
+            placeholder={placeholder}
+            disabled={disabled}
+            onChange={handleAntdChange}
+            showSearch={showSearch}
+            onClear={() => {
+              setInternalValue('');
+              onValueChange?.('', undefined);
+              triggerNativeChange('');
+            }}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            allowClear={allowClear}
+          />
 
           <input
             ref={hiddenInputRef}
@@ -267,60 +152,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             hidden
             aria-hidden="true"
           />
-
-          {open && (
-            <div
-              ref={dropdownRef}
-              className={cn(
-                'absolute z-50 w-full rounded-lg border border-theme-neutral-4 bg-theme-neutral-1 shadow-lg',
-                'animate-in fade-in-0 zoom-in-95',
-                dropdownPosition === 'bottom'
-                  ? 'mt-1 top-full'
-                  : 'mb-1 bottom-full'
-              )}
-            >
-              <div className="max-h-60 overflow-auto py-1">
-                {options.map(option => {
-                  const isSelected = option.value === internalValue;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleSelect(option)}
-                      disabled={option.disabled}
-                      className={cn(
-                        'flex w-full items-start justify-between px-3 py-2 text-left text-sm transition-colors',
-                        'hover:bg-theme-main-1/50',
-                        option.className,
-                        isSelected &&
-                          'bg-theme-main text-theme-neutral-1 font-semibold hover:bg-theme-main',
-                        option.disabled && 'opacity-50 cursor-default'
-                      )}
-                      role="option"
-                      aria-selected={isSelected}
-                    >
-                      <span className="flex-1">{option.label}</span>
-                      {isSelected && (
-                        <svg
-                          className="ml-2 h-4 w-4 text-theme-main"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
-
         {error && !notShowErrorMessage && (
           <p className="text-sm text-red-500">{error}</p>
         )}

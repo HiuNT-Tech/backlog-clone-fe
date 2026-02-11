@@ -18,7 +18,7 @@ function BoardPageContent() {
   const dispatch = useDispatch<AppDispatch>();
   const board = useSelector(selectCurrentActiveBoard) as Board | null;
   const searchParams = useSearchParams();
-  const boardId = searchParams.get('boardId');
+  const boardId = '6957793c6042bc901f2a1c46';
 
   // Use the hook to get mutation functions
   const {
