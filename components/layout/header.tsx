@@ -7,9 +7,10 @@ import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from 'antd';
+import { Dropdown, type MenuProps, Select } from 'antd';
 import { Title } from '@/components/ui/title';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 
 const LANGUAGE_OPTIONS = [
   {
@@ -51,7 +52,7 @@ export function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
+  const { logout } = useAuth();
   const langFromUrl = searchParams.get('lang');
   const currentLang =
     langFromUrl && SUPPORTED_LANGS.includes(langFromUrl)
@@ -78,8 +79,32 @@ export function Header() {
 
     router.push(`${pathname}?${params.toString()}`);
   };
+
+  const handleUserMenuClick: MenuProps['onClick'] = async ({ key }) => {
+    if (key === 'personalSettings') {
+      router.push('/settings');
+    }
+    if (key === 'logout') {
+      await logout();
+    }
+  };
+
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'personalSettings',
+      label: t('appBar.userMenu.personalSettings'),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      label: t('appBar.userMenu.logout'),
+    },
+  ];
+
   return (
-    <div className="bg-theme-header flex justify-between overflow-auto sticky top-0 z-10">
+    <div className="bg-theme-header flex justify-between sticky top-0 z-10">
       <div className="flex gap-3 items-center p-3">
         <button className="px-2">
           <Image src={Images.IconDashboard} alt="logo" width={24} height={24} />
@@ -104,17 +129,25 @@ export function Header() {
             options={LANGUAGE_OPTIONS}
             value={currentLang}
             onChange={value => handleChangeLanguage(value)}
-            allowClear
           />
         </div>
-        <Button className="w-10 h-10 p-0 rounded-full bg-theme-neutral-1 hover:bg-theme-neutral-2 border border-theme-neutral-5">
-          <Image
-            src={Images.defaultAvatar}
-            alt="avatar"
-            width={24}
-            height={24}
-          />
-        </Button>
+        <Dropdown
+          menu={{ items: userMenuItems, onClick: handleUserMenuClick }}
+          trigger={['click']}
+          placement="bottomRight"
+        >
+          <Button
+            type="button"
+            className="w-10 h-10 p-0 rounded-full bg-theme-neutral-1 hover:bg-theme-neutral-2 border border-theme-neutral-5 cursor-pointer"
+          >
+            <Image
+              src={Images.defaultAvatar}
+              alt="avatar"
+              width={24}
+              height={24}
+            />
+          </Button>
+        </Dropdown>
       </div>
     </div>
   );

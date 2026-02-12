@@ -1,26 +1,38 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
 import { toastHelpers } from '@/hooks/use-toast';
 import { Column } from '@/config/interface';
+import type { ColorStatusKey } from '@/constant/data';
 
-interface CreateColumnInput {
-  boardId: string;
-  title: string;
-}
+const DEFAULT_BOARD_ID = '6957793c6042bc901f2a1c46';
 
-export const useColumn = (boardId: string) => {
+export const useColumn = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const {
+    data: columns = [],
+    isLoading: isLoadingList,
+    error: listError,
+  } = useQuery({
+    queryKey: ['columns'],
+    queryFn: () => BoardService.getColumns(),
+  });
+
   const {
     mutateAsync: createNewColumn,
     isPending: isCreatePending,
     error: createNewColumnError,
   } = useMutation({
-    mutationFn: async (input: CreateColumnInput): Promise<Column> => {
+    mutationFn: async (input: {
+      title: string;
+      statusColor: number;
+      selectedColorKey: ColorStatusKey;
+    }): Promise<Column> => {
       return await BoardService.createNewColumn({
-        boardId,
-        column: input as Column,
+        boardId: DEFAULT_BOARD_ID,
+        title: input.title,
+        statusColor: input.statusColor,
       });
     },
     onSuccess: () => {
@@ -31,9 +43,33 @@ export const useColumn = (boardId: string) => {
     },
   });
 
+  const {
+    mutateAsync: deleteColumn,
+    isPending: isDeletePending,
+    error: deleteColumnError,
+  } = useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      return await BoardService.deleteColumn(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['columns'] });
+    },
+    onError: () => {
+      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
+    },
+  });
+
   return {
-    createNewColumn,
-    isCreatePending,
-    createNewColumnError,
+    columns: columns,
+    isLoadingList: isLoadingList,
+    listError: listError,
+
+    createNewColumn: createNewColumn,
+    isCreatePending: isCreatePending,
+    createNewColumnError: createNewColumnError,
+
+    deleteColumn: deleteColumn,
+    isDeletePending: isDeletePending,
+    deleteColumnError: deleteColumnError,
   };
 };

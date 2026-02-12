@@ -3,42 +3,41 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
-import type { IssueType } from '@/config/interface';
+import { Column } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
-import { useIssueType } from '@/hooks/use-issue-type';
+import { useColumn } from '@/hooks/use-column';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 
-export const IssueTypesTable: React.FC = () => {
+export const StatusesTable: React.FC = () => {
   const { t } = useTranslation();
-  const { issueTypes, isLoadingList } = useIssueType();
-  const { deleteIssueType, isDeletePending } = useIssueType();
+  const { columns: columnList, isLoadingList, deleteColumn } = useColumn();
 
-  const columns = useMemo<TableColumn<IssueType>[]>(
+  const columns = useMemo<TableColumn<Column>[]>(
     () => [
       {
-        key: 'type',
+        key: 'title',
         title: t('settings.issueTypes.table.type'),
-        dataIndex: 'name',
-        render: (_value, record) => record?.name ?? '—',
+        dataIndex: 'title',
+        render: (_value, record) => record?.title ?? '—',
         minWidth: 300,
       },
       {
         key: 'issues',
         title: t('settings.issueTypes.table.issues'),
         align: 'center',
-        render: () => '—',
+        render: (_value, record) => record?.cardOrderIds?.length ?? 0,
       },
     ],
     [t]
   );
 
-  const handleDelete = async (record: IssueType) => {
+  const handleDelete = async (record: Column) => {
     staticMethodConfirm.open({
       content: t('settings.issueTypes.deleteModal.content', {
-        name: record?.name ?? '—',
+        name: record?.title ?? '—',
       }),
       onOk: () => {
-        deleteIssueType(record?._id);
+        deleteColumn(record?._id);
       },
     });
   };
@@ -47,7 +46,7 @@ export const IssueTypesTable: React.FC = () => {
     <CustomTable
       rowKey="_id"
       columns={columns}
-      dataSource={issueTypes}
+      dataSource={columnList}
       loading={isLoadingList}
       emptyText={t('settings.issueTypes.table.empty')}
       actions={[

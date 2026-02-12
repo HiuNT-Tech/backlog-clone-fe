@@ -5,39 +5,13 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  VersionTable,
-  type VersionResponse,
-} from '@/components/shared/tables/VersionTable';
+import { VersionTable } from '@/components/shared/tables/VersionTable';
+import { VersionForm } from '@/components/shared/forms/VersionForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
-import dayjs from 'dayjs';
-import { DatePicker } from '@/components/ui/date-picker';
-
-const INITIAL_VERSIONS: VersionResponse[] = [
-  {
-    id: '1',
-    name: 'Version 1',
-    startDate: '2026-01-01',
-    endDate: '2026-01-01',
-    description: 'Description of Version 1',
-  },
-  {
-    id: '2',
-    name: 'Version 2',
-    startDate: '2026-01-01',
-    endDate: '2026-01-01',
-    description: 'Description of Version 2',
-  },
-  {
-    id: '3',
-    name: 'Version 3',
-    startDate: '2026-01-01',
-    endDate: '2026-01-01',
-    description: 'Description of Version 3',
-  },
-];
+import { useVersion } from '@/hooks/use-version';
+import { toastHelpers } from '@/hooks/use-toast';
+import type { Version } from '@/config/interface';
+import type { CreateVersionFormData } from '@/validation/version-form-schema';
 
 export const VersionsTab: React.FC = () => {
   const { t } = useTranslation();
@@ -45,61 +19,90 @@ export const VersionsTab: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const { versions, isLoadingList } = useVersion();
+  const {
+    createNewVersion,
+    updateVersion,
+    deleteVersion,
+    isCreatePending,
+    isUpdatePending,
+  } = useVersion();
+
   const isCreateModeFromUrl = searchParams.get('versionsMode') === 'create';
   const [isCreatingVersion, setIsCreatingVersion] =
     useState(isCreateModeFromUrl);
+  const [editingVersion, setEditingVersion] = useState<Version | null>(null);
+
+  const isFormOpen = isCreatingVersion || editingVersion !== null;
 
   useEffect(() => {
     setIsCreatingVersion(isCreateModeFromUrl);
+    if (isCreateModeFromUrl) setEditingVersion(null);
   }, [isCreateModeFromUrl]);
-  const [versionName, setVersionName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [description, setDescription] = useState('');
 
-  const handleResetVersionForm = () => {
-    setVersionName('');
-    setStartDate('');
-    setEndDate('');
-    setDescription('');
-  };
-
-  const handleSubmitVersion = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Integrate with API to save version
-    handleResetVersionForm();
+  const handleCloseForm = () => {
     replaceWithUpdatedSearchParams(router, pathname, searchParams, params => {
       params.set('tab', 'versions');
       params.delete('versionsMode');
     });
     setIsCreatingVersion(false);
+    setEditingVersion(null);
   };
 
-  if (isCreatingVersion) {
+  const handleSubmitVersion = async (data: CreateVersionFormData) => {
+    const payload = {
+      name: data.name.trim(),
+      startDate: data.startDate?.trim() || undefined,
+      endDate: data.endDate?.trim() || undefined,
+      description: data.description?.trim() || undefined,
+    };
+
+    try {
+      if (editingVersion) {
+        await updateVersion({ id: editingVersion._id, payload });
+        toastHelpers.success({
+          title: t('settings.versions.updateSuccess'),
+        });
+      } else {
+        await createNewVersion(payload);
+        toastHelpers.success({
+          title: t('settings.versions.createSuccess'),
+        });
+      }
+      handleCloseForm();
+    } catch {
+      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteVersion(id);
+      toastHelpers.success({
+        title: t('settings.versions.table.delete'),
+      });
+    } catch {
+      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
+    }
+  };
+
+  const isPending = isCreatePending || isUpdatePending;
+
+  if (isFormOpen) {
     return (
-      <div className="space-y-6">
-        <button
-          type="button"
-          className="text-sm text-theme-main hover:underline cursor-pointer"
-          onClick={() => {
-            replaceWithUpdatedSearchParams(
-              router,
-              pathname,
-              searchParams,
-              params => {
-                params.set('tab', 'versions');
-                params.delete('versionsMode');
-              }
-            );
+      <VersionForm
+        editingVersion={editingVersion}
+        onClose={handleCloseForm}
+        onSubmit={handleSubmitVersion}
+        isPending={isPending}
+      />
+    );
+  }
 
-            handleResetVersionForm();
-            setIsCreatingVersion(false);
-          }}
-        >
-          {t('settings.issueTypes.add.back')}
-        </button>
-
-        <div className="space-y-1">
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
           <h2 className="text-lg font-semibold text-theme-neutral-11">
             {t('settings.versions.heading')}
           </h2>
@@ -107,72 +110,6 @@ export const VersionsTab: React.FC = () => {
             {t('settings.versions.hint')}
           </p>
         </div>
-
-        <form onSubmit={handleSubmitVersion} className="space-y-6">
-          <div className="space-y-2">
-            <Input
-              label={t('settings.versions.add.nameLabel')}
-              required
-              value={versionName}
-              onChange={e => setVersionName(e.target.value)}
-              placeholder={t('settings.versions.add.namePlaceholder')}
-            />
-          </div>
-
-          <div className="space-y-3 rounded-lg border border-theme-neutral-4 bg-theme-neutral-1 px-4 py-4">
-            <p className="text-sm font-medium text-theme-neutral-11">
-              {t('settings.versions.add.setDateLabel')}
-            </p>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <DatePicker
-                  label={t('settings.versions.table.startDate')}
-                  value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
-                  placeholder={t('settings.versions.add.datePlaceholder')}
-                />
-              </div>
-              <div className="space-y-1">
-                <DatePicker
-                  label={t('settings.versions.table.endDate')}
-                  value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
-                  placeholder={t('settings.versions.add.datePlaceholder')}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Textarea
-              label={t('settings.versions.add.descriptionLabel')}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder={t('settings.versions.add.descriptionPlaceholder')}
-              rows={4}
-            />
-            <p className="text-xs text-theme-neutral-8">
-              {t('settings.versions.add.descriptionHint')}
-            </p>
-          </div>
-
-          <div className="flex justify-center">
-            <Button
-              type="submit"
-              className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover min-w-[120px]"
-              disabled={!versionName.trim()}
-            >
-              {t('common.submit')}
-            </Button>
-          </div>
-        </form>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
         <Button
           className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover"
           onClick={() => {
@@ -185,7 +122,7 @@ export const VersionsTab: React.FC = () => {
                 params.set('versionsMode', 'create');
               }
             );
-
+            setEditingVersion(null);
             setIsCreatingVersion(true);
           }}
         >
@@ -193,7 +130,15 @@ export const VersionsTab: React.FC = () => {
         </Button>
       </div>
 
-      <VersionTable data={INITIAL_VERSIONS} />
+      <VersionTable
+        data={versions}
+        loading={isLoadingList}
+        onDelete={id => void handleDelete(id)}
+        onEdit={record => {
+          setEditingVersion(record);
+          setIsCreatingVersion(false);
+        }}
+      />
     </div>
   );
 };

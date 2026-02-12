@@ -451,7 +451,7 @@ function BoardContent({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full bg-[#d9d9d9] py-2.5">
+      <div className="w-full h-full bg-[#d9d9d9] py-2.5">
         <ListColumns columns={orderedColumns} />
         <DragOverlay dropAnimation={customDropAnimation}>
           {!activeDragItemType && null}

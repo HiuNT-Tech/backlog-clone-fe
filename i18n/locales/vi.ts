@@ -2,6 +2,8 @@ const vi = {
   common: {
     add: 'Thêm',
     cancel: 'Hủy',
+    edit: 'Sửa',
+    loading: 'Đang tải...',
     preview: 'Xem trước',
     actions: 'Hành động',
     confirm: 'Xác nhận',
@@ -15,6 +17,10 @@ const vi = {
     },
     placeholder: {
       search: 'Tìm kiếm',
+    },
+    userMenu: {
+      personalSettings: 'Cài đặt tài khoản',
+      logout: 'Đăng xuất',
     },
   },
   tooltip: {
@@ -82,6 +88,7 @@ const vi = {
       members: 'Thành viên',
       issueTypes: 'Loại công việc',
       versions: 'Phiên bản/Milestones',
+      statuses: 'Trạng thái',
     },
     versions: {
       heading: 'Phiên bản/Milestones',
@@ -97,6 +104,14 @@ const vi = {
         delete: 'Xóa phiên bản',
         description: 'Mô tả',
       },
+      validation: {
+        nameMin: 'Tên phiên bản từ 3 đến 50 ký tự.',
+        nameMax: 'Tên phiên bản từ 3 đến 50 ký tự.',
+        descriptionMax: 'Mô tả tối đa 500 ký tự.',
+        startDateBeforeEndDate: 'Ngày bắt đầu phải trước ngày kết thúc.',
+      },
+      createSuccess: 'Đã thêm phiên bản.',
+      updateSuccess: 'Đã cập nhật phiên bản.',
       add: {
         nameLabel: 'Phiên bản / Milestone',
         namePlaceholder: 'Ví dụ: 1.0-M1',
@@ -151,6 +166,13 @@ const vi = {
         empty: 'Không có loại công việc.',
       },
       deleteLabel: 'Xóa loại công việc',
+      validation: {
+        titleMin: 'Tên cột từ 3 đến 50 ký tự.',
+        titleMax: 'Tên cột từ 3 đến 50 ký tự.',
+        colorRequired: 'Vui lòng chọn màu nền.',
+        boardRequired: 'Vui lòng mở board trước khi thêm cột.',
+      },
+      createSuccess: 'Đã thêm cột mới.',
       add: {
         back: 'Quay lại',
         title: 'Thêm loại công việc',
@@ -173,11 +195,57 @@ const vi = {
         save: 'Lưu',
       },
     },
+    statuses: {
+      heading: 'Quản lý trạng thái',
+      hint: 'Cấu hình trạng thái cho quy trình làm việc.',
+      actions: {
+        add: 'Thêm trạng thái',
+      },
+      actionsText: {
+        register: 'Đăng ký',
+      },
+      templateStatus: {
+        registered: 'Đã đăng ký',
+      },
+      table: {
+        type: 'Trạng thái',
+        issues: 'Số lượng',
+        template: 'Mẫu công việc',
+        delete: 'Xóa',
+        empty: 'Không có trạng thái nào.',
+      },
+      deleteModal: {
+        content: 'Bạn có chắc chắn muốn xóa trạng thái "{{name}}"?',
+      },
+      createSuccess: 'Đã thêm cột mới.',
+      add: {
+        back: 'Quay lại',
+        title: 'Thêm trạng thái',
+        description: 'Định nghĩa một trạng thái mới và template mặc định.',
+        nameLabel: 'Danh sách trạng thái',
+        namePlaceholder: 'Nhập tên trạng thái',
+        nameHint:
+          'Tên trạng thái. Các trạng thái có thể được định nghĩa riêng cho từng dự án',
+        backgroundLabel: 'Màu nền',
+        backgroundHint: 'Màu nền hiển thị cho trạng thái.',
+        colorSample: 'Danh sách trạng thái',
+        existingLabel: 'Các trạng thái hiện có',
+        templateLabel: 'Mẫu công việc',
+        templateHint: 'Mẫu này sẽ được sử dụng khi thêm công việc mới.',
+        subjectLabel: 'Tiêu đề',
+        subjectPlaceholder: 'Nhập tiêu đề...',
+        descriptionLabel: 'Mô tả',
+        descriptionPlaceholder: 'Nhập mô tả...',
+        cancel: 'Hủy',
+        save: 'Lưu',
+      },
+    },
   },
   toast: {
     success: {
       userVerified: 'Xác minh người dùng thành công',
       userLoggedIn: 'Đăng nhập thành công! Chào mừng bạn quay lại!',
+      userLoggedOut: 'Đăng xuất thành công!',
     },
     error: {
       userLoginFailed: 'Đăng nhập thất bại',

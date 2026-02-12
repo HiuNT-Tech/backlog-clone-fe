@@ -21,7 +21,6 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const registeredEmail = searchParams.get('registeredEmail');
   const verifiedEmail = searchParams.get('verifiedEmail');
-  const redirectUrl = searchParams.get('redirect');
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -40,10 +39,7 @@ function LoginForm() {
         description: t('toast.success.userLoggedIn'),
       });
 
-      // Redirect to the original destination or default to board
-      const destination =
-        redirectUrl || '/board?boardId=6957793c6042bc901f2a1c46';
-      router.push(destination);
+      router.push('/board');
     } catch (error) {}
   };
 

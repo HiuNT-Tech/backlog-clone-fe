@@ -1,6 +1,10 @@
 import authorizedAxiosInstance from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
-import { LoginUserRequest, LoginUserResponse } from '@/config/interface';
+import {
+  LoginUserRequest,
+  LoginUserResponse,
+  RefreshTokenResponse,
+} from '@/config/interface';
 
 export const AuthService = {
   registerUser: async ({ user }: { user: Record<string, unknown> }) => {
@@ -25,6 +29,12 @@ export const AuthService = {
   },
 
   logout: async (): Promise<void> => {
-    await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/logout`);
+    await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/logout`);
+  },
+
+  refreshToken: async (): Promise<RefreshTokenResponse> => {
+    return (
+      await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/refresh_token`)
+    ).data;
   },
 };

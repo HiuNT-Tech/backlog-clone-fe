@@ -2,6 +2,8 @@ const en = {
   common: {
     add: 'Add',
     cancel: 'Cancel',
+    edit: 'Edit',
+    loading: 'Loading...',
     preview: 'Preview',
     actions: 'Actions',
     confirm: 'Confirm',
@@ -15,6 +17,10 @@ const en = {
     },
     placeholder: {
       search: 'Search this Space',
+    },
+    userMenu: {
+      personalSettings: 'Personal settings',
+      logout: 'Logout',
     },
   },
   tooltip: {
@@ -82,6 +88,7 @@ const en = {
       members: 'Members',
       issueTypes: 'Issue Types',
       versions: 'Versions/Milestones',
+      statuses: 'Statuses',
     },
     versions: {
       heading: 'Versions/Milestones',
@@ -97,6 +104,14 @@ const en = {
         delete: 'Delete Version',
         description: 'Description',
       },
+      validation: {
+        nameMin: 'Version name must be 3–50 characters.',
+        nameMax: 'Version name must be 3–50 characters.',
+        descriptionMax: 'Description must be at most 500 characters.',
+        startDateBeforeEndDate: 'Start date must be before end date.',
+      },
+      createSuccess: 'Version added.',
+      updateSuccess: 'Version updated.',
       add: {
         nameLabel: 'Version / Milestone',
         namePlaceholder: 'i.e. 1.0-M1',
@@ -151,21 +166,74 @@ const en = {
         delete: 'Delete',
         empty: 'No issue types found.',
       },
-      deleteLabel: 'Remove issue type',
+      deleteModal: {
+        content: 'Are you sure you want to remove this issue type "{{name}}"?',
+      },
+      validation: {
+        titleMin: 'Column name must be 3–50 characters.',
+        titleMax: 'Column name must be 3–50 characters.',
+        colorRequired: 'Please select a background color.',
+        boardRequired: 'Please open a board before adding a column.',
+      },
+      createSuccess: 'New column added.',
       add: {
         back: 'Back',
         title: 'Add Issue Type',
         description: 'Define a new issue type and its default template.',
-        nameLabel: 'List of Issue Types',
-        namePlaceholder: 'Enter issue type name',
+        nameLabel: 'Status',
+        namePlaceholder: 'Enter status name',
         nameHint:
-          'Name of issue type. The type(s) can be defined in each project, e.g. "Bug", "Task", "ToDo" and so on.',
+          'Name of status. The status(es) can be defined in each project, e.g. "Bug", "Task", "ToDo" and so on.',
         backgroundLabel: 'Background color',
-        backgroundHint: 'Background color of issue type.',
-        colorSample: 'List of Issue Types',
+        backgroundHint: 'Background color of status.',
+        colorSample: 'List of Statuses',
         existingLabel: 'Existing items',
-        templateLabel: 'Issue template',
-        templateHint: 'This template can be used when adding a new issue.',
+        templateLabel: 'Status template',
+        templateHint: 'This template can be used when adding a new status.',
+        subjectLabel: 'Subject',
+        subjectPlaceholder: 'Enter subject...',
+        descriptionLabel: 'Description',
+        descriptionPlaceholder: 'Enter description...',
+        cancel: 'Cancel',
+        save: 'Save',
+      },
+    },
+    statuses: {
+      heading: 'Status Management',
+      hint: 'Configure statuses for your workflow.',
+      actions: {
+        add: 'Add Status',
+      },
+      actionsText: {
+        register: 'Register',
+      },
+      templateStatus: {
+        registered: 'Registered',
+      },
+      table: {
+        type: 'Status',
+        issues: 'Issues',
+        template: 'Issue template',
+        delete: 'Delete',
+        empty: 'No issue types found.',
+      },
+      deleteModal: {
+        content: 'Are you sure you want to remove this issue type "{{name}}"?',
+      },
+      createSuccess: 'New column added.',
+      add: {
+        back: 'Back',
+        title: 'Add Status',
+        description: 'Define a new status and its default template.',
+        nameLabel: 'Statuse',
+        namePlaceholder: 'Enter status name',
+        nameHint: 'Name of status. The status can be defined in each project.',
+        backgroundLabel: 'Background color',
+        backgroundHint: 'Background color of status.',
+        colorSample: 'List of Statuses',
+        existingLabel: 'Existing items',
+        templateLabel: 'Status template',
+        templateHint: 'This template can be used when adding a new status.',
         subjectLabel: 'Subject',
         subjectPlaceholder: 'Enter subject...',
         descriptionLabel: 'Description',
@@ -179,6 +247,7 @@ const en = {
     success: {
       userVerified: 'User verified successfully',
       userLoggedIn: 'Logged in successfully! Welcome back!',
+      userLoggedOut: 'Logged out successfully!',
     },
     error: {
       userLoginFailed: 'User login failed',
