@@ -3,10 +3,11 @@ import { forwardRef } from 'react';
 import { cn } from '../../lib/utils';
 import Image from 'next/image';
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  /** Hiển thị dấu * đỏ bên cạnh label, không set required lên input (dùng khi validate bằng Zod) */
+  requiredIndicator?: boolean;
   prefixIcon?: string;
   suffixIcon?: React.ReactNode;
   className?: string;
@@ -25,6 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       type,
       label,
       error,
+      requiredIndicator = false,
       prefixIcon,
       suffixIcon,
       classNameContainer,
@@ -33,10 +35,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       onlyFloat = false,
       classNameError,
       customNode,
+      required,
       ...props
     },
     ref
   ) => {
+    const showAsterisk = required === true || requiredIndicator === true;
+    const omitNativeRequired = requiredIndicator === true;
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
       if (onlyNumber) {
         const sanitized = e.target.value.replace(/[^\d]/g, '');
@@ -57,7 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label className="text-sm font-medium text-theme-neutral-11">
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {showAsterisk && <span className="text-red-500 ml-1">*</span>}
           </label>
         )}
         <div className={cn('relative', { 'mt-1': !!label })}>
@@ -89,6 +94,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               onlyNumber ? '[0-9]*' : onlyFloat ? '[0-9.,]*' : props.pattern
             }
             {...props}
+            required={omitNativeRequired ? undefined : required}
             onChange={handleChange}
           />
           {suffixIcon && (

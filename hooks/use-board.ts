@@ -18,8 +18,11 @@ export const useBoard = (boardId: string, columnId: string) => {
     isPending: isCreatePending,
     error: createNewColumnError,
   } = useMutation({
-    mutationFn: async (column: Column) => {
-      return await BoardService.createNewColumn({ boardId, column });
+    mutationFn: async (data: { title: string }) => {
+      return await BoardService.createNewColumn({
+        boardId,
+        title: data.title,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });

@@ -16,6 +16,7 @@ import IconSetting from '@/assets/images/icon-setting.svg';
 import FlagVN from '@/assets/images/flag-vn.svg';
 import FlagUSA from '@/assets/images/flag-usa.svg';
 import IconTrash from '@/assets/images/icon-trash.svg';
+import IconEdit from '@/assets/images/icon-edit.svg';
 const Images = {
   defaultAvatar,
   defaultAvatarFullFilled,
@@ -35,6 +36,7 @@ const Images = {
   FlagVN,
   FlagUSA,
   IconTrash,
+  IconEdit,
 };
 
 export default Images;

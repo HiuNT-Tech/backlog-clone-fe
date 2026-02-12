@@ -12,12 +12,17 @@ export interface Card {
   FE_PlaceholderCard?: boolean;
 }
 
+import type { ColorStatusKey } from '@/constant/data';
+
 export interface Column {
   _id: string;
   boardId: string;
   title: string;
   cardOrderIds: string[];
   cards: Card[];
+  // Thuộc tính màu cho status/column (tùy BE)
+  statusColor?: number;
+  selectedColorKey?: ColorStatusKey;
 }
 
 export interface Board {
@@ -34,6 +39,46 @@ export interface BoardListResponse {
   boards: Board[];
 }
 
+export interface IssueType {
+  _id: string;
+  name: string;
+  statusColor?: number;
+  createdAt?: number;
+  updatedAt?: number | null;
+}
+
+/** Payload tạo issue type: name, statusColor (1–10) */
+export interface CreateIssueTypeRequest {
+  name: string;
+  statusColor: number;
+}
+
+export interface Version {
+  _id: string;
+  name: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  description?: string | null;
+  createdAt?: number;
+  updatedAt?: number | null;
+}
+
+/** Payload tạo version */
+export interface CreateVersionRequest {
+  name: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  description?: string | null;
+}
+
+/** Payload cập nhật version */
+export interface UpdateVersionRequest {
+  name?: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  description?: string | null;
+}
+
 export interface ActiveBoardState {
   currentActiveBoard: Board | null;
 }
@@ -46,9 +91,11 @@ export interface MoveCardToDifferentColumnRequest {
   nextCardOrderIds: string[];
 }
 
+/** Payload tạo column mới: boardId, title, statusColor (+ lưu cả key màu UI) */
 export interface CreateNewColumnRequest {
   boardId: string;
-  column: Column;
+  title: string;
+  statusColor?: number;
 }
 
 export interface UpdateColumnDetailsRequest {
@@ -98,4 +145,8 @@ export interface LoginUserResponse {
   isActive: boolean;
   accessToken: string;
   refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
 }

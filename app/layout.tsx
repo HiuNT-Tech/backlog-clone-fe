@@ -21,9 +21,8 @@ import { ConfigProvider } from 'antd';
 import theme from '@/lib/theme';
 import StyledComponentsRegistry from '@/lib/AntdRegistry';
 import { TooltipProvider } from '@/components/ui/tooltip';
-
+import { AuthGuard } from '@/components/auth-guard';
 import StoreProvider from '@/redux/StoreProvider';
-
 import { Toaster } from '@/components/ui/toaster';
 
 export default function RootLayout({
@@ -40,7 +39,7 @@ export default function RootLayout({
           <StyledComponentsRegistry>
             <ConfigProvider theme={theme}>
               <TooltipProvider>
-                {children}
+                <AuthGuard>{children}</AuthGuard>
                 <Toaster />
               </TooltipProvider>
             </ConfigProvider>

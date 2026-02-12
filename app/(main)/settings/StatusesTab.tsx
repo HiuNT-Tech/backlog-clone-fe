@@ -1,62 +1,62 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@/components/ui/button';
-import { IssueTypesTable } from '@/components/shared/tables/IssueTypesTable';
-import { IssueTypeCreateForm } from '@/components/shared/forms/IssueTypesCreateForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
-import { useIssueType } from '@/hooks/use-issue-type';
+import { useColumn } from '@/hooks/use-column';
 import { toastHelpers } from '@/hooks/use-toast';
 import { COLOR_KEY_TO_STATUS } from '@/constant/data';
 import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-form-schemas';
+import { Button } from '@/components/ui/button';
+import { StatusesTable } from '@/components/shared/tables/StatusesTable';
+import { StatusCreateForm } from '@/components/shared/forms/StatusCreateForm';
 
-export const IssueTypesTab: React.FC = () => {
+export const StatusesTab: React.FC = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { createNewIssueType, isCreatePending } = useIssueType();
+  const { createNewColumn, isCreatePending } = useColumn();
 
-  const isCreateModeFromUrl = searchParams.get('issueTypesMode') === 'create';
-  const [isCreatingIssueType, setIsCreatingIssueType] =
-    useState(isCreateModeFromUrl);
+  const isCreateModeFromUrl = searchParams.get('statusesMode') === 'create';
+  const [isCreatingStatus, setIsCreatingStatus] = useState(isCreateModeFromUrl);
 
   useEffect(() => {
-    setIsCreatingIssueType(isCreateModeFromUrl);
+    setIsCreatingStatus(isCreateModeFromUrl);
   }, [isCreateModeFromUrl]);
 
   const handleCloseCreate = () => {
     replaceWithUpdatedSearchParams(router, pathname, searchParams, params => {
-      params.set('tab', 'issueTypes');
-      params.delete('issueTypesMode');
+      params.set('tab', 'statuses');
+      params.delete('statusesMode');
     });
-    setIsCreatingIssueType(false);
   };
 
-  const handleSubmitIssueType = async (data: CreateIssueTypeFormData) => {
+  const handleSubmitColumn = async (data: CreateIssueTypeFormData) => {
     try {
       const statusColor = COLOR_KEY_TO_STATUS[data.selectedColorKey];
-      await createNewIssueType({
-        name: data.name.trim(),
+      await createNewColumn({
+        title: data.name.trim(),
         statusColor,
+        selectedColorKey: data.selectedColorKey,
       });
       toastHelpers.success({
         title: t('settings.issueTypes.createSuccess'),
       });
       handleCloseCreate();
     } catch {
-      // Toast đã xử lý trong useIssueType
+      // Toast đã xử lý trong hook
     }
   };
 
-  if (isCreatingIssueType) {
+  if (isCreatingStatus) {
     return (
-      <IssueTypeCreateForm
+      <StatusCreateForm
         onClose={handleCloseCreate}
-        onSubmit={handleSubmitIssueType}
+        onSubmit={handleSubmitColumn}
         isPending={isCreatePending}
       />
     );
@@ -67,10 +67,10 @@ export const IssueTypesTab: React.FC = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-theme-neutral-11">
-            {t('settings.issueTypes.heading')}
+            {t('settings.statuses.heading')}
           </h2>
           <p className="text-sm text-theme-neutral-8">
-            {t('settings.issueTypes.hint')}
+            {t('settings.statuses.hint')}
           </p>
         </div>
         <Button
@@ -81,18 +81,17 @@ export const IssueTypesTab: React.FC = () => {
               pathname,
               searchParams,
               params => {
-                params.set('tab', 'issueTypes');
-                params.set('issueTypesMode', 'create');
+                params.set('tab', 'statuses');
+                params.set('statusesMode', 'create');
               }
             );
-            setIsCreatingIssueType(true);
           }}
         >
-          {t('settings.issueTypes.actions.add')}
+          {t('settings.statuses.actions.add')}
         </Button>
       </div>
 
-      <IssueTypesTable />
+      <StatusesTable />
     </div>
   );
 };

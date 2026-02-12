@@ -1,7 +1,7 @@
 import React from 'react';
 import type { TFunction } from 'i18next';
 
-import { MemberRole } from '@/config/enum';
+import { MemberRole, StatusColor } from '@/config/enum';
 import { cn } from '@/lib/utils';
 
 export const MEMBER_ROLE_STATUS_DATA = {
@@ -113,10 +113,52 @@ export const COLOR_STATUS_OPTIONS = [
 
 export type ColorStatusKey = (typeof COLOR_STATUS_OPTIONS)[number]['key'];
 
+/** Map key chọn màu (UI) sang giá trị statusColor gửi API (StatusColor) */
+export const COLOR_KEY_TO_STATUS: Record<ColorStatusKey, StatusColor> = {
+  red: StatusColor.RED,
+  orange: StatusColor.ORANGE,
+  pink: StatusColor.PINK,
+  indigo: StatusColor.INDIGO,
+  blue: StatusColor.BLUE,
+  teal: StatusColor.TEAL,
+  green: StatusColor.GREEN,
+  yellow: StatusColor.YELLOW,
+  'bright-red': StatusColor.BRIGHT_RED,
+  black: StatusColor.BLACK,
+};
+
+/** Map statusColor (API) về key màu (UI) để hiển thị badge */
+export const STATUS_TO_COLOR_KEY: Record<StatusColor, ColorStatusKey> = {
+  [StatusColor.RED]: 'red',
+  [StatusColor.ORANGE]: 'orange',
+  [StatusColor.PINK]: 'pink',
+  [StatusColor.INDIGO]: 'indigo',
+  [StatusColor.BLUE]: 'blue',
+  [StatusColor.TEAL]: 'teal',
+  [StatusColor.GREEN]: 'green',
+  [StatusColor.YELLOW]: 'yellow',
+  [StatusColor.BRIGHT_RED]: 'bright-red',
+  [StatusColor.BLACK]: 'black',
+};
+
+/** Trả về className badge theo statusColor (số từ API); mặc định blue nếu không khớp */
+export const getIssueTypeBadgeClassName = (
+  statusColor?: number | null
+): string => {
+  const key =
+    statusColor != null
+      ? ((STATUS_TO_COLOR_KEY as Record<number, ColorStatusKey>)[statusColor] ??
+        'blue')
+      : 'blue';
+  const option = COLOR_STATUS_OPTIONS.find(o => o.key === key);
+  return option?.className ?? 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]';
+};
+
 export const renderStatusBadge = (
   selectedKey: ColorStatusKey | string,
   setSelectedColorKey: (key: ColorStatusKey) => void,
-  t: TFunction
+  t: TFunction,
+  name?: string
 ): React.ReactNode =>
   COLOR_STATUS_OPTIONS.map(option =>
     React.createElement(
@@ -131,6 +173,6 @@ export const renderStatusBadge = (
           selectedKey === option.key && 'ring-2 ring-theme-main ring-offset-1'
         ),
       },
-      t('settings.issueTypes.add.colorSample')
+      name
     )
   );

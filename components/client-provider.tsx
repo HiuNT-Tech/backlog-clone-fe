@@ -25,12 +25,14 @@ export default function ClientProviders({
     return (
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <Header />
-          <div className="flex">
-            <Sidebar />
-            {children}
+          <div className="h-screen flex flex-col overflow-hidden">
+            <Header />
+            <div className="flex flex-1 overflow-hidden">
+              <Sidebar />
+              <div className="flex-1 overflow-auto">{children}</div>
+            </div>
+            <ModalConfirmInstance />
           </div>
-          <ModalConfirmInstance />
         </QueryClientProvider>
       </Provider>
     );

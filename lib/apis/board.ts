@@ -8,6 +8,7 @@ import {
   UpdateColumnDetailsRequest,
   UpdateBoardDetailRequest,
   CreateNewCardRequest,
+  Column,
 } from '@/config/interface';
 
 export const BoardService = {
@@ -22,10 +23,25 @@ export const BoardService = {
     return response.data;
   },
 
-  createNewColumn: async ({ column }: CreateNewColumnRequest) => {
+  createNewColumn: async (payload: CreateNewColumnRequest) => {
+    const { boardId, title, statusColor } = payload;
     return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/columns`, column)
+      await authorizedAxiosInstance.post(`${API_ROOT}/v1/columns`, {
+        boardId,
+        title,
+        statusColor,
+      })
     ).data;
+  },
+
+  deleteColumn: async (columnId: string) => {
+    return (
+      await authorizedAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`)
+    ).data;
+  },
+
+  getColumns: async (): Promise<Column[]> => {
+    return (await authorizedAxiosInstance.get(`${API_ROOT}/v1/columns`)).data;
   },
 
   moveCardToDifferentColumn: async (
