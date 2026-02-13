@@ -9,6 +9,7 @@ export interface Card {
   memberIds?: string[];
   comments?: string[];
   attachments?: string[];
+  issueTypeId?: string;
   FE_PlaceholderCard?: boolean;
 }
 
@@ -42,6 +43,7 @@ export interface BoardListResponse {
 export interface IssueType {
   _id: string;
   name: string;
+  issueCount?: number;
   statusColor?: number;
   createdAt?: number;
   updatedAt?: number | null;
@@ -112,6 +114,14 @@ export interface CreateNewCardRequest {
   boardId: string;
   columnId: string;
   title: string;
+  description?: string;
+  priorityId?: number;
+  issueTypeId?: string;
+  versionId?: string;
+  startDate?: string;
+  dueDate?: string;
+  estimatedHours?: string;
+  actualHours?: string;
 }
 
 // Auth Request/Response types

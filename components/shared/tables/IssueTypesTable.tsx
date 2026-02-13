@@ -7,6 +7,7 @@ import type { IssueType } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { useIssueType } from '@/hooks/use-issue-type';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
+import { renderIssueTypeBadge } from '@/constant/data';
 
 export const IssueTypesTable: React.FC = () => {
   const { t } = useTranslation();
@@ -19,14 +20,16 @@ export const IssueTypesTable: React.FC = () => {
         key: 'type',
         title: t('settings.issueTypes.table.type'),
         dataIndex: 'name',
-        render: (_value, record) => record?.name ?? '—',
+        align: 'center',
+        render: (_value, record) =>
+          renderIssueTypeBadge(record?.statusColor, record?.name),
         minWidth: 300,
       },
       {
         key: 'issues',
         title: t('settings.issueTypes.table.issues'),
         align: 'center',
-        render: () => '—',
+        render: (_value, record) => record.issueCount ?? 0,
       },
     ],
     [t]

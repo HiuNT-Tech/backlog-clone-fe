@@ -16,3 +16,9 @@ export enum StatusColor {
   BRIGHT_RED = 9,
   BLACK = 10,
 }
+
+export enum PRIORITY {
+  LOW = 1,
+  NORMAL = 2,
+  HIGH = 3,
+}

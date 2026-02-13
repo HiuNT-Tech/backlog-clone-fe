@@ -141,6 +141,23 @@ export const STATUS_TO_COLOR_KEY: Record<StatusColor, ColorStatusKey> = {
   [StatusColor.BLACK]: 'black',
 };
 
+/** Trả về cấu hình badge (màu sắc) cho issue type */
+export const renderIssueTypeBadge = (
+  statusColor?: number | null,
+  name?: string
+): React.ReactNode => {
+  return React.createElement(
+    'span',
+    {
+      className: cn(
+        'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold',
+        getIssueTypeBadgeClassName(statusColor)
+      ),
+    },
+    name
+  );
+};
+
 /** Trả về className badge theo statusColor (số từ API); mặc định blue nếu không khớp */
 export const getIssueTypeBadgeClassName = (
   statusColor?: number | null

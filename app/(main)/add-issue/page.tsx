@@ -9,57 +9,127 @@ import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { TimePicker } from '@/components/ui/time-picker';
 import { DatePicker } from '@/components/ui/date-picker';
+import { PRIORITY } from '@/config/enum';
+import { useVersion } from '@/hooks/use-version';
+import { useColumn } from '@/hooks/use-column';
+import { useIssueType } from '@/hooks/use-issue-type';
+import { BoardService } from '@/lib/apis/board';
+import { toastHelpers } from '@/hooks/use-toast';
+import { CreateNewCardRequest } from '@/config/interface';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type AddIssueFormData = {
   title: string;
   description: string;
   status: string;
   priority: string;
+  issueType: string;
   assignee: string;
   startDate: string;
   dueDate: string;
   estimatedHours: string;
   actualHours: string;
+  version: string;
 };
-
-const STATUS_OPTIONS = [
-  { value: 'open', label: 'Open' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'resolved', label: 'Resolved' },
-  { value: 'closed', label: 'Closed' },
-];
-
-const PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'high', label: 'High' },
-  { value: 'urgent', label: 'Urgent' },
-];
 
 export default function AddIssuePage() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const router = useRouter();
+
+  const { versions } = useVersion();
+  const { columns } = useColumn();
+  const { issueTypes } = useIssueType();
   const [formData, setFormData] = useState<AddIssueFormData>({
     title: '',
     description: '',
     status: '',
     priority: '',
+    issueType: '',
     assignee: '',
     startDate: '',
     dueDate: '',
     estimatedHours: '',
     actualHours: '',
+    version: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const STATUS_OPTIONS = columns.map(column => ({
+    value: column._id,
+    label: column.title,
+  }));
+
+  const VERSION_OPTIONS = versions.map(version => ({
+    value: version._id,
+    label: version.name,
+  }));
+
+  const DEFAULT_BOARD_ID = '6957793c6042bc901f2a1c46';
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    mutateAsync: createNewCard,
+    isPending: isCreateCardPending,
+    error: createNewCardError,
+  } = useMutation({
+    mutationFn: async (card: CreateNewCardRequest) => {
+      return await BoardService.createNewCard(card);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boards'] });
+      toastHelpers.success({ title: t('toast.success.cardCreated') });
+      router.back();
+    },
+    onError: () => {
+      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement API call
-    console.log('Form data:', formData);
+    if (!formData.title || !formData.status) return;
+
+    setIsSubmitting(true);
+    try {
+      const payload: CreateNewCardRequest = {
+        boardId: DEFAULT_BOARD_ID,
+        columnId: formData.status,
+        title: formData.title.trim(),
+        ...(formData.description && { description: formData.description }),
+        ...(formData.priority && { priorityId: Number(formData.priority) }),
+        ...(formData.issueType && { issueTypeId: formData.issueType }),
+        ...(formData.version && { versionId: formData.version }),
+        ...(formData.startDate && { startDate: formData.startDate }),
+        ...(formData.dueDate && { dueDate: formData.dueDate }),
+        ...(formData.estimatedHours && {
+          estimatedHours: formData.estimatedHours,
+        }),
+        ...(formData.actualHours && { actualHours: formData.actualHours }),
+      };
+
+      await createNewCard(payload);
+    } catch {
+      toastHelpers.error({ title: t('toast.error.userLoginFailed') });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: keyof AddIssueFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const PRIORITY_OPTIONS = [
+    { value: String(PRIORITY.LOW), label: t('priority.low') },
+    { value: String(PRIORITY.NORMAL), label: t('priority.normal') },
+    { value: String(PRIORITY.HIGH), label: t('priority.high') },
+  ];
+
+  const ISSUE_TYPE_OPTIONS = issueTypes.map(issueType => ({
+    value: issueType._id,
+    label: issueType.name,
+  }));
 
   return (
     <div className="min-h-screen w-full bg-theme-neutral-3/40">
@@ -86,9 +156,10 @@ export default function AddIssuePage() {
             <Button
               type="submit"
               onClick={handleSubmit}
+              disabled={isSubmitting}
               className="bg-theme-main hover:bg-theme-hover text-theme-neutral-1"
             >
-              {t('common.add')}
+              {isSubmitting ? t('common.loading') : t('common.add')}
             </Button>
           </div>
         </div>
@@ -162,6 +233,15 @@ export default function AddIssuePage() {
                     placeholder={t('addIssue.placeholder.priority')}
                   />
 
+                  <Select
+                    label={t('addIssue.label.issueType')}
+                    options={ISSUE_TYPE_OPTIONS}
+                    value={formData.issueType}
+                    onValueChange={value => handleChange('issueType', value)}
+                    placeholder={t('addIssue.placeholder.issueType')}
+                    showSearch={true}
+                  />
+
                   <div>
                     <Select
                       label={t('addIssue.label.assignee')}
@@ -192,20 +272,20 @@ export default function AddIssuePage() {
                       value={formData.startDate}
                       onChange={e => handleChange('startDate', e.target.value)}
                     />
+                    <DatePicker
+                      label={t('addIssue.label.dueDate')}
+                      value={formData.dueDate}
+                      onChange={e => handleChange('dueDate', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <TimePicker
                       label={t('addIssue.label.estimatedHours')}
                       value={formData.estimatedHours}
                       onChange={e =>
                         handleChange('estimatedHours', e.target.value)
                       }
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <DatePicker
-                      label={t('addIssue.label.dueDate')}
-                      value={formData.dueDate}
-                      onChange={e => handleChange('dueDate', e.target.value)}
                     />
                     <TimePicker
                       label={t('addIssue.label.actualHours')}
@@ -215,6 +295,14 @@ export default function AddIssuePage() {
                       }
                     />
                   </div>
+                  <Select
+                    label={t('addIssue.label.version')}
+                    showSearch={true}
+                    options={VERSION_OPTIONS}
+                    value={formData.version}
+                    onValueChange={value => handleChange('version', value)}
+                    placeholder={t('addIssue.placeholder.version')}
+                  />
                 </div>
               </div>
             </div>

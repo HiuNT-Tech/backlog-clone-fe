@@ -246,6 +246,7 @@ const vi = {
       userVerified: 'Xác minh người dùng thành công',
       userLoggedIn: 'Đăng nhập thành công! Chào mừng bạn quay lại!',
       userLoggedOut: 'Đăng xuất thành công!',
+      cardCreated: 'Thêm công việc thành công',
     },
     error: {
       userLoginFailed: 'Đăng nhập thất bại',
@@ -290,11 +291,13 @@ const vi = {
     assignee: 'Người được giao',
     myself: 'Giao cho tôi',
     label: {
+      version: 'Phiên bản/Milestone',
       project: 'Dự án',
       title: 'Tiêu đề',
       description: 'Mô tả',
       status: 'Trạng thái',
       priority: 'Mức độ ưu tiên',
+      issueType: 'Loại công việc',
       startDate: 'Ngày bắt đầu',
       dueDate: 'Ngày đến hạn',
       estimatedHours: 'Giờ ước tính',
@@ -302,17 +305,24 @@ const vi = {
       assignee: 'Người được giao',
     },
     placeholder: {
+      version: 'Chọn phiên bản/Milestone',
       project: 'Chọn dự án',
       title: 'Nhập tiêu đề...',
       description: 'Nhập mô tả...',
       assignee: 'Chọn người được giao',
       status: 'Chọn trạng thái',
       priority: 'Chọn mức độ ưu tiên',
+      issueType: 'Chọn loại công việc',
       startDate: 'Chọn ngày bắt đầu',
       dueDate: 'Chọn ngày đến hạn',
       estimatedHours: 'Chọn số giờ ước tính',
       actualHours: 'Chọn số giờ thực tế',
     },
+  },
+  priority: {
+    low: 'Thấp',
+    normal: 'Trung bình',
+    high: 'Cao',
   },
   auth: {
     login: {
