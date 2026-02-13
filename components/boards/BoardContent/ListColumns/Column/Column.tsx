@@ -18,14 +18,19 @@ import {
 import { BoardService } from '@/lib/apis/board';
 import { cloneDeep } from 'lodash';
 import { toastHelpers } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { CreateNewCardRequest } from '@/config/interface';
+import { useTranslation } from 'react-i18next';
 
 interface ColumnProps {
   column: ColumnType;
 }
 
 function Column({ column }: ColumnProps) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const board = useSelector(selectCurrentActiveBoard);
+  const queryClient = useQueryClient();
 
   const {
     attributes,
@@ -50,43 +55,65 @@ function Column({ column }: ColumnProps) {
 
   const orderedCards = column.cards;
 
+  const { mutateAsync: createNewCard, isPending: isCreateCardPending } =
+    useMutation({
+      mutationFn: async (card: CreateNewCardRequest) => {
+        return await BoardService.createNewCard(card);
+      },
+      onSuccess: createdCard => {
+        if (!board) return;
+
+        // Update Redux state locally
+        const newBoard = cloneDeep(board);
+        const columnToUpdate = newBoard.columns.find(
+          col => col._id === createdCard.columnId
+        );
+
+        if (columnToUpdate) {
+          // If column has placeholder card, remove it and add the new card
+          if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
+            columnToUpdate.cards = [createdCard];
+            columnToUpdate.cardOrderIds = [createdCard._id];
+          } else {
+            // Otherwise just push to the end
+            columnToUpdate.cards.push(createdCard);
+            columnToUpdate.cardOrderIds.push(createdCard._id);
+          }
+        }
+
+        dispatch(updateCurrentActiveBoard(newBoard));
+        queryClient.invalidateQueries({ queryKey: ['boards'] });
+        toastHelpers.success({ title: t('toast.success.cardCreated') });
+        setIsAddCardPopupOpen(false);
+      },
+      onError: () => {
+        toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
+      },
+    });
+
   const handleAddCardConfirm = async (cardData: CardFormData) => {
     if (!board) return;
 
     try {
-      // 1. Call API to create a new card
-      const createdCard = await BoardService.createNewCard({
-        title: cardData.title,
-        columnId: column._id,
+      const payload: CreateNewCardRequest = {
         boardId: board._id,
-      });
+        columnId: column._id,
+        title: cardData.title.trim(),
+        ...(cardData.description && { description: cardData.description }),
+        ...(cardData.priority && { priorityId: Number(cardData.priority) }),
+        ...(cardData.issueType && { issueTypeId: cardData.issueType }),
+        ...(cardData.version && { versionId: cardData.version }),
+        ...(cardData.startDate && { startDate: cardData.startDate }),
+        ...(cardData.dueDate && { dueDate: cardData.dueDate }),
+        ...(cardData.estimatedHours && {
+          estimatedHours: cardData.estimatedHours,
+        }),
+        ...(cardData.actualHours && { actualHours: cardData.actualHours }),
+      };
 
-      // 2. Update Redux state locally
-      const newBoard = cloneDeep(board);
-      const columnToUpdate = newBoard.columns.find(
-        col => col._id === createdCard.columnId
-      );
-
-      if (columnToUpdate) {
-        // If column has placeholder card, remove it and add the new card
-        if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
-          columnToUpdate.cards = [createdCard];
-          columnToUpdate.cardOrderIds = [createdCard._id];
-        } else {
-          // Otherwise just push to the end
-          columnToUpdate.cards.push(createdCard);
-          columnToUpdate.cardOrderIds.push(createdCard._id);
-        }
-      }
-
-      dispatch(updateCurrentActiveBoard(newBoard));
-
-      // 3. Close popup
-      setIsAddCardPopupOpen(false);
-      toastHelpers.success({ title: 'Card created successfully!' });
+      await createNewCard(payload);
     } catch (error) {
       console.error('Failed to create card:', error);
-      toastHelpers.error({ title: 'Failed to create card' });
     }
   };
 

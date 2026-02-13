@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
-import { VersionTable } from '@/components/shared/tables/VersionTable';
+import VersionTable from '@/components/shared/tables/VersionTable';
 import { VersionForm } from '@/components/shared/forms/VersionForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
 import { useVersion } from '@/hooks/use-version';
@@ -19,8 +19,9 @@ export const VersionsTab: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { versions, isLoadingList } = useVersion();
   const {
+    versions,
+    isLoadingList,
     createNewVersion,
     updateVersion,
     deleteVersion,

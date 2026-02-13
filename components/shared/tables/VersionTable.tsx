@@ -14,7 +14,7 @@ export interface VersionTableProps {
   onEdit?: (record: Version) => void;
 }
 
-export const VersionTable: React.FC<VersionTableProps> = ({
+const VersionTable: React.FC<VersionTableProps> = ({
   data,
   loading,
   onDelete,
@@ -81,3 +81,5 @@ export const VersionTable: React.FC<VersionTableProps> = ({
     />
   );
 };
+
+export default VersionTable;

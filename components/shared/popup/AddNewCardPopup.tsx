@@ -8,6 +8,11 @@ import { Input } from '@/components/ui/input';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select } from '@/components/ui/select';
 import { TimePicker } from '@/components/ui/time-picker';
+import { Textarea } from '@/components/ui/textarea';
+import { useVersion } from '@/hooks/use-version';
+import { useColumn } from '@/hooks/use-column';
+import { useIssueType } from '@/hooks/use-issue-type';
+import { PRIORITY } from '@/config/enum';
 
 interface AddNewCardPopupProps {
   isOpen: boolean;
@@ -21,6 +26,8 @@ export interface CardFormData {
   status?: string;
   assignee?: string;
   priority?: string;
+  issueType?: string;
+  version?: string;
   startDate?: string;
   dueDate?: string;
   estimatedHours?: string;
@@ -34,12 +41,18 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const { versions } = useVersion();
+  const { columns } = useColumn();
+  const { issueTypes } = useIssueType();
+
   const [formData, setFormData] = React.useState<CardFormData>({
     title: '',
     description: '',
     status: undefined,
     assignee: undefined,
     priority: undefined,
+    issueType: undefined,
+    version: undefined,
     startDate: undefined,
     dueDate: undefined,
     estimatedHours: undefined,
@@ -54,6 +67,8 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
         status: undefined,
         assignee: undefined,
         priority: undefined,
+        issueType: undefined,
+        version: undefined,
         startDate: undefined,
         dueDate: undefined,
         estimatedHours: undefined,
@@ -74,20 +89,27 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Mock options - these should come from props or API in real implementation
-  const statusOptions = [
-    { value: 'open', label: 'Open' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'done', label: 'Done' },
-    { value: 'closed', label: 'Closed' },
-  ];
+  // Options from hooks and enums
+  const statusOptions = columns.map(column => ({
+    value: column._id,
+    label: column.title,
+  }));
 
   const priorityOptions = [
-    { value: 'low', label: 'Low' },
-    { value: 'normal', label: 'Normal' },
-    { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' },
+    { value: String(PRIORITY.LOW), label: t('priority.low') },
+    { value: String(PRIORITY.NORMAL), label: t('priority.normal') },
+    { value: String(PRIORITY.HIGH), label: t('priority.high') },
   ];
+
+  const versionOptions = versions.map(version => ({
+    value: version._id,
+    label: version.name,
+  }));
+
+  const issueTypeOptions = issueTypes.map(issueType => ({
+    value: issueType._id,
+    label: issueType.name,
+  }));
 
   const assigneeOptions = [
     { value: 'user1', label: 'John Doe' },
@@ -113,18 +135,13 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
         />
 
         {/* Description Field */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-theme-neutral-11">
-            {t('column.addNewCard.popup.descriptionLabel')}
-          </label>
-          <textarea
-            className="flex w-full rounded-md border border-theme-neutral-5 bg-theme-neutral-2 px-3 py-2 text-sm placeholder:text-theme-neutral-6 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-            rows={4}
-            placeholder={t('column.addNewCard.popup.descriptionPlaceholder')}
-            value={formData.description}
-            onChange={e => updateField('description', e.target.value)}
-          />
-        </div>
+        <Textarea
+          label={t('column.addNewCard.popup.descriptionLabel')}
+          placeholder={t('column.addNewCard.popup.descriptionPlaceholder')}
+          value={formData.description}
+          onChange={e => updateField('description', e.target.value)}
+          className="min-h-[100px]"
+        />
 
         {/* Two Column Layout for Status and Assignee */}
         <div className="grid grid-cols-2 gap-4">
@@ -154,6 +171,26 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
           value={formData.priority}
           onValueChange={(value: string) => updateField('priority', value)}
           options={priorityOptions}
+        />
+
+        {/* Issue Type */}
+        <Select
+          label={t('addIssue.label.issueType')}
+          placeholder={t('addIssue.placeholder.issueType')}
+          value={formData.issueType}
+          onValueChange={(value: string) => updateField('issueType', value)}
+          options={issueTypeOptions}
+          showSearch={true}
+        />
+
+        {/* Version */}
+        <Select
+          label={t('addIssue.label.version')}
+          placeholder={t('addIssue.placeholder.version')}
+          value={formData.version}
+          onValueChange={(value: string) => updateField('version', value)}
+          options={versionOptions}
+          showSearch={true}
         />
 
         {/* Two Column Layout for Dates */}
