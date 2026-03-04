@@ -8,9 +8,13 @@ import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { useColumn } from '@/hooks/use-column';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 
-export const StatusesTable: React.FC = () => {
+export const StatusesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
-  const { columns: columnList, isLoadingList, deleteColumn } = useColumn();
+  const {
+    columns: columnList,
+    isLoadingList,
+    deleteColumn,
+  } = useColumn(boardId);
 
   const columns = useMemo<TableColumn<Column>[]>(
     () => [

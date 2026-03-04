@@ -39,7 +39,7 @@ function LoginForm() {
         description: t('toast.success.userLoggedIn'),
       });
 
-      router.push('/board');
+      router.push('/dashboard');
     } catch (error) {}
   };
 

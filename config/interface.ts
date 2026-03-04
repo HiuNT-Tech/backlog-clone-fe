@@ -31,13 +31,18 @@ export interface Board {
   title: string;
   description?: string;
   type: 'public' | 'private';
-  ownerIds: string[];
-  memberIds: string[];
+  members: { userId: string; role: 'ADMIN' | 'PM' | 'MEMBER' }[];
   columnOrderIds: string[];
   columns: Column[];
 }
 export interface BoardListResponse {
   boards: Board[];
+}
+
+export interface CreateBoardRequest {
+  title: string;
+  description: string;
+  type: 'public' | 'private';
 }
 
 export interface IssueType {
@@ -53,6 +58,7 @@ export interface IssueType {
 export interface CreateIssueTypeRequest {
   name: string;
   statusColor: number;
+  boardId?: string;
 }
 
 export interface Version {
@@ -71,6 +77,7 @@ export interface CreateVersionRequest {
   startDate?: string | null;
   endDate?: string | null;
   description?: string | null;
+  boardId?: string;
 }
 
 /** Payload cập nhật version */

@@ -84,6 +84,7 @@ const vi = {
   settings: {
     title: 'Cài đặt dự án',
     description: 'Quản lý thành viên dự án và cấu hình loại công việc.',
+    noBoardSelected: 'Vui lòng chọn một board từ Dashboard để xem cài đặt.',
     tabs: {
       members: 'Thành viên',
       issueTypes: 'Loại công việc',
@@ -241,16 +242,47 @@ const vi = {
       },
     },
   },
+  dashboard: {
+    title: 'Bảng điều khiển',
+    description: 'Xem và quản lý các board của bạn.',
+    addNewBoard: 'Thêm Board mới',
+    empty: {
+      title: 'Chưa có board nào',
+      description: 'Bạn chưa có board nào. Hãy tạo một board để bắt đầu!',
+    },
+    boardCard: {
+      noDescription: 'Không có mô tả',
+    },
+    createBoard: {
+      title: 'Tạo Board mới',
+      description: 'Thêm một board mới để tổ chức dự án của bạn.',
+      nameLabel: 'Tên Board',
+      namePlaceholder: 'Nhập tên board',
+      descriptionLabel: 'Mô tả',
+      descriptionPlaceholder: 'Nhập mô tả board',
+      submit: 'Tạo',
+      cancel: 'Hủy',
+    },
+    validation: {
+      nameRequired: 'Trường này là bắt buộc',
+      nameMax: 'Tên board tối đa 50 ký tự',
+      nameEmpty: 'Tên board không được để trống',
+      descriptionMax: 'Mô tả tối đa 255 ký tự',
+    },
+  },
   toast: {
     success: {
       userVerified: 'Xác minh người dùng thành công',
       userLoggedIn: 'Đăng nhập thành công! Chào mừng bạn quay lại!',
       userLoggedOut: 'Đăng xuất thành công!',
       cardCreated: 'Thêm công việc thành công',
+      boardCreated: 'Tạo board thành công!',
     },
     error: {
       userLoginFailed: 'Đăng nhập thất bại',
       userVerificationFailed: 'Xác minh người dùng thất bại',
+      boardCreateFailed: 'Tạo board thất bại. Vui lòng thử lại.',
+      boardLoadFailed: 'Tải danh sách board thất bại. Vui lòng thử lại.',
     },
   },
   column: {

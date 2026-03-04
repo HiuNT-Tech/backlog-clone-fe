@@ -13,12 +13,12 @@ import { toastHelpers } from '@/hooks/use-toast';
 import { COLOR_KEY_TO_STATUS } from '@/constant/data';
 import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-form-schemas';
 
-export const IssueTypesTab: React.FC = () => {
+export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { createNewIssueType, isCreatePending } = useIssueType();
+  const { createNewIssueType, isCreatePending } = useIssueType(boardId);
 
   const isCreateModeFromUrl = searchParams.get('issueTypesMode') === 'create';
   const [isCreatingIssueType, setIsCreatingIssueType] =
@@ -92,7 +92,7 @@ export const IssueTypesTab: React.FC = () => {
         </Button>
       </div>
 
-      <IssueTypesTable />
+      <IssueTypesTable boardId={boardId} />
     </div>
   );
 };

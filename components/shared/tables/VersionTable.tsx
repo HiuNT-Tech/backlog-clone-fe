@@ -8,6 +8,7 @@ import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import dayjs from 'dayjs';
 
 export interface VersionTableProps {
+  boardId?: string;
   data: Version[];
   loading?: boolean;
   onDelete?: (id: string) => void;
@@ -15,6 +16,7 @@ export interface VersionTableProps {
 }
 
 const VersionTable: React.FC<VersionTableProps> = ({
+  boardId,
   data,
   loading,
   onDelete,

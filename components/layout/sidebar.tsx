@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import Images from '@/assets';
 import Image from 'next/image';
@@ -15,31 +15,26 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-export const menuItems = [
-  {
-    titleKey: 'sidebar.home',
-    icon: Images.IconHome,
-    href: '#1',
-  },
+export const getMenuItems = (boardId?: string) => [
   {
     titleKey: 'sidebar.addIssue',
     icon: Images.IconCreate,
-    href: '/add-issue',
+    href: boardId ? `/add-issue?boardId=${boardId}` : '/add-issue',
   },
   {
     titleKey: 'sidebar.issue',
     icon: Images.IconList,
-    href: '/issues',
+    href: boardId ? `/issues?boardId=${boardId}` : '/issues',
   },
   {
     titleKey: 'sidebar.board',
     icon: Images.IconBoard,
-    href: '/board',
+    href: boardId ? `/board?id=${boardId}` : '/board',
   },
   {
     titleKey: 'sidebar.settings',
     icon: Images.IconSetting,
-    href: '/settings',
+    href: boardId ? `/settings?boardId=${boardId}` : '/settings',
   },
 ];
 
@@ -141,6 +136,12 @@ export function Sidebar(
 ) {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Get boardId from URL (supports both ?id= and ?boardId= patterns)
+  const boardId =
+    searchParams.get('boardId') || searchParams.get('id') || undefined;
+  const menuItems = getMenuItems(boardId);
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);

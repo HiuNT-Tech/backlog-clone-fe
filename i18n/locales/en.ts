@@ -84,6 +84,8 @@ const en = {
   settings: {
     title: 'Project Settings',
     description: 'Manage project members and issue type configuration.',
+    noBoardSelected:
+      'Please select a board from the Dashboard to view settings.',
     tabs: {
       members: 'Members',
       issueTypes: 'Issue Types',
@@ -243,16 +245,47 @@ const en = {
       },
     },
   },
+  dashboard: {
+    title: 'Dashboard',
+    description: 'Browse and manage your boards.',
+    addNewBoard: 'Add New Board',
+    empty: {
+      title: 'No boards yet',
+      description: "You don't have any boards yet. Create one to get started!",
+    },
+    boardCard: {
+      noDescription: 'No description',
+    },
+    createBoard: {
+      title: 'Create New Board',
+      description: 'Add a new board to organize your projects.',
+      nameLabel: 'Board Name',
+      namePlaceholder: 'Enter board name',
+      descriptionLabel: 'Description',
+      descriptionPlaceholder: 'Enter board description',
+      submit: 'Create',
+      cancel: 'Cancel',
+    },
+    validation: {
+      nameRequired: 'This field is required',
+      nameMax: 'Board name must be less than 50 characters',
+      nameEmpty: 'Board name cannot be empty',
+      descriptionMax: 'Description must be less than 255 characters',
+    },
+  },
   toast: {
     success: {
       userVerified: 'User verified successfully',
       userLoggedIn: 'Logged in successfully! Welcome back!',
       userLoggedOut: 'Logged out successfully!',
       cardCreated: 'Card created successfully',
+      boardCreated: 'Board created successfully!',
     },
     error: {
       userLoginFailed: 'User login failed',
       userVerificationFailed: 'User verification failed',
+      boardCreateFailed: 'Failed to create board. Please try again.',
+      boardLoadFailed: 'Failed to load boards. Please try again.',
     },
   },
   column: {

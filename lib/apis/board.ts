@@ -3,6 +3,7 @@ import { API_ROOT } from '@/utils/constants';
 import {
   Board,
   BoardListResponse,
+  CreateBoardRequest,
   CreateNewColumnRequest,
   MoveCardToDifferentColumnRequest,
   UpdateColumnDetailsRequest,
@@ -12,8 +13,8 @@ import {
 } from '@/config/interface';
 
 export const BoardService = {
-  getBoard: async (): Promise<BoardListResponse> => {
-    return await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards`);
+  getBoard: async (): Promise<Board[]> => {
+    return (await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards`)).data;
   },
 
   getBoardById: async (boardId: string): Promise<Board> => {
@@ -40,8 +41,14 @@ export const BoardService = {
     ).data;
   },
 
-  getColumns: async (): Promise<Column[]> => {
-    return (await authorizedAxiosInstance.get(`${API_ROOT}/v1/columns`)).data;
+  getColumns: async (boardId: string): Promise<Column[]> => {
+    return (
+      await authorizedAxiosInstance.get(`${API_ROOT}/v1/columns`, {
+        params: {
+          boardId,
+        },
+      })
+    ).data;
   },
 
   moveCardToDifferentColumn: async (
@@ -88,5 +95,11 @@ export const BoardService = {
   createNewCard: async (card: CreateNewCardRequest) => {
     return (await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards`, card))
       .data;
+  },
+
+  createNewBoard: async (payload: CreateBoardRequest): Promise<Board> => {
+    return (
+      await authorizedAxiosInstance.post(`${API_ROOT}/v1/boards`, payload)
+    ).data;
   },
 };
