@@ -9,10 +9,10 @@ import { useIssueType } from '@/hooks/use-issue-type';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 import { renderIssueTypeBadge } from '@/constant/data';
 
-export const IssueTypesTable: React.FC = () => {
+export const IssueTypesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
-  const { issueTypes, isLoadingList } = useIssueType();
-  const { deleteIssueType, isDeletePending } = useIssueType();
+  const { issueTypes, isLoadingList } = useIssueType(boardId);
+  const { deleteIssueType, isDeletePending } = useIssueType(boardId);
 
   const columns = useMemo<TableColumn<IssueType>[]>(
     () => [

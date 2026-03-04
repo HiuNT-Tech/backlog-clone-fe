@@ -8,7 +8,7 @@ import type {
   UpdateVersionRequest,
 } from '@/config/interface';
 
-export const useVersion = () => {
+export const useVersion = (boardId?: string) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -18,8 +18,9 @@ export const useVersion = () => {
     error: versionsError,
     refetch: refetchVersions,
   } = useQuery({
-    queryKey: ['versions'],
-    queryFn: () => VersionService.getList(),
+    queryKey: ['versions', boardId],
+    queryFn: () => VersionService.getList(boardId),
+    enabled: !!boardId,
   });
 
   const {
@@ -28,9 +29,9 @@ export const useVersion = () => {
     error: createNewVersionError,
   } = useMutation({
     mutationFn: (payload: CreateVersionRequest): Promise<Version> =>
-      VersionService.createNew(payload),
+      VersionService.createNew({ ...payload, boardId: boardId! }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['versions'] });
+      queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
@@ -50,7 +51,7 @@ export const useVersion = () => {
       payload: UpdateVersionRequest;
     }): Promise<Version> => VersionService.update(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['versions'] });
+      queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
@@ -64,7 +65,7 @@ export const useVersion = () => {
   } = useMutation({
     mutationFn: (id: string) => VersionService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['versions'] });
+      queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
@@ -72,21 +73,21 @@ export const useVersion = () => {
   });
 
   return {
-    versions: versions,
-    isLoadingList: isLoadingList,
-    versionsError: versionsError,
-    refetchVersions: refetchVersions,
+    versions,
+    isLoadingList,
+    versionsError,
+    refetchVersions,
 
-    createNewVersion: createNewVersion,
-    isCreatePending: isCreatePending,
-    createNewVersionError: createNewVersionError,
+    createNewVersion,
+    isCreatePending,
+    createNewVersionError,
 
-    updateVersion: updateVersion,
-    isUpdatePending: isUpdatePending,
-    updateVersionError: updateVersionError,
+    updateVersion,
+    isUpdatePending,
+    updateVersionError,
 
-    deleteVersion: deleteVersion,
-    isDeletePending: isDeletePending,
-    deleteVersionError: deleteVersionError,
+    deleteVersion,
+    isDeletePending,
+    deleteVersionError,
   };
 };

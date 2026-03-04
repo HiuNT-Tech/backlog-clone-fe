@@ -17,9 +17,6 @@ import {
 import type { AppDispatch } from '@/redux/store';
 import { StatusesTab } from './StatusesTab';
 
-// Cùng boardId mặc định như trang /board — sau có thể lấy từ URL/project
-const DEFAULT_BOARD_ID = '6957793c6042bc901f2a1c46';
-
 export default function SettingsPage() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -28,12 +25,14 @@ export default function SettingsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const currentActiveBoard = useSelector(selectCurrentActiveBoard);
 
-  // Vào Settings mà chưa có board context (vd. vào thẳng /settings) → fetch board để IssueTypesTable etc. có currentActiveBoard
+  const boardId = searchParams.get('boardId') || '';
+
+  // Fetch board context if not already loaded
   useEffect(() => {
-    if (!currentActiveBoard) {
-      dispatch(fetchBoardDetailsAPI(DEFAULT_BOARD_ID));
+    if (boardId && !currentActiveBoard) {
+      dispatch(fetchBoardDetailsAPI(boardId));
     }
-  }, [dispatch, currentActiveBoard]);
+  }, [dispatch, boardId, currentActiveBoard]);
 
   const currentTab = searchParams.get('tab') || 'members';
 
@@ -42,6 +41,14 @@ export default function SettingsPage() {
       params.set('tab', key);
     });
   };
+
+  if (!boardId) {
+    return (
+      <div className="min-h-screen w-full bg-theme-neutral-3/40 flex items-center justify-center">
+        <p className="text-theme-neutral-8">{t('settings.noBoardSelected')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-theme-neutral-3/40">
@@ -63,22 +70,22 @@ export default function SettingsPage() {
               {
                 key: 'members',
                 label: t('settings.tabs.members'),
-                children: <MembersTab />,
+                children: <MembersTab boardId={boardId} />,
               },
               {
                 key: 'issueTypes',
                 label: t('settings.tabs.issueTypes'),
-                children: <IssueTypesTab />,
+                children: <IssueTypesTab boardId={boardId} />,
               },
               {
                 key: 'versions',
                 label: t('settings.tabs.versions'),
-                children: <VersionsTab />,
+                children: <VersionsTab boardId={boardId} />,
               },
               {
                 key: 'statuses',
                 label: t('settings.tabs.statuses'),
-                children: <StatusesTab />,
+                children: <StatusesTab boardId={boardId} />,
               },
             ]}
             className="[&_.ant-tabs-tab-btn]:font-medium [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-theme-main [&_.ant-tabs-ink-bar]:bg-theme-main"

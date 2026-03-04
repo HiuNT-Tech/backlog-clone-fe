@@ -17,9 +17,10 @@ export interface MemberResponse {
   joinedOn: string;
 }
 
-export const MembersTable: React.FC<{ data: MemberResponse[] }> = ({
-  data,
-}) => {
+export const MembersTable: React.FC<{
+  boardId?: string;
+  data: MemberResponse[];
+}> = ({ boardId, data }) => {
   const { t } = useTranslation();
   const handleDelete = () => {
     StaticMethodConfirm.open({

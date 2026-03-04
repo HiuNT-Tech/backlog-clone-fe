@@ -14,12 +14,12 @@ import { Button } from '@/components/ui/button';
 import { StatusesTable } from '@/components/shared/tables/StatusesTable';
 import { StatusCreateForm } from '@/components/shared/forms/StatusCreateForm';
 
-export const StatusesTab: React.FC = () => {
+export const StatusesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { createNewColumn, isCreatePending } = useColumn();
+  const { createNewColumn, isCreatePending } = useColumn(boardId);
 
   const isCreateModeFromUrl = searchParams.get('statusesMode') === 'create';
   const [isCreatingStatus, setIsCreatingStatus] = useState(isCreateModeFromUrl);
@@ -91,7 +91,7 @@ export const StatusesTab: React.FC = () => {
         </Button>
       </div>
 
-      <StatusesTable />
+      <StatusesTable boardId={boardId} />
     </div>
   );
 };

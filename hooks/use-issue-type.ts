@@ -4,7 +4,7 @@ import { IssueTypeService } from '@/lib/apis/issueType';
 import { toastHelpers } from '@/hooks/use-toast';
 import type { CreateIssueTypeRequest, IssueType } from '@/config/interface';
 
-export const useIssueType = () => {
+export const useIssueType = (boardId?: string) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -14,8 +14,9 @@ export const useIssueType = () => {
     error: issueTypesError,
     refetch: refetchIssueTypes,
   } = useQuery({
-    queryKey: ['issue-types'],
-    queryFn: () => IssueTypeService.getList(),
+    queryKey: ['issue-types', boardId],
+    queryFn: () => IssueTypeService.getList(boardId),
+    enabled: !!boardId,
   });
   const {
     mutateAsync: createNewIssueType,
@@ -23,10 +24,10 @@ export const useIssueType = () => {
     error: createNewIssueTypeError,
   } = useMutation({
     mutationFn: (payload: CreateIssueTypeRequest): Promise<IssueType> => {
-      return IssueTypeService.createNew(payload);
+      return IssueTypeService.createNew({ ...payload, boardId: boardId! });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['issue-types'] });
+      queryClient.invalidateQueries({ queryKey: ['issue-types', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
@@ -40,24 +41,24 @@ export const useIssueType = () => {
   } = useMutation({
     mutationFn: (id: string) => IssueTypeService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['issue-types'] });
+      queryClient.invalidateQueries({ queryKey: ['issue-types', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
   return {
-    issueTypes: issueTypes,
-    isLoadingList: isLoadingList,
-    issueTypesError: issueTypesError,
-    refetchIssueTypes: refetchIssueTypes,
+    issueTypes,
+    isLoadingList,
+    issueTypesError,
+    refetchIssueTypes,
 
-    createNewIssueType: createNewIssueType,
-    isCreatePending: isCreatePending,
-    createNewIssueTypeError: createNewIssueTypeError,
+    createNewIssueType,
+    isCreatePending,
+    createNewIssueTypeError,
 
-    deleteIssueType: deleteIssueType,
-    isDeletePending: isDeletePending,
-    deleteIssueTypeError: deleteIssueTypeError,
+    deleteIssueType,
+    isDeletePending,
+    deleteIssueTypeError,
   };
 };

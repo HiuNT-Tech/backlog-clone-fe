@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,10 +36,13 @@ export default function AddIssuePage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const { versions } = useVersion();
-  const { columns } = useColumn();
-  const { issueTypes } = useIssueType();
+  const boardId = searchParams.get('boardId') || '';
+
+  const { versions } = useVersion(boardId);
+  const { columns } = useColumn(boardId);
+  const { issueTypes } = useIssueType(boardId);
   const [formData, setFormData] = useState<AddIssueFormData>({
     title: '',
     description: '',
@@ -63,8 +66,6 @@ export default function AddIssuePage() {
     value: version._id,
     label: version.name,
   }));
-
-  const DEFAULT_BOARD_ID = '6957793c6042bc901f2a1c46';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -93,7 +94,7 @@ export default function AddIssuePage() {
     setIsSubmitting(true);
     try {
       const payload: CreateNewCardRequest = {
-        boardId: DEFAULT_BOARD_ID,
+        boardId: boardId,
         columnId: formData.status,
         title: formData.title.trim(),
         ...(formData.description && { description: formData.description }),

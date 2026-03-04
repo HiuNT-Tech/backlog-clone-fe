@@ -63,7 +63,7 @@ const INITIAL_MEMBER_ROWS: MemberResponse[] = [
   },
 ];
 
-export const MembersTab: React.FC = () => {
+export const MembersTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
   const [memberSearch, setMemberSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('');
@@ -130,7 +130,7 @@ export const MembersTab: React.FC = () => {
         />
       </div>
 
-      <MembersTable data={filteredMembers} />
+      <MembersTable boardId={boardId} data={filteredMembers} />
     </div>
   );
 };

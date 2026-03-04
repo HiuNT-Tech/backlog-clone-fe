@@ -20,7 +20,7 @@ export const useAuth = () => {
       toastHelpers.success({
         description: t('toast.success.userLoggedIn'),
       });
-      router.push('/board');
+      router.push('/dashboard');
     },
   });
 

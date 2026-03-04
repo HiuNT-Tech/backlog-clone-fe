@@ -3,8 +3,11 @@ import { API_ROOT } from '@/utils/constants';
 import type { CreateIssueTypeRequest, IssueType } from '@/config/interface';
 
 export const IssueTypeService = {
-  getList: async (): Promise<IssueType[]> => {
-    const res = await authorizedAxiosInstance.get(`${API_ROOT}/v1/issue-types`);
+  getList: async (boardId?: string): Promise<IssueType[]> => {
+    const params = boardId ? `?boardId=${boardId}` : '';
+    const res = await authorizedAxiosInstance.get(
+      `${API_ROOT}/v1/issue-types${params}`
+    );
     return res.data;
   },
 

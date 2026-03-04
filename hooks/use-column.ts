@@ -5,9 +5,7 @@ import { toastHelpers } from '@/hooks/use-toast';
 import { Column } from '@/config/interface';
 import type { ColorStatusKey } from '@/constant/data';
 
-const DEFAULT_BOARD_ID = '6957793c6042bc901f2a1c46';
-
-export const useColumn = () => {
+export const useColumn = (boardId?: string) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const {
@@ -16,7 +14,8 @@ export const useColumn = () => {
     error: listError,
   } = useQuery({
     queryKey: ['columns'],
-    queryFn: () => BoardService.getColumns(),
+    queryFn: () => BoardService.getColumns(boardId!),
+    enabled: !!boardId,
   });
 
   const {
@@ -30,13 +29,13 @@ export const useColumn = () => {
       selectedColorKey: ColorStatusKey;
     }): Promise<Column> => {
       return await BoardService.createNewColumn({
-        boardId: DEFAULT_BOARD_ID,
+        boardId: boardId!,
         title: input.title,
         statusColor: input.statusColor,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['boards'] });
+      queryClient.invalidateQueries({ queryKey: ['columns', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
@@ -52,7 +51,7 @@ export const useColumn = () => {
       return await BoardService.deleteColumn(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['columns'] });
+      queryClient.invalidateQueries({ queryKey: ['columns', boardId] });
     },
     onError: () => {
       toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
@@ -60,16 +59,16 @@ export const useColumn = () => {
   });
 
   return {
-    columns: columns,
-    isLoadingList: isLoadingList,
-    listError: listError,
+    columns,
+    isLoadingList,
+    listError,
 
-    createNewColumn: createNewColumn,
-    isCreatePending: isCreatePending,
-    createNewColumnError: createNewColumnError,
+    createNewColumn,
+    isCreatePending,
+    createNewColumnError,
 
-    deleteColumn: deleteColumn,
-    isDeletePending: isDeletePending,
-    deleteColumnError: deleteColumnError,
+    deleteColumn,
+    isDeletePending,
+    deleteColumnError,
   };
 };

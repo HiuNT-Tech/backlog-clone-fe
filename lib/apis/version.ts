@@ -7,8 +7,11 @@ import type {
 } from '@/config/interface';
 
 export const VersionService = {
-  getList: async (): Promise<Version[]> => {
-    const res = await authorizedAxiosInstance.get(`${API_ROOT}/v1/versions`);
+  getList: async (boardId?: string): Promise<Version[]> => {
+    const params = boardId ? `?boardId=${boardId}` : '';
+    const res = await authorizedAxiosInstance.get(
+      `${API_ROOT}/v1/versions${params}`
+    );
     return res.data;
   },
 

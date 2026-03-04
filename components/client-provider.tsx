@@ -12,7 +12,7 @@ interface ClientProvidersProps {
   withLayout?: boolean;
 }
 
-// Lazy import layout components
+import { usePathname } from 'next/navigation';
 import { Sidebar } from './layout/sidebar';
 import { Header } from './layout/header';
 import { ModalConfirmInstance } from './modal/static-method-confirm';
@@ -21,6 +21,8 @@ export default function ClientProviders({
   children,
   withLayout = true,
 }: ClientProvidersProps) {
+  const pathname = usePathname();
+
   if (withLayout) {
     return (
       <Provider store={store}>
@@ -28,7 +30,7 @@ export default function ClientProviders({
           <div className="h-screen flex flex-col overflow-hidden">
             <Header />
             <div className="flex flex-1 overflow-hidden">
-              <Sidebar />
+              {pathname !== '/dashboard' && <Sidebar />}
               <div className="flex-1 overflow-auto">{children}</div>
             </div>
             <ModalConfirmInstance />

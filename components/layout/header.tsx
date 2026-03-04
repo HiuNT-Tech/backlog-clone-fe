@@ -109,7 +109,12 @@ export function Header() {
         <button className="px-2">
           <Image src={Images.IconDashboard} alt="logo" width={24} height={24} />
         </button>
-        <Title>{t('appBar.title.dashboard')}</Title>
+        <button
+          className="cursor-pointer"
+          onClick={() => router.push('/dashboard')}
+        >
+          <Title>{t('appBar.title.dashboard')}</Title>
+        </button>
         <Title>{t('appBar.title.project')}</Title>
         <button>
           <Image src={Images.IconAdd} alt="logo" width={24} height={24} />

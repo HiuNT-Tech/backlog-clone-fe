@@ -13,7 +13,7 @@ import { toastHelpers } from '@/hooks/use-toast';
 import type { Version } from '@/config/interface';
 import type { CreateVersionFormData } from '@/validation/version-form-schema';
 
-export const VersionsTab: React.FC = () => {
+export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -27,7 +27,7 @@ export const VersionsTab: React.FC = () => {
     deleteVersion,
     isCreatePending,
     isUpdatePending,
-  } = useVersion();
+  } = useVersion(boardId);
 
   const isCreateModeFromUrl = searchParams.get('versionsMode') === 'create';
   const [isCreatingVersion, setIsCreatingVersion] =
@@ -132,6 +132,7 @@ export const VersionsTab: React.FC = () => {
       </div>
 
       <VersionTable
+        boardId={boardId}
         data={versions}
         loading={isLoadingList}
         onDelete={id => void handleDelete(id)}

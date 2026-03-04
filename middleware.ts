@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const protectedRoutes = ['/board'];
+const protectedRoutes = ['/dashboard'];
 
 const guestOnlyRoutes = ['/login', '/register'];
 const publicRoutes = ['/login', '/register', '/account/verification'];
@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
   if (isGuestOnlyRoute && hasAuth) {
-    return NextResponse.redirect(new URL('/board', request.url));
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   const isProtectedRoute = protectedRoutes.some(route =>
