@@ -24,8 +24,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthGuard } from '@/components/auth-guard';
 import StoreProvider from '@/redux/StoreProvider';
 import { Toaster } from '@/components/ui/toaster';
-import { DatadogRum } from '@/components/datadog-rum';
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,7 +38,6 @@ export default function RootLayout({
           <StyledComponentsRegistry>
             <ConfigProvider theme={theme}>
               <TooltipProvider>
-                <DatadogRum />
                 <AuthGuard>{children}</AuthGuard>
                 <Toaster />
               </TooltipProvider>

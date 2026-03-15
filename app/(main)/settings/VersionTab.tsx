@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import VersionTable from '@/components/shared/tables/VersionTable';
 import { VersionForm } from '@/components/shared/forms/VersionForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
+import { usePagination } from '@/hooks/use-pagination';
 import { useVersion } from '@/hooks/use-version';
 import { toastHelpers } from '@/hooks/use-toast';
 import type { Version } from '@/config/interface';
@@ -18,16 +19,18 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const pagination = usePagination();
 
   const {
     versions,
+    totalCount,
     isLoadingList,
     createNewVersion,
     updateVersion,
     deleteVersion,
     isCreatePending,
     isUpdatePending,
-  } = useVersion(boardId);
+  } = useVersion(boardId, pagination.apiParams);
 
   const isCreateModeFromUrl = searchParams.get('versionsMode') === 'create';
   const [isCreatingVersion, setIsCreatingVersion] =
@@ -135,6 +138,8 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
         boardId={boardId}
         data={versions}
         loading={isLoadingList}
+        pagination={pagination}
+        totalCount={totalCount}
         onDelete={id => void handleDelete(id)}
         onEdit={record => {
           setEditingVersion(record);

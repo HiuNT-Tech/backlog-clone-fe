@@ -1,4 +1,4 @@
-import authorizedAxiosInstance from '@/utils/authorizeAxios';
+import { sendGet, sendPost, sendPut, sendDelete } from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
 import type {
   Version,
@@ -7,44 +7,29 @@ import type {
 } from '@/config/interface';
 
 export const VersionService = {
-  getList: async (boardId?: string): Promise<Version[]> => {
-    const params = boardId ? `?boardId=${boardId}` : '';
-    const res = await authorizedAxiosInstance.get(
-      `${API_ROOT}/v1/versions${params}`
-    );
-    return res.data;
+  getList: async (
+    boardId?: string,
+    params?: { skip: number; limit: number }
+  ): Promise<{ items: Version[]; count: number }> => {
+    return await sendGet(`${API_ROOT}/v1/boards/${boardId}/versions`, params);
   },
 
   getDetails: async (id: string): Promise<Version> => {
-    const res = await authorizedAxiosInstance.get(
-      `${API_ROOT}/v1/versions/${id}`
-    );
-    return res.data;
+    return await sendGet(`${API_ROOT}/v1/versions/${id}`);
   },
 
   createNew: async (payload: CreateVersionRequest): Promise<Version> => {
-    const res = await authorizedAxiosInstance.post(
-      `${API_ROOT}/v1/versions`,
-      payload
-    );
-    return res.data;
+    return await sendPost(`${API_ROOT}/v1/versions`, payload);
   },
 
   update: async (
     id: string,
     payload: UpdateVersionRequest
   ): Promise<Version> => {
-    const res = await authorizedAxiosInstance.put(
-      `${API_ROOT}/v1/versions/${id}`,
-      payload
-    );
-    return res.data;
+    return await sendPut(`${API_ROOT}/v1/versions/${id}`, payload);
   },
 
   delete: async (id: string) => {
-    const res = await authorizedAxiosInstance.delete(
-      `${API_ROOT}/v1/versions/${id}`
-    );
-    return res.data;
+    return await sendDelete(`${API_ROOT}/v1/versions/${id}`);
   },
 };

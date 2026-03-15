@@ -1,17 +1,34 @@
 import axios, { AxiosError } from 'axios';
 import { toastHelpers } from '@/hooks/use-toast';
 import { interceptorLoadingElements } from './formatters';
+import config from '@/config';
 import { API_ROOT } from '@/utils/constants';
+
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
+  Pragma: 'no-cache',
+  Expires: '0',
+};
+
+const createBaseURL = (): string => {
+  if (typeof window === 'undefined') return '';
+
+  if (!!config.apiUrl) return config.apiUrl || '';
+
+  return window.location.origin + config.apiPath;
+};
+
+const authorizedAxiosInstance = axios.create({
+  headers: defaultHeaders,
+  baseURL: createBaseURL(),
+  withCredentials: true,
+  timeout: 10 * 60 * 1000,
+});
 
 // Tránh gọi refresh-token nhiều lần song song
 let refreshTokenPromise: Promise<unknown> | null = null;
-
-// Khở tạo một đối tượng Axios mục đích là để custom và cấu hình chung cho dự án
-const authorizedAxiosInstance = axios.create();
-// Thời gian chờ tối đa của 1 request là 10p
-authorizedAxiosInstance.defaults.timeout = 10 * 60 * 1000;
-// withCredentials: Sẽ cho phép axios tư động gửi cookie trogn mỗi request lên BE (phục vụ ciệc chúng ta sẽ lưu JWT tokens (refresh & access)vào trong httpOnly của Cookie của trình duyệt)
-authorizedAxiosInstance.defaults.withCredentials = true;
 
 // Cấu hình Interceptors
 // Interceptor request: Can thiệp vào giữa những cái request API
@@ -127,5 +144,148 @@ authorizedAxiosInstance.interceptors.response.use(
     return Promise.reject(errorMessage);
   }
 );
+
+export const sendGet = async (path: string, params: any = {}) => {
+  const res = await authorizedAxiosInstance.get(path, { params });
+  return res.data;
+};
+
+export const sendPost = async (path: string, params?: any) => {
+  const res = await authorizedAxiosInstance.post(path, params);
+  return res.data;
+};
+
+export const sendPatch = async (path: string, params?: any) => {
+  const res = await authorizedAxiosInstance.patch(path, params);
+  return res.data;
+};
+
+export const sendPut = async (path: string, params?: any) => {
+  const res = await authorizedAxiosInstance.put(path, params);
+  return res.data;
+};
+
+export const sendDelete = async (path: string, params?: any) => {
+  const res = await authorizedAxiosInstance.delete(path, { params });
+  return res.data;
+};
+
+export const sendPostFormData = async (path: string, formData: FormData) => {
+  const res = await authorizedAxiosInstance.post(path, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+};
+
+export const sendPatchFormData = async (path: string, formData: FormData) => {
+  const res = await authorizedAxiosInstance.patch(path, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+};
+
+export const sendGetBlob = async (path: string, params: any = {}) => {
+  const res = await authorizedAxiosInstance.get(path, {
+    params,
+    responseType: 'blob',
+  });
+  return res.data;
+};
+
+export const sendGetBlobWithHeaders = async (
+  path: string,
+  params: any = {}
+) => {
+  const res = await authorizedAxiosInstance.get(path, {
+    params,
+    responseType: 'blob',
+  });
+  return {
+    data: res.data,
+    headers: res.headers,
+  };
+};
+
+export const sendFormData = async (
+  path: string,
+  data: Record<string, any>,
+  files?: File[]
+) => {
+  const formData = new FormData();
+
+  // Add regular data fields
+  Object.keys(data).forEach(key => {
+    // Skip attachments if files are provided separately
+    if (key === 'attachments' && files !== undefined) {
+      return;
+    }
+
+    const value = data[key];
+    if (value !== undefined && value !== null) {
+      if (value instanceof File) {
+        formData.append(key, value, value.name);
+      } else if (Array.isArray(value)) {
+        const hasFiles = value.some(item => item instanceof File);
+        if (hasFiles) {
+          value.forEach(file => {
+            if (file instanceof File) {
+              formData.append(key, file, file.name);
+            }
+          });
+        } else {
+          formData.append(key, JSON.stringify(value));
+        }
+      } else if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  });
+
+  // Add files if provided separately
+  if (files && files.length > 0) {
+    files.forEach(file => {
+      if (file instanceof File) {
+        formData.append('attachments', file, file.name);
+      }
+    });
+  }
+  // Reuse sendPostFormData
+  return sendPostFormData(path, formData);
+};
+
+export const parseFilenameFromContentDisposition = (
+  contentDisposition: string
+): string => {
+  if (!contentDisposition) return '';
+
+  // Try to match filename*=UTF-8''encoded_filename first
+  const filenameStarMatch = contentDisposition.match(
+    /filename\*=UTF-8''([^;]+)/
+  );
+  if (filenameStarMatch) {
+    // Decode percent-encoded UTF-8 filename
+    try {
+      return decodeURIComponent(filenameStarMatch[1]);
+    } catch (error) {
+      console.warn('Failed to decode filename:', error);
+    }
+  }
+
+  // Fallback to regular filename="filename"
+  const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+  if (filenameMatch) {
+    return filenameMatch[1];
+  }
+
+  // Fallback to filename=filename (without quotes)
+  const filenameFallbackMatch = contentDisposition.match(/filename=([^;]+)/);
+  if (filenameFallbackMatch) {
+    return filenameFallbackMatch[1].replace(/^\s*"(.*)"\s*$/, '$1'); // Remove quotes if present
+  }
+
+  return '';
+};
 
 export default authorizedAxiosInstance;

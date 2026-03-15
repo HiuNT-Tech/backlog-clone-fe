@@ -1,4 +1,4 @@
-import authorizedAxiosInstance from '@/utils/authorizeAxios';
+import { sendPost, sendDelete, sendGet } from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
 import {
   LoginUserRequest,
@@ -8,33 +8,22 @@ import {
 
 export const AuthService = {
   registerUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/register`, user)
-    ).data;
+    return await sendPost(`${API_ROOT}/v1/users/register`, user);
   },
 
   verifyUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return (
-      await authorizedAxiosInstance.post(
-        `${API_ROOT}/v1/users/verify-account`,
-        user
-      )
-    ).data;
+    return await sendPost(`${API_ROOT}/v1/users/verify-account`, user);
   },
 
   loginUser: async (user: LoginUserRequest): Promise<LoginUserResponse> => {
-    return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/login`, user)
-    ).data;
+    return await sendPost(`${API_ROOT}/v1/users/login`, user);
   },
 
   logout: async (): Promise<void> => {
-    await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/logout`);
+    await sendDelete(`${API_ROOT}/v1/users/logout`);
   },
 
   refreshToken: async (): Promise<RefreshTokenResponse> => {
-    return (
-      await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/refresh_token`)
-    ).data;
+    return await sendGet(`${API_ROOT}/v1/users/refresh_token`);
   },
 };

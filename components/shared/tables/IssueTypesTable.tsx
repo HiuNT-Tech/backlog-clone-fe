@@ -6,13 +6,20 @@ import Images from '@/assets';
 import type { IssueType } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { useIssueType } from '@/hooks/use-issue-type';
+import { usePagination } from '@/hooks/use-pagination';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 import { renderIssueTypeBadge } from '@/constant/data';
 
 export const IssueTypesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
-  const { issueTypes, isLoadingList } = useIssueType(boardId);
-  const { deleteIssueType, isDeletePending } = useIssueType(boardId);
+  const pagination = usePagination();
+  const {
+    issueTypes,
+    totalCount,
+    isLoadingList,
+    deleteIssueType,
+    isDeletePending,
+  } = useIssueType(boardId, pagination.apiParams);
 
   const columns = useMemo<TableColumn<IssueType>[]>(
     () => [
@@ -53,6 +60,13 @@ export const IssueTypesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
       dataSource={issueTypes}
       loading={isLoadingList}
       emptyText={t('settings.issueTypes.table.empty')}
+      pagination={{
+        current: pagination.page,
+        total: totalCount || 0,
+        pageSize: pagination.limit,
+        onChange: pagination.setPage,
+        onShowSizeChange: pagination.setLimit,
+      }}
       actions={[
         {
           icon: Images.IconTrash,
