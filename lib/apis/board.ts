@@ -1,4 +1,4 @@
-import authorizedAxiosInstance from '@/utils/authorizeAxios';
+import { sendGet, sendPost, sendPut, sendDelete } from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
 import {
   Board,
@@ -14,92 +14,62 @@ import {
 
 export const BoardService = {
   getBoard: async (): Promise<Board[]> => {
-    return (await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards`)).data;
+    return await sendGet(`${API_ROOT}/v1/boards`);
   },
 
   getBoardById: async (boardId: string): Promise<Board> => {
-    const response = await authorizedAxiosInstance.get(
-      `${API_ROOT}/v1/boards/${boardId}`
-    );
-    return response.data;
+    return await sendGet(`${API_ROOT}/v1/boards/${boardId}`);
   },
 
   createNewColumn: async (payload: CreateNewColumnRequest) => {
     const { boardId, title, statusColor } = payload;
-    return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/columns`, {
-        boardId,
-        title,
-        statusColor,
-      })
-    ).data;
+    return await sendPost(`${API_ROOT}/v1/columns`, {
+      boardId,
+      title,
+      statusColor,
+    });
   },
 
   deleteColumn: async (columnId: string) => {
-    return (
-      await authorizedAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`)
-    ).data;
+    return await sendDelete(`${API_ROOT}/v1/columns/${columnId}`);
   },
 
   getColumns: async (boardId: string): Promise<Column[]> => {
-    return (
-      await authorizedAxiosInstance.get(`${API_ROOT}/v1/columns`, {
-        params: {
-          boardId,
-        },
-      })
-    ).data;
+    return await sendGet(`${API_ROOT}/v1/columns`, { boardId });
   },
 
   moveCardToDifferentColumn: async (
     updateData: MoveCardToDifferentColumnRequest
   ) => {
-    return (
-      await authorizedAxiosInstance.put(
-        `${API_ROOT}/v1/boards/supports/moving_card`,
-        updateData
-      )
-    ).data;
+    return await sendPut(
+      `${API_ROOT}/v1/boards/supports/moving_card`,
+      updateData
+    );
   },
 
   updateColumnDetails: async ({
     columnId,
     updateData,
   }: UpdateColumnDetailsRequest) => {
-    return (
-      await authorizedAxiosInstance.put(
-        `${API_ROOT}/v1/columns/${columnId}`,
-        updateData
-      )
-    ).data;
+    return await sendPut(`${API_ROOT}/v1/columns/${columnId}`, updateData);
   },
 
   updateBoardDetail: async ({
     boardId,
     updateData,
   }: UpdateBoardDetailRequest) => {
-    return (
-      await authorizedAxiosInstance.put(
-        `${API_ROOT}/v1/boards/${boardId}`,
-        updateData
-      )
-    ).data;
+    return await sendPut(`${API_ROOT}/v1/boards/${boardId}`, updateData);
   },
 
   deleteColumnDetails: async ({ columnId }: { columnId: string }) => {
-    return (
-      await authorizedAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`)
-    ).data;
+    return await sendDelete(`${API_ROOT}/v1/columns/${columnId}`);
   },
 
   createNewCard: async (card: CreateNewCardRequest) => {
-    return (await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards`, card))
-      .data;
+    return await sendPost(`${API_ROOT}/v1/cards`, card);
   },
 
   createNewBoard: async (payload: CreateBoardRequest): Promise<Board> => {
-    return (
-      await authorizedAxiosInstance.post(`${API_ROOT}/v1/boards`, payload)
-    ).data;
+    return await sendPost(`${API_ROOT}/v1/boards`, payload);
   },
 };

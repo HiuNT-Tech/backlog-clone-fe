@@ -8,18 +8,21 @@ import type {
   UpdateVersionRequest,
 } from '@/config/interface';
 
-export const useVersion = (boardId?: string) => {
+export const useVersion = (
+  boardId?: string,
+  params?: { skip: number; limit: number }
+) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const {
-    data: versions = [],
+    data = { items: [], count: 0 },
     isLoading: isLoadingList,
     error: versionsError,
     refetch: refetchVersions,
   } = useQuery({
-    queryKey: ['versions', boardId],
-    queryFn: () => VersionService.getList(boardId),
+    queryKey: ['versions', boardId, params],
+    queryFn: () => VersionService.getList(boardId, params),
     enabled: !!boardId,
   });
 
@@ -73,7 +76,8 @@ export const useVersion = (boardId?: string) => {
   });
 
   return {
-    versions,
+    versions: data.items,
+    totalCount: data.count,
     isLoadingList,
     versionsError,
     refetchVersions,
