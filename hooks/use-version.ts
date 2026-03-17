@@ -32,7 +32,7 @@ export const useVersion = (
     error: createNewVersionError,
   } = useMutation({
     mutationFn: (payload: CreateVersionRequest): Promise<Version> =>
-      VersionService.createNew({ ...payload, boardId: boardId! }),
+      VersionService.createNew(boardId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
@@ -52,7 +52,7 @@ export const useVersion = (
     }: {
       id: string;
       payload: UpdateVersionRequest;
-    }): Promise<Version> => VersionService.update(id, payload),
+    }): Promise<Version> => VersionService.update(boardId!, id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
@@ -66,7 +66,7 @@ export const useVersion = (
     isPending: isDeletePending,
     error: deleteVersionError,
   } = useMutation({
-    mutationFn: (id: string) => VersionService.delete(id),
+    mutationFn: (id: string) => VersionService.delete(boardId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
