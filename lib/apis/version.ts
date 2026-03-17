@@ -14,22 +14,29 @@ export const VersionService = {
     return await sendGet(`${API_ROOT}/v1/boards/${boardId}/versions`, params);
   },
 
-  getDetails: async (id: string): Promise<Version> => {
-    return await sendGet(`${API_ROOT}/v1/versions/${id}`);
+  getDetails: async (boardId: string, id: string): Promise<Version> => {
+    return await sendGet(`${API_ROOT}/v1/boards/${boardId}/versions/${id}`);
   },
 
-  createNew: async (payload: CreateVersionRequest): Promise<Version> => {
-    return await sendPost(`${API_ROOT}/v1/versions`, payload);
+  createNew: async (
+    boardId: string,
+    payload: CreateVersionRequest
+  ): Promise<Version> => {
+    return await sendPost(`${API_ROOT}/v1/boards/${boardId}/versions`, payload);
   },
 
   update: async (
+    boardId: string,
     id: string,
     payload: UpdateVersionRequest
   ): Promise<Version> => {
-    return await sendPut(`${API_ROOT}/v1/versions/${id}`, payload);
+    return await sendPut(
+      `${API_ROOT}/v1/boards/${boardId}/versions/${id}`,
+      payload
+    );
   },
 
-  delete: async (id: string) => {
-    return await sendDelete(`${API_ROOT}/v1/versions/${id}`);
+  delete: async (boardId: string, id: string) => {
+    return await sendDelete(`${API_ROOT}/v1/boards/${boardId}/versions/${id}`);
   },
 };
