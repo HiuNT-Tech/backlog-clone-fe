@@ -12,13 +12,32 @@ import { useIssueType } from '@/hooks/use-issue-type';
 import { toastHelpers } from '@/hooks/use-toast';
 import { COLOR_KEY_TO_STATUS } from '@/constant/data';
 import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-form-schemas';
+import IssueTypesFilter from '@/components/shared/filters/IssueTypesFilter';
+import { usePagination } from '@/hooks/use-pagination';
 
 export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { createNewIssueType, isCreatePending } = useIssueType(boardId);
+  const pagination = usePagination();
+
+  const [searchParamsState, setSearchParamsState] =
+    useState<Record<string, any>>();
+
+  const apiParams = {
+    ...pagination.apiParams,
+    ...searchParamsState,
+  };
+
+  const {
+    issueTypes,
+    totalCount,
+    isLoadingList,
+    createNewIssueType,
+    deleteIssueType,
+    isCreatePending,
+  } = useIssueType(boardId, apiParams);
 
   const isCreateModeFromUrl = searchParams.get('issueTypesMode') === 'create';
   const [isCreatingIssueType, setIsCreatingIssueType] =
@@ -27,6 +46,11 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   useEffect(() => {
     setIsCreatingIssueType(isCreateModeFromUrl);
   }, [isCreateModeFromUrl]);
+
+  const handleSearch = (params: Record<string, any>) => {
+    setSearchParamsState(params);
+    pagination.setPage(1);
+  };
 
   const handleCloseCreate = () => {
     replaceWithUpdatedSearchParams(router, pathname, searchParams, params => {
@@ -40,11 +64,12 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     try {
       const statusColor = COLOR_KEY_TO_STATUS[data.selectedColorKey];
       await createNewIssueType({
+        boardId,
         name: data.name.trim(),
         statusColor,
       });
       toastHelpers.success({
-        title: t('settings.issueTypes.createSuccess'),
+        title: t('common.success.add'),
       });
       handleCloseCreate();
     } catch {
@@ -52,9 +77,19 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteIssueType(id);
+      toastHelpers.success({
+        title: t('common.success.delete'),
+      });
+    } catch {}
+  };
+
   if (isCreatingIssueType) {
     return (
       <IssueTypeCreateForm
+        boardId={boardId}
         onClose={handleCloseCreate}
         onSubmit={handleSubmitIssueType}
         isPending={isCreatePending}
@@ -63,18 +98,18 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 border-b border-theme-neutral-4 pb-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-theme-neutral-11">
+          <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-theme-neutral-11">
             {t('settings.issueTypes.heading')}
           </h2>
-          <p className="text-sm text-theme-neutral-8">
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
             {t('settings.issueTypes.hint')}
           </p>
         </div>
         <Button
-          className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover"
+          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
           onClick={() => {
             replaceWithUpdatedSearchParams(
               router,
@@ -92,7 +127,19 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
         </Button>
       </div>
 
-      <IssueTypesTable boardId={boardId} />
+      <IssueTypesFilter onSearch={handleSearch} />
+
+      <IssueTypesTable
+        boardId={boardId}
+        data={issueTypes}
+        loading={isLoadingList}
+        totalCount={totalCount}
+        page={pagination.page}
+        limit={pagination.limit}
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setLimit}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

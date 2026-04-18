@@ -17,6 +17,10 @@ import FlagVN from '@/assets/images/flag-vn.svg';
 import FlagUSA from '@/assets/images/flag-usa.svg';
 import IconTrash from '@/assets/images/icon-trash.svg';
 import IconEdit from '@/assets/images/icon-edit.svg';
+import IconCaretDown from '@/assets/images/caret-down.svg';
+import IconCaretUp from '@/assets/images/caret-up.svg';
+import IconSearch from '@/assets/images/icon-search.svg';
+
 const Images = {
   defaultAvatar,
   defaultAvatarFullFilled,
@@ -37,6 +41,9 @@ const Images = {
   FlagUSA,
   IconTrash,
   IconEdit,
+  IconCaretDown,
+  IconCaretUp,
+  IconSearch,
 };
 
 export default Images;

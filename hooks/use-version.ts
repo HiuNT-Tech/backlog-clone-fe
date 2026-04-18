@@ -8,10 +8,7 @@ import type {
   UpdateVersionRequest,
 } from '@/config/interface';
 
-export const useVersion = (
-  boardId?: string,
-  params?: { skip: number; limit: number }
-) => {
+export const useVersion = (boardId?: string, params?: Record<string, any>) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -36,9 +33,6 @@ export const useVersion = (
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -56,9 +50,6 @@ export const useVersion = (
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -69,9 +60,6 @@ export const useVersion = (
     mutationFn: (id: string) => VersionService.delete(boardId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
-    },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
 

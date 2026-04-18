@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
+import { usePagination } from '@/hooks/use-pagination';
 
 export interface IssueRow {
   id: string;
@@ -22,8 +23,17 @@ export interface IssueRow {
   registerBy: string;
 }
 
-export const IssuesTable: React.FC<{ data: IssueRow[] }> = ({ data }) => {
+export interface IssuesTableProps {
+  data: IssueRow[];
+  totalCount?: number;
+}
+
+export const IssuesTable: React.FC<IssuesTableProps> = ({
+  data,
+  totalCount,
+}) => {
   const { t } = useTranslation();
+  const { page, limit, setPage, setLimit } = usePagination();
 
   const columns = useMemo<TableColumn<IssueRow>[]>(
     () => [
@@ -134,6 +144,13 @@ export const IssuesTable: React.FC<{ data: IssueRow[] }> = ({ data }) => {
       dataSource={data}
       emptyText={t('issues.table.empty')}
       horizontalScroll={true}
+      pagination={{
+        current: page,
+        total: totalCount || 0,
+        pageSize: limit,
+        onChange: setPage,
+        onShowSizeChange: setLimit,
+      }}
     />
   );
 };

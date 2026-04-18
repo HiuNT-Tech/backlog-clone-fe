@@ -86,9 +86,6 @@ function Column({ column }: ColumnProps) {
         toastHelpers.success({ title: t('toast.success.cardCreated') });
         setIsAddCardPopupOpen(false);
       },
-      onError: () => {
-        toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-      },
     });
 
   const handleAddCardConfirm = async (cardData: CardFormData) => {

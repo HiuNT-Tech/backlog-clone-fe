@@ -9,7 +9,7 @@ import type {
 export const VersionService = {
   getList: async (
     boardId?: string,
-    params?: { skip: number; limit: number }
+    params?: Record<string, any>
   ): Promise<{ items: Version[]; count: number }> => {
     return await sendGet(`${API_ROOT}/v1/boards/${boardId}/versions`, params);
   },

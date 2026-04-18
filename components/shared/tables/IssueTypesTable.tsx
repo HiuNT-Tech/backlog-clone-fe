@@ -5,21 +5,33 @@ import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
 import type { IssueType } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
-import { useIssueType } from '@/hooks/use-issue-type';
-import { usePagination } from '@/hooks/use-pagination';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 import { renderIssueTypeBadge } from '@/constant/data';
 
-export const IssueTypesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
+export interface IssueTypesTableProps {
+  boardId: string;
+  data: IssueType[];
+  loading?: boolean;
+  totalCount?: number;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (limit: number) => void;
+  onDelete?: (id: string) => void;
+}
+
+export const IssueTypesTable: React.FC<IssueTypesTableProps> = ({
+  boardId,
+  data,
+  loading,
+  totalCount,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
+  onDelete,
+}) => {
   const { t } = useTranslation();
-  const pagination = usePagination();
-  const {
-    issueTypes,
-    totalCount,
-    isLoadingList,
-    deleteIssueType,
-    isDeletePending,
-  } = useIssueType(boardId, pagination.apiParams);
 
   const columns = useMemo<TableColumn<IssueType>[]>(
     () => [
@@ -48,7 +60,7 @@ export const IssueTypesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
         name: record?.name ?? '—',
       }),
       onOk: () => {
-        deleteIssueType(record?._id);
+        if (record?._id) onDelete?.(record._id);
       },
     });
   };
@@ -57,15 +69,15 @@ export const IssueTypesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
     <CustomTable
       rowKey="_id"
       columns={columns}
-      dataSource={issueTypes}
-      loading={isLoadingList}
+      dataSource={data}
+      loading={loading}
       emptyText={t('settings.issueTypes.table.empty')}
       pagination={{
-        current: pagination.page,
+        current: page,
         total: totalCount || 0,
-        pageSize: pagination.limit,
-        onChange: pagination.setPage,
-        onShowSizeChange: pagination.setLimit,
+        pageSize: limit,
+        onChange: onPageChange,
+        onShowSizeChange: onPageSizeChange,
       }}
       actions={[
         {

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
 import { toastHelpers } from '@/hooks/use-toast';
@@ -9,7 +9,7 @@ import {
   MoveCardToDifferentColumnRequest,
 } from '@/config/interface';
 
-export const useBoard = (boardId: string, columnId: string) => {
+export const useBoard = (boardId: string, columnId?: string) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -27,9 +27,6 @@ export const useBoard = (boardId: string, columnId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -39,15 +36,12 @@ export const useBoard = (boardId: string, columnId: string) => {
   } = useMutation({
     mutationFn: async (column: Partial<Column>) => {
       return await BoardService.updateColumnDetails({
-        columnId: column._id || columnId,
+        columnId: column._id || columnId!,
         updateData: column,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
-    },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
 
@@ -65,9 +59,6 @@ export const useBoard = (boardId: string, columnId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -81,9 +72,6 @@ export const useBoard = (boardId: string, columnId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -96,9 +84,6 @@ export const useBoard = (boardId: string, columnId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
-    },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
 
@@ -116,9 +101,6 @@ export const useBoard = (boardId: string, columnId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
-    },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
 

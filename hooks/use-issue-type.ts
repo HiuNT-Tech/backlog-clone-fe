@@ -6,7 +6,7 @@ import type { CreateIssueTypeRequest, IssueType } from '@/config/interface';
 
 export const useIssueType = (
   boardId?: string,
-  params?: { skip: number; limit: number }
+  params?: Record<string, any>
 ) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -32,9 +32,6 @@ export const useIssueType = (
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issue-types', boardId] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -45,9 +42,6 @@ export const useIssueType = (
     mutationFn: (id: string) => IssueTypeService.delete(boardId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issue-types', boardId] });
-    },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
   return {

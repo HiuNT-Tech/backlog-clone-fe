@@ -1,0 +1,83 @@
+import type { InputProps } from '@/components/ui/input';
+import type { SelectProps } from '@/components/ui/select';
+import type { DatePickerProps } from '@/components/ui/date-picker';
+import type { TimePickerProps } from '@/components/ui/time-picker';
+import type { DateRangePickerProps } from '@/components/ui/date-range-picker';
+import type { TimeRangePickerProps } from '@/components/ui/time-range-picker';
+
+export type SearchFieldType =
+  | 'text'
+  | 'select'
+  | 'date'
+  | 'time'
+  | 'dateRange'
+  | 'timeRange';
+
+export interface BaseSearchField {
+  id: string;
+  type: SearchFieldType;
+  label?: string;
+  required?: boolean;
+  defaultValue?: any;
+}
+
+export interface TextSearchField extends BaseSearchField {
+  type: 'text';
+  props?: Omit<InputProps, 'label' | 'required'>;
+}
+
+export interface SelectSearchField extends BaseSearchField {
+  type: 'select';
+  props?: Omit<SelectProps, 'label' | 'required' | 'options'>;
+  options: { value: string; label: string }[];
+}
+
+export interface DateSearchField extends BaseSearchField {
+  type: 'date';
+  props?: Omit<DatePickerProps, 'label' | 'required'>;
+}
+
+export interface TimeSearchField extends BaseSearchField {
+  type: 'time';
+  props?: Omit<TimePickerProps, 'label' | 'required'>;
+}
+
+export interface DateRangeSearchField extends BaseSearchField {
+  type: 'dateRange';
+  props?: Omit<DateRangePickerProps, 'label' | 'required'>;
+}
+
+export interface TimeRangeSearchField extends BaseSearchField {
+  type: 'timeRange';
+  props?: Omit<TimeRangePickerProps, 'label' | 'required'>;
+}
+
+export type SearchField =
+  | TextSearchField
+  | SelectSearchField
+  | DateSearchField
+  | TimeSearchField
+  | DateRangeSearchField
+  | TimeRangeSearchField;
+
+export interface SearchSectionConfig {
+  title?: string;
+  fields: SearchField[];
+  itemsPerRow?: number; // default: 5
+  minItemWidth?: number; // default: 250px
+  noExpand?: boolean; // default: false - if true, disable expand/collapse and show all items
+  onSearch?: (values: Record<string, any>) => void;
+  onReset?: () => void;
+  onFieldChange?: (id: string, value: any) => void;
+  searchButtonText?: string; // default: "検索"
+  resetButtonText?: string; // default: "リフレッシュ"
+  expandButtonText?: string; // default: "詳細検索はこちら"
+  collapseButtonText?: string; // default: "詳細検索はこちら"
+  syncWithUrl?: boolean; // default: true - sync search state with URL params
+  urlParamsPrefix?: string; // default: '' - prefix for URL params to avoid conflicts
+  triggerSearchOnMount?: boolean; // default: true - trigger onSearch when mounting with URL params
+}
+
+export interface SearchFormValues {
+  [key: string]: any;
+}

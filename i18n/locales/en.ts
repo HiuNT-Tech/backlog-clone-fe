@@ -9,6 +9,27 @@ const en = {
     confirm: 'Confirm',
     delete: 'Delete',
     submit: 'Submit',
+    search: 'Search',
+    reset: 'Reset',
+    of: 'of',
+    rowsPerPage: 'Rows per page',
+    filterHint:
+      'Narrow the list with focused filters before running an action.',
+    searchPlaceholder: 'Type to search...',
+    success: {
+      delete: 'Delete successfully',
+      update: 'Update successfully',
+      add: 'Add successfully',
+      save: 'Save successfully',
+      register: 'Register successfully',
+    },
+    error: {
+      delete: 'Delete failed',
+      update: 'Update failed',
+      add: 'Add failed',
+      save: 'Save failed',
+      register: 'Register failed',
+    },
   },
   appBar: {
     title: {
@@ -84,6 +105,9 @@ const en = {
   settings: {
     title: 'Project Settings',
     description: 'Manage project members and issue type configuration.',
+    scopeTitle: 'Workspace scope',
+    scopeDescription:
+      'Manage people, issue metadata, release milestones and workflow statuses for this board from one place.',
     noBoardSelected:
       'Please select a board from the Dashboard to view settings.',
     tabs: {

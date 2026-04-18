@@ -17,18 +17,20 @@ import {
 import { cn } from '@/lib/utils';
 
 export interface IssueTypeCreateFormProps {
+  boardId: string;
   onClose: () => void;
   onSubmit: (data: CreateIssueTypeFormData) => Promise<void>;
   isPending: boolean;
 }
 
 export const IssueTypeCreateForm: React.FC<IssueTypeCreateFormProps> = ({
+  boardId,
   onClose,
   onSubmit,
   isPending,
 }) => {
   const { t } = useTranslation();
-  const { issueTypes, isLoadingList } = useIssueType();
+  const { issueTypes, isLoadingList } = useIssueType(boardId);
 
   const {
     register,

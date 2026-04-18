@@ -5,23 +5,36 @@ import { useTranslation } from 'react-i18next';
 
 import { Avatar } from '@/components/ui/avatar';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
-import { MemberRole } from '@/config/enum';
 import { renderMemberRoleBadge } from '@/constant/data';
 import Images from '@/assets';
 import StaticMethodConfirm from '@/components/modal/static-method-confirm';
+import { UserBoardMember, UsersBoardResponse } from '@/config/interface';
 
-export interface MemberResponse {
-  id: string;
-  fullName: string;
-  role: MemberRole;
-  joinedOn: string;
+export interface MembersTableProps {
+  boardId?: string;
+  listUser: UsersBoardResponse;
+  isListLoading: boolean;
+  listError: Error | null;
+  refetchList: () => void;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (limit: number) => void;
 }
 
-export const MembersTable: React.FC<{
-  boardId?: string;
-  data: MemberResponse[];
-}> = ({ boardId, data }) => {
+export const MembersTable: React.FC<MembersTableProps> = ({
+  boardId,
+  listUser,
+  isListLoading,
+  listError,
+  refetchList,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
+}) => {
   const { t } = useTranslation();
+
   const handleDelete = () => {
     StaticMethodConfirm.open({
       title: t('settings.members.table.delete'),
@@ -32,23 +45,23 @@ export const MembersTable: React.FC<{
     });
   };
 
-  const columns = useMemo<TableColumn<MemberResponse>[]>(
+  const columns = useMemo<TableColumn<UserBoardMember>[]>(
     () => [
       {
         key: 'member',
         title: t('settings.members.table.member'),
-        dataIndex: 'fullName',
+        dataIndex: 'displayName',
         render: (value, record) => (
           <div className="flex items-center gap-3">
-            <Avatar
-              size={28}
-              className="bg-theme-main text-theme-neutral-1 text-xs"
-            >
-              {record.fullName.slice(0, 1).toUpperCase()}
-            </Avatar>
-            {record.fullName}
+            {(record.displayName || record.username).slice(0, 1).toUpperCase()}
+            {record.displayName || record.username}
           </div>
         ),
+      },
+      {
+        key: 'email',
+        title: 'Email',
+        dataIndex: 'email',
       },
       {
         key: 'role',
@@ -58,11 +71,15 @@ export const MembersTable: React.FC<{
         render: value => renderMemberRoleBadge(value, t),
       },
       {
-        key: 'joinedOn',
+        key: 'createdAt',
         title: t('settings.members.table.joinedOn'),
-        dataIndex: 'joinedOn',
+        dataIndex: 'createdAt',
         align: 'center',
-        render: value => <span className="text-theme-neutral-9">{value}</span>,
+        render: value => (
+          <span className="text-theme-neutral-9">
+            {value ? new Date(value).toLocaleDateString() : ''}
+          </span>
+        ),
       },
     ],
     [t]
@@ -70,9 +87,9 @@ export const MembersTable: React.FC<{
 
   return (
     <CustomTable
-      rowKey="id"
+      rowKey="userId"
       columns={columns}
-      dataSource={data}
+      dataSource={listUser?.items ?? []}
       emptyText={t('settings.members.table.empty')}
       actions={[
         {
@@ -81,6 +98,13 @@ export const MembersTable: React.FC<{
           onClick: handleDelete,
         },
       ]}
+      pagination={{
+        current: page,
+        total: listUser?.total || 0,
+        pageSize: limit,
+        onChange: onPageChange,
+        onShowSizeChange: onPageSizeChange,
+      }}
     />
   );
 };

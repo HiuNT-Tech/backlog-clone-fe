@@ -13,13 +13,31 @@ import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-for
 import { Button } from '@/components/ui/button';
 import { StatusesTable } from '@/components/shared/tables/StatusesTable';
 import { StatusCreateForm } from '@/components/shared/forms/StatusCreateForm';
+import StatusesFilter from '@/components/shared/filters/StatusesFilter';
+import { usePagination } from '@/hooks/use-pagination';
 
 export const StatusesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { createNewColumn, isCreatePending } = useColumn(boardId);
+  const pagination = usePagination();
+
+  const [searchParamsState, setSearchParamsState] =
+    useState<Record<string, any>>();
+
+  const apiParams = {
+    ...pagination.apiParams,
+    ...searchParamsState,
+  };
+
+  const {
+    columns: columnList,
+    isLoadingList,
+    createNewColumn,
+    deleteColumn,
+    isCreatePending,
+  } = useColumn(boardId, apiParams);
 
   const isCreateModeFromUrl = searchParams.get('statusesMode') === 'create';
   const [isCreatingStatus, setIsCreatingStatus] = useState(isCreateModeFromUrl);
@@ -28,11 +46,17 @@ export const StatusesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     setIsCreatingStatus(isCreateModeFromUrl);
   }, [isCreateModeFromUrl]);
 
+  const handleSearch = (params: Record<string, any>) => {
+    setSearchParamsState(params);
+    pagination.setPage(1);
+  };
+
   const handleCloseCreate = () => {
     replaceWithUpdatedSearchParams(router, pathname, searchParams, params => {
       params.set('tab', 'statuses');
       params.delete('statusesMode');
     });
+    setIsCreatingStatus(false);
   };
 
   const handleSubmitColumn = async (data: CreateIssueTypeFormData) => {
@@ -52,6 +76,15 @@ export const StatusesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteColumn(id);
+      toastHelpers.success({
+        title: t('common.success.delete'),
+      });
+    } catch {}
+  };
+
   if (isCreatingStatus) {
     return (
       <StatusCreateForm
@@ -63,18 +96,18 @@ export const StatusesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 border-b border-theme-neutral-4 pb-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-theme-neutral-11">
+          <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-theme-neutral-11">
             {t('settings.statuses.heading')}
           </h2>
-          <p className="text-sm text-theme-neutral-8">
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
             {t('settings.statuses.hint')}
           </p>
         </div>
         <Button
-          className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover"
+          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
           onClick={() => {
             replaceWithUpdatedSearchParams(
               router,
@@ -85,13 +118,25 @@ export const StatusesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
                 params.set('statusesMode', 'create');
               }
             );
+            setIsCreatingStatus(true);
           }}
         >
           {t('settings.statuses.actions.add')}
         </Button>
       </div>
 
-      <StatusesTable boardId={boardId} />
+      <StatusesFilter onSearch={handleSearch} />
+
+      <StatusesTable
+        boardId={boardId}
+        data={columnList}
+        loading={isLoadingList}
+        page={pagination.page}
+        limit={pagination.limit}
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setLimit}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

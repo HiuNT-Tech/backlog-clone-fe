@@ -5,7 +5,7 @@ import type { CreateIssueTypeRequest, IssueType } from '@/config/interface';
 export const IssueTypeService = {
   getList: async (
     boardId: string,
-    params?: { skip: number; limit: number }
+    params?: Record<string, any>
   ): Promise<{ items: IssueType[]; count: number }> => {
     return await sendGet(
       `${API_ROOT}/v1/boards/${boardId}/issue-types`,

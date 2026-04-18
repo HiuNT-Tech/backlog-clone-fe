@@ -167,3 +167,36 @@ export interface LoginUserResponse {
 export interface RefreshTokenResponse {
   accessToken: string;
 }
+
+export interface User {
+  _id: string;
+  email: string;
+  username: string;
+  displayName: string;
+  avatar: string | null;
+  isActive: boolean;
+}
+
+export interface UsersBoardParams {
+  search?: string;
+  role?: number | null;
+  skip?: number;
+  limit?: number;
+}
+
+export interface UsersBoardResponse {
+  total: number;
+  items: UserBoardMember[];
+}
+
+export interface UserBoardMember {
+  userId: string;
+  role: number | string;
+  email: string;
+  username: string;
+  displayName: string;
+  avatar: string | null;
+  _destroy: boolean;
+  createdAt: number;
+  updatedAt: number | null;
+}
