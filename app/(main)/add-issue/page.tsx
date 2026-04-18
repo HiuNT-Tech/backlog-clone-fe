@@ -82,9 +82,6 @@ export default function AddIssuePage() {
       toastHelpers.success({ title: t('toast.success.cardCreated') });
       router.back();
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

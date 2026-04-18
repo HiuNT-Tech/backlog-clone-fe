@@ -9,6 +9,22 @@ const vi = {
     confirm: 'Xác nhận',
     delete: 'Xóa',
     submit: 'Lưu',
+    search: 'Tìm kiếm',
+    reset: 'Đặt lại',
+    of: 'trên',
+    rowsPerPage: 'Số hàng mỗi trang',
+    filterHint: 'Thu gọn danh sách bằng các bộ lọc phù hợp trước khi thao tác.',
+    searchPlaceholder: 'Gõ để tìm kiếm...',
+    success: {
+      delete: 'Xóa thành công',
+      update: 'Cập nhật thành công',
+      create: 'Tạo thành công',
+    },
+    error: {
+      delete: 'Xóa thất bại',
+      update: 'Cập nhật thất bại',
+      create: 'Tạo thất bại',
+    },
   },
   appBar: {
     title: {
@@ -84,6 +100,9 @@ const vi = {
   settings: {
     title: 'Cài đặt dự án',
     description: 'Quản lý thành viên dự án và cấu hình loại công việc.',
+    scopeTitle: 'Phạm vi quản trị',
+    scopeDescription:
+      'Quản lý thành viên, metadata công việc, milestone phát hành và trạng thái quy trình của board tại một nơi.',
     noBoardSelected: 'Vui lòng chọn một board từ Dashboard để xem cài đặt.',
     tabs: {
       members: 'Thành viên',

@@ -27,7 +27,15 @@ type MemberRoleStatusConfig = {
 export const getMemberRoleStatusConfig = (
   role: MemberRole | string | number
 ): MemberRoleStatusConfig => {
-  const numericRole = Number(role) as MemberRole;
+  let numericRole = Number(role) as MemberRole;
+
+  if (typeof role === 'string') {
+    const upperRole = role.toUpperCase();
+    if (upperRole === 'ADMIN') numericRole = MemberRole.ADMINISTRATOR;
+    else if (upperRole === 'PM') numericRole = MemberRole.PROJECT_MANAGER;
+    else if (upperRole === 'MEMBER') numericRole = MemberRole.MEMBER;
+  }
+
   return (
     MEMBER_ROLE_STATUS_DATA[numericRole] || {
       labelKey: '',

@@ -51,18 +51,34 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-theme-neutral-3/40">
-      <div className="mx-auto w-full max-w-6xl px-6 py-6">
-        <div className="mb-5">
-          <h1 className="text-2xl font-semibold text-theme-neutral-11">
-            {t('settings.title')}
-          </h1>
-          <p className="mt-1 text-sm text-theme-neutral-8">
-            {t('settings.description')}
-          </p>
+    <div className="min-h-screen w-full bg-[#f6f7f9]">
+      <div className="mx-auto w-full max-w-7xl px-8 py-8">
+        <div className="mb-6 rounded-2xl border border-theme-neutral-4 bg-white px-8 py-7 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-theme-neutral-7">
+                {currentActiveBoard?.title || t('settings.title')}
+              </p>
+              <h1 className="mt-2 text-[30px] font-semibold tracking-[-0.02em] text-theme-neutral-11">
+                {t('settings.title')}
+              </h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-theme-neutral-8">
+                {t('settings.description')}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-theme-neutral-4 bg-theme-neutral-2/80 px-5 py-4 lg:max-w-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-theme-neutral-7">
+                {t('settings.scopeTitle', 'Workspace scope')}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-theme-neutral-8">
+                {t('settings.scopeDescription')}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="rounded-xl border border-theme-neutral-5 bg-theme-neutral-1 p-5 shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-theme-neutral-4 bg-theme-neutral-1 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
           <Tabs
             activeKey={currentTab}
             onChange={handleTabChange}
@@ -88,7 +104,7 @@ export default function SettingsPage() {
                 children: <StatusesTab boardId={boardId} />,
               },
             ]}
-            className="[&_.ant-tabs-tab-btn]:font-medium [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-theme-main [&_.ant-tabs-ink-bar]:bg-theme-main"
+            className="[&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:border-b [&_.ant-tabs-nav]:border-theme-neutral-4 [&_.ant-tabs-nav]:px-8 [&_.ant-tabs-nav]:pt-3 [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab+.ant-tabs-tab]:ml-8 [&_.ant-tabs-tab-btn]:text-sm [&_.ant-tabs-tab-btn]:font-medium [&_.ant-tabs-tab-btn]:text-theme-neutral-8 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-theme-neutral-11 [&_.ant-tabs-ink-bar]:bg-theme-main [&_.ant-tabs-content-holder]:px-8 [&_.ant-tabs-content-holder]:py-6"
           />
         </div>
       </div>

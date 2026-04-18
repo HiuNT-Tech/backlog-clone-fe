@@ -5,7 +5,7 @@ import { toastHelpers } from '@/hooks/use-toast';
 import { Column } from '@/config/interface';
 import type { ColorStatusKey } from '@/constant/data';
 
-export const useColumn = (boardId?: string) => {
+export const useColumn = (boardId?: string, params?: Record<string, any>) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const {
@@ -13,8 +13,8 @@ export const useColumn = (boardId?: string) => {
     isLoading: isLoadingList,
     error: listError,
   } = useQuery({
-    queryKey: ['columns'],
-    queryFn: () => BoardService.getColumns(boardId!),
+    queryKey: ['columns', boardId, params],
+    queryFn: () => BoardService.getColumns(boardId!, params),
     enabled: !!boardId,
   });
 
@@ -37,9 +37,6 @@ export const useColumn = (boardId?: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns', boardId] });
     },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    },
   });
 
   const {
@@ -52,9 +49,6 @@ export const useColumn = (boardId?: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns', boardId] });
-    },
-    onError: () => {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
     },
   });
 

@@ -39,15 +39,20 @@ export const getMenuItems = (boardId?: string) => [
 ];
 
 const isPathActive = (href: string, currentPath: string): boolean => {
+  const normalizedHref = href.split('?')[0].split('#')[0];
+
   if (href.startsWith('#')) {
     return currentPath === href;
   }
 
-  if (href.startsWith('/')) {
-    return currentPath === href || currentPath.startsWith(href + '/');
+  if (normalizedHref.startsWith('/')) {
+    return (
+      currentPath === normalizedHref ||
+      currentPath.startsWith(normalizedHref + '/')
+    );
   }
 
-  return currentPath === href;
+  return currentPath === normalizedHref;
 };
 
 const RowItem = ({
@@ -83,9 +88,9 @@ const RowItem = ({
 
   const getRowItemClassName = () => {
     if (isActive) {
-      return 'bg-theme-neutral-1 text-theme-main';
+      return 'border border-white/70 bg-white text-theme-neutral-11 shadow-[0_8px_20px_rgba(0,0,0,0.08)]';
     }
-    return 'text-theme-neutral-1 hover:bg-white/20';
+    return 'text-theme-neutral-1/90 hover:bg-white/12';
   };
 
   const linkContent = (
@@ -94,11 +99,14 @@ const RowItem = ({
       href={item.href}
       onClick={e => handleRedirectLink(e, item.href)}
       className={cn(
-        'flex items-center text-base font-medium rounded-md transition-all duration-200',
-        isCollapsed ? 'px-2 py-2 justify-center' : 'px-3 py-2',
+        'relative flex items-center text-sm font-medium rounded-xl transition-all duration-200',
+        isCollapsed ? 'px-2 py-3 justify-center' : 'px-4 py-3',
         getRowItemClassName()
       )}
     >
+      {isActive && !isCollapsed && (
+        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-theme-main" />
+      )}
       <Image
         src={item.icon}
         alt={item.titleKey}
@@ -151,7 +159,7 @@ export function Sidebar(
     <TooltipProvider>
       <div
         className={cn(
-          'flex-shrink-0 bg-theme-main border-r border-theme-neutral-5 h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto transition-all duration-300 ease-in-out',
+          'flex-shrink-0 bg-theme-main border-r border-theme-main-5/40 h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto transition-all duration-300 ease-in-out',
           isCollapsed ? 'w-16' : 'w-50',
           inline ? 'hidden md:block' : 'block'
         )}
@@ -159,7 +167,7 @@ export function Sidebar(
         {/* Header with title and collapse button */}
         <div
           className={cn(
-            'flex items-center justify-end px-4 py-2',
+            'flex items-center justify-end px-4 py-3',
             isCollapsed && 'justify-center'
           )}
         >
@@ -168,7 +176,7 @@ export function Sidebar(
               <Button
                 size="sm"
                 onClick={toggleCollapse}
-                className="-mr-4 py-2 px-1 h-auto hover:bg-theme-hover transition-all duration-200 rounded-l-lg rounded-r-none"
+                className="-mr-4 py-2 px-1 h-auto hover:bg-theme-hover/80 transition-all duration-200 rounded-l-lg rounded-r-none"
               >
                 <Image
                   src={Images.IconArrowCollapseSidebar}
@@ -184,7 +192,7 @@ export function Sidebar(
             <Button
               size="sm"
               onClick={toggleCollapse}
-              className="p-2 h-auto hover:bg-theme-hover transition-all duration-200 border border-theme-neutral-1"
+              className="p-2 h-auto hover:bg-theme-hover/80 transition-all duration-200 border border-theme-neutral-1/60"
             >
               <Image
                 src={Images.IconCollapsedSidebar}
@@ -200,8 +208,8 @@ export function Sidebar(
         {/* Main menu section */}
         <div
           className={cn(
-            'transition-all duration-200',
-            isCollapsed ? 'px-2' : ''
+            'px-3 pb-4 transition-all duration-200',
+            isCollapsed && 'px-2'
           )}
         >
           {isCollapsed && (
@@ -209,7 +217,7 @@ export function Sidebar(
               <div className="h-[1px] bg-gray-200 w-full"></div>
             </div>
           )}
-          <nav className="space-y-2">
+          <nav className="space-y-2.5">
             {menuItems.map(item => (
               <RowItem key={item.href} item={item} isCollapsed={isCollapsed} />
             ))}

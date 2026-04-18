@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Pagination } from './pagination';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown } from 'lucide-react';
 
 export interface TableColumn<T = any> {
   key: string;
@@ -40,9 +39,9 @@ export interface CustomTableProps<T = any> {
   // Pagination props
   pagination?:
     | {
-        current: number;
-        total: number;
-        pageSize: number;
+        current?: number;
+        total?: number;
+        pageSize?: number;
         showSizeChanger?: boolean;
         showQuickJumper?: boolean;
         showTotal?: boolean;
@@ -140,10 +139,10 @@ const IconButton = ({
       }}
       disabled={disabled}
       className={cn(
-        'p-1 rounded-full',
+        'inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent transition-colors',
         disabled
           ? 'cursor-not-allowed opacity-50'
-          : 'cursor-pointer hover:bg-theme-neutral-4'
+          : 'cursor-pointer text-theme-neutral-7 hover:border-theme-neutral-5 hover:bg-theme-neutral-2'
       )}
       title={title}
     >
@@ -178,8 +177,6 @@ const CustomTable = <T extends Record<string, any>>({
   actions,
 }: CustomTableProps<T>) => {
   const { t } = useTranslation();
-  const [showPerPageDropdown, setShowPerPageDropdown] =
-    React.useState<boolean>(false);
   const getRowKey = React.useCallback(
     (record: T, index: number): string => {
       if (typeof rowKey === 'function') {
@@ -258,60 +255,14 @@ const CustomTable = <T extends Record<string, any>>({
     [computedColumns]
   );
 
-  const perPageOptions = React.useMemo(() => [10, 15, 20], []);
-
-  const handlePerPageChange = (newPerPage: number) => {
-    if (!pagination) return;
-    pagination.onShowSizeChange?.(newPerPage);
-    pagination.onChange?.(1, newPerPage);
-    setShowPerPageDropdown(false);
-  };
-
   return (
     <div
       className="flex flex-col gap-4"
       style={horizontalScroll ? { width: '100%', minWidth: 0 } : undefined}
     >
-      {pagination && (
-        <div className="flex justify-between items-center relative">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-theme-neutral-11">
-              {t('staff.table.serviceTitle')}
-            </span>
-            <div className="relative">
-              <button
-                type="button"
-                className="flex items-center gap-2 px-3 py-2 text-sm border border-theme-neutral-5 rounded-md bg-white shadow-sm hover:bg-theme-neutral-2 transition-colors"
-                onClick={() => setShowPerPageDropdown(prev => !prev)}
-              >
-                {pagination.pageSize}
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              {showPerPageDropdown && (
-                <div className="absolute right-0 mt-2 w-28 bg-white border border-theme-neutral-5 rounded-md shadow-lg z-10">
-                  {perPageOptions.map(option => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => handlePerPageChange(option)}
-                      className={cn(
-                        'w-full px-3 py-2 text-left text-sm hover:bg-theme-neutral-2',
-                        pagination.pageSize === option && 'bg-theme-neutral-2'
-                      )}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          {pagination.rightAreaRender && pagination.rightAreaRender()}
-        </div>
-      )}
       <div
         className={cn(
-          'bg-white rounded-[16px] shadow overflow-hidden border border-theme-neutral-5',
+          'overflow-visible rounded-xl border border-theme-neutral-4 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
           className
         )}
         style={
@@ -333,12 +284,9 @@ const CustomTable = <T extends Record<string, any>>({
                 : { width: '100%' }
             }
           >
-            {/* Header */}
-            <thead className="bg-[#F1F3F8]">
+            <thead className="bg-theme-neutral-2">
               {isNested ? (
                 <>
-                  {/* First row: parent columns */}
-                  {/* Second row: child columns */}
                   <tr>
                     {computedColumns.map(column => {
                       if (column.children && column.children.length > 0) {
@@ -346,7 +294,7 @@ const CustomTable = <T extends Record<string, any>>({
                           <th
                             key={child.key}
                             className={cn(
-                              'p-3 text-[14px] font-bold text-theme-neutral-11 border-b border-theme-neutral-5 relative whitespace-break-spaces',
+                              'border-b border-theme-neutral-4 px-4 py-3 text-[12px] font-semibold tracking-[0.02em] text-theme-neutral-8 relative whitespace-break-spaces',
                               horizontalScroll
                                 ? 'whitespace-nowrap'
                                 : 'whitespace-break-spaces',
@@ -365,9 +313,6 @@ const CustomTable = <T extends Record<string, any>>({
                                 : undefined,
                             }}
                           >
-                            {childIndex === 0 && (
-                              <div className="absolute top-[50%] left-[0px] w-[1px] h-[20px] bg-[#ffffff] -translate-y-1/2"></div>
-                            )}
                             {child.title}
                           </th>
                         ));
@@ -382,7 +327,7 @@ const CustomTable = <T extends Record<string, any>>({
                     <th
                       key={column.key}
                       className={cn(
-                        'p-3 text-[14px] font-bold text-theme-neutral-11 border-b border-theme-neutral-5 relative whitespace-break-spaces',
+                        'border-b border-theme-neutral-4 px-4 py-3 text-[12px] font-semibold tracking-[0.02em] text-theme-neutral-8 relative whitespace-break-spaces',
                         horizontalScroll
                           ? 'whitespace-nowrap'
                           : 'whitespace-break-spaces',
@@ -399,9 +344,6 @@ const CustomTable = <T extends Record<string, any>>({
                         minWidth: column.minWidth || column.width,
                       }}
                     >
-                      {index !== 0 && (
-                        <div className="absolute top-[50%] left-[0px] w-[1px] h-[20px] bg-[#ffffff] -translate-y-1/2"></div>
-                      )}
                       {column.title}
                     </th>
                   ))}
@@ -445,9 +387,8 @@ const CustomTable = <T extends Record<string, any>>({
                     <tr
                       key={`${recordKey}-${index}`}
                       className={cn(
-                        'border-b border-theme-neutral-5 hover:bg-gray-50 transition-colors',
+                        'border-b border-theme-neutral-4 bg-white transition-colors hover:bg-theme-neutral-2/70',
                         rowProps.className,
-                        index % 2 !== 0 ? 'bg-[#F5F7FA]' : 'bg-white',
                         hasClick && 'cursor-pointer'
                       )}
                       onClick={rowProps.onClick}
@@ -466,7 +407,7 @@ const CustomTable = <T extends Record<string, any>>({
                           <td
                             key={column.key}
                             className={cn(
-                              'p-3 text-[16px] text-theme-neutral-11',
+                              'px-4 py-4 text-sm text-theme-neutral-11',
                               horizontalScroll && 'whitespace-nowrap',
                               column.align === 'center' && 'text-center',
                               column.align === 'right' && 'text-right',
@@ -494,14 +435,16 @@ const CustomTable = <T extends Record<string, any>>({
         </div>
 
         {pagination && !loading && !error && dataSource.length > 0 && (
-          <div className="border-t border-theme-neutral-5">
+          <div className="border-t border-theme-neutral-4 bg-white">
             <Pagination
-              currentPage={pagination.current}
-              totalPages={Math.ceil(pagination.total / pagination.pageSize)}
-              totalItems={pagination.total}
-              itemsPerPage={pagination.pageSize}
+              currentPage={pagination.current || 1}
+              totalPages={Math.ceil(
+                (pagination.total || 0) / (pagination.pageSize || 10)
+              )}
+              totalItems={pagination.total || 0}
+              itemsPerPage={pagination.pageSize || 10}
               onPageChange={page =>
-                pagination.onChange?.(page, pagination.pageSize)
+                pagination.onChange?.(page, pagination.pageSize || 10)
               }
               onItemsPerPageChange={pagination?.onShowSizeChange || (() => {})}
             />

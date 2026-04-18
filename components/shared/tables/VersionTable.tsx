@@ -6,14 +6,16 @@ import Images from '@/assets';
 import type { Version } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import dayjs from 'dayjs';
-import type { IPagination } from '@/hooks/use-pagination';
 
 export interface VersionTableProps {
   boardId?: string;
   data: Version[];
   loading?: boolean;
-  pagination?: IPagination;
   totalCount?: number;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (limit: number) => void;
   onDelete?: (id: string) => void;
   onEdit?: (record: Version) => void;
 }
@@ -22,8 +24,11 @@ const VersionTable: React.FC<VersionTableProps> = ({
   boardId,
   data,
   loading,
-  pagination,
   totalCount,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
   onDelete,
   onEdit,
 }) => {
@@ -71,17 +76,13 @@ const VersionTable: React.FC<VersionTableProps> = ({
       dataSource={data}
       loading={loading}
       emptyText={t('settings.versions.table.empty')}
-      pagination={
-        pagination
-          ? {
-              current: pagination.page,
-              total: totalCount || 0,
-              pageSize: pagination.limit,
-              onChange: pagination.setPage,
-              onShowSizeChange: pagination.setLimit,
-            }
-          : false
-      }
+      pagination={{
+        current: page,
+        total: totalCount || 0,
+        pageSize: limit,
+        onChange: onPageChange,
+        onShowSizeChange: onPageSizeChange,
+      }}
       actions={[
         {
           icon: Images.IconTrash,

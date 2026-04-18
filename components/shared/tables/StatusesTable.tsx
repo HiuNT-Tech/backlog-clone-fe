@@ -5,16 +5,32 @@ import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
 import { Column } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
-import { useColumn } from '@/hooks/use-column';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 
-export const StatusesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
+export interface StatusesTableProps {
+  boardId: string;
+  data: Column[];
+  loading?: boolean;
+  totalCount?: number;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (limit: number) => void;
+  onDelete?: (id: string) => void;
+}
+
+export const StatusesTable: React.FC<StatusesTableProps> = ({
+  boardId,
+  data,
+  loading,
+  totalCount,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
+  onDelete,
+}) => {
   const { t } = useTranslation();
-  const {
-    columns: columnList,
-    isLoadingList,
-    deleteColumn,
-  } = useColumn(boardId);
 
   const columns = useMemo<TableColumn<Column>[]>(
     () => [
@@ -41,7 +57,7 @@ export const StatusesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
         name: record?.title ?? '—',
       }),
       onOk: () => {
-        deleteColumn(record?._id);
+        if (record?._id) onDelete?.(record._id);
       },
     });
   };
@@ -50,9 +66,16 @@ export const StatusesTable: React.FC<{ boardId: string }> = ({ boardId }) => {
     <CustomTable
       rowKey="_id"
       columns={columns}
-      dataSource={columnList}
-      loading={isLoadingList}
+      dataSource={data}
+      loading={loading}
       emptyText={t('settings.issueTypes.table.empty')}
+      pagination={{
+        current: page,
+        total: totalCount || 0,
+        pageSize: limit,
+        onChange: onPageChange,
+        onShowSizeChange: onPageSizeChange,
+      }}
       actions={[
         {
           icon: Images.IconTrash,

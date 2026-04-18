@@ -13,6 +13,7 @@ import { useVersion } from '@/hooks/use-version';
 import { toastHelpers } from '@/hooks/use-toast';
 import type { Version } from '@/config/interface';
 import type { CreateVersionFormData } from '@/validation/version-form-schema';
+import VersionsFilter from '@/components/shared/filters/VersionsFilter';
 
 export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { t } = useTranslation();
@@ -20,6 +21,14 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pagination = usePagination();
+
+  const [searchParamsState, setSearchParamsState] =
+    useState<Record<string, any>>();
+
+  const apiParams = {
+    ...pagination.apiParams,
+    ...searchParamsState,
+  };
 
   const {
     versions,
@@ -30,7 +39,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     deleteVersion,
     isCreatePending,
     isUpdatePending,
-  } = useVersion(boardId, pagination.apiParams);
+  } = useVersion(boardId, apiParams);
 
   const isCreateModeFromUrl = searchParams.get('versionsMode') === 'create';
   const [isCreatingVersion, setIsCreatingVersion] =
@@ -43,6 +52,11 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     setIsCreatingVersion(isCreateModeFromUrl);
     if (isCreateModeFromUrl) setEditingVersion(null);
   }, [isCreateModeFromUrl]);
+
+  const handleSearch = (params: Record<string, any>) => {
+    setSearchParamsState(params);
+    pagination.setPage(1);
+  };
 
   const handleCloseForm = () => {
     replaceWithUpdatedSearchParams(router, pathname, searchParams, params => {
@@ -74,9 +88,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
         });
       }
       handleCloseForm();
-    } catch {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    }
+    } catch {}
   };
 
   const handleDelete = async (id: string) => {
@@ -85,9 +97,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
       toastHelpers.success({
         title: t('settings.versions.table.delete'),
       });
-    } catch {
-      toastHelpers.error({ title: t('toast.error.userVerificationFailed') });
-    }
+    } catch {}
   };
 
   const isPending = isCreatePending || isUpdatePending;
@@ -104,18 +114,18 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 border-b border-theme-neutral-4 pb-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-theme-neutral-11">
+          <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-theme-neutral-11">
             {t('settings.versions.heading')}
           </h2>
-          <p className="text-sm text-theme-neutral-8">
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
             {t('settings.versions.hint')}
           </p>
         </div>
         <Button
-          className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover"
+          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
           onClick={() => {
             replaceWithUpdatedSearchParams(
               router,
@@ -134,12 +144,17 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
         </Button>
       </div>
 
+      <VersionsFilter onSearch={handleSearch} />
+
       <VersionTable
         boardId={boardId}
         data={versions}
         loading={isLoadingList}
-        pagination={pagination}
         totalCount={totalCount}
+        page={pagination.page}
+        limit={pagination.limit}
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setLimit}
         onDelete={id => void handleDelete(id)}
         onEdit={record => {
           setEditingVersion(record);

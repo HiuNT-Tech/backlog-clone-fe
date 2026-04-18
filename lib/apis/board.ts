@@ -10,6 +10,9 @@ import {
   UpdateBoardDetailRequest,
   CreateNewCardRequest,
   Column,
+  User,
+  UsersBoardParams,
+  UsersBoardResponse,
 } from '@/config/interface';
 
 export const BoardService = {
@@ -34,8 +37,11 @@ export const BoardService = {
     return await sendDelete(`${API_ROOT}/v1/columns/${columnId}`);
   },
 
-  getColumns: async (boardId: string): Promise<Column[]> => {
-    return await sendGet(`${API_ROOT}/v1/columns`, { boardId });
+  getColumns: async (
+    boardId: string,
+    params?: Record<string, any>
+  ): Promise<Column[]> => {
+    return await sendGet(`${API_ROOT}/v1/columns`, { boardId, ...params });
   },
 
   moveCardToDifferentColumn: async (
@@ -71,5 +77,12 @@ export const BoardService = {
 
   createNewBoard: async (payload: CreateBoardRequest): Promise<Board> => {
     return await sendPost(`${API_ROOT}/v1/boards`, payload);
+  },
+
+  getUsersBoard: async (
+    boardId: string,
+    params?: UsersBoardParams
+  ): Promise<UsersBoardResponse> => {
+    return await sendGet(`${API_ROOT}/v1/boards/${boardId}/usersBoard`, params);
   },
 };
