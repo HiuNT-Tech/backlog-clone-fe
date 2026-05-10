@@ -1,3 +1,5 @@
+import type { ColorStatusKey } from '@/constant/data';
+
 // Types for Board, Column, and Card entities
 
 export interface Card {
@@ -5,15 +7,64 @@ export interface Card {
   boardId: string;
   columnId: string;
   title?: string;
+  description?: string | null;
   cover?: string | null;
   memberIds?: string[];
   comments?: string[];
   attachments?: string[];
-  issueTypeId?: string;
+  priorityId?: number | null;
+  assigneeId?: string | null;
+  assignee?: User | null;
+  issueTypeId?: string | null;
+  issueType?: CardIssueType | null;
+  status?: CardStatus | null;
+  versionId?: string | null;
+  startDate?: string | null;
+  dueDate?: string | null;
+  estimatedHours?: string | null;
+  actualHours?: string | null;
+  registeredBy?: string | User | null;
+  registeredById?: string | null;
+  createdBy?: string | User | null;
+  createdById?: string | null;
+  createdAt?: number | string;
+  updatedAt?: number | string | null;
+  _destroy?: boolean;
   FE_PlaceholderCard?: boolean;
 }
 
-import type { ColorStatusKey } from '@/constant/data';
+export interface CardStatus {
+  _id: string;
+  boardId: string;
+  title: string;
+  statusColor?: number | null;
+}
+
+export interface CardIssueType {
+  _id: string;
+  boardId: string;
+  name: string;
+  statusColor?: number | null;
+}
+
+export interface CardListParams {
+  search?: string;
+  priorityId?: string;
+  issueTypeId?: string;
+  columnId?: string;
+  assigneeId?: string;
+  registeredBy?: string;
+  versionId?: string;
+  startDate?: string;
+  dueDate?: string;
+  skip?: number;
+  limit?: number;
+}
+
+export interface CardListResponse {
+  total: number;
+  items: Card[];
+}
 
 export interface Column {
   _id: string;
@@ -123,6 +174,7 @@ export interface CreateNewCardRequest {
   title: string;
   description?: string;
   priorityId?: number;
+  assigneeId?: string;
   issueTypeId?: string;
   versionId?: string;
   startDate?: string;

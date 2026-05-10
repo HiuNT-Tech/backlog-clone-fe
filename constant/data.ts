@@ -1,7 +1,7 @@
 import React from 'react';
-import type { TFunction } from 'i18next';
+import { t, type TFunction } from 'i18next';
 
-import { MemberRole, StatusColor } from '@/config/enum';
+import { MemberRole, PRIORITY, StatusColor } from '@/config/enum';
 import { cn } from '@/lib/utils';
 
 export const MEMBER_ROLE_STATUS_DATA = {
@@ -201,3 +201,18 @@ export const renderStatusBadge = (
       name
     )
   );
+
+export const PRIORITY_OPTIONS = [
+  {
+    value: String(PRIORITY.LOW),
+    label: t('issues.priority.low'),
+  },
+  {
+    value: String(PRIORITY.NORMAL),
+    label: t('issues.priority.normal'),
+  },
+  {
+    value: String(PRIORITY.HIGH),
+    label: t('issues.priority.high'),
+  },
+];

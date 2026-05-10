@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { BoardService } from '@/lib/apis/board';
 import { UsersBoardParams, UsersBoardResponse } from '@/config/interface';
 
-export const useUserBoard = (boardId: string, params?: UsersBoardParams) => {
+export const useUserBoard = (boardId?: string, params?: UsersBoardParams) => {
   const {
-    data: listUser,
+    data = { items: [], total: 0 },
     isLoading: isListLoading,
     error: listError,
     refetch: refetchList,
@@ -16,7 +16,7 @@ export const useUserBoard = (boardId: string, params?: UsersBoardParams) => {
   });
 
   return {
-    listUser,
+    listUser: data,
     isListLoading,
     listError,
     refetchList,

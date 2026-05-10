@@ -1,165 +1,142 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams, useRouter } from 'next/navigation';
+import dayjs from 'dayjs';
 
-import { Input } from '@/components/ui/input';
-import { Select, type SelectOption } from '@/components/ui/select';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Button } from '@/components/ui/button';
 import {
   IssuesTable,
   type IssueRow,
 } from '@/components/shared/tables/IssuesTable';
-
-const MOCK_ISSUES: IssueRow[] = [
-  {
-    id: '1',
-    issueType: 'Task',
-    key: 'PRJ-001',
-    subject: 'Implement login page',
-    assignee: 'John Doe',
-    status: 'In Progress',
-    priority: 'High',
-    milestone: 'v1.0-M1',
-    created: '2026-02-01',
-    startDate: '2026-02-02',
-    dueDate: '2026-02-10',
-    estimatedHours: '8h',
-    actualHours: '4h',
-    registerBy: 'Admin',
-  },
-];
+import IssuesFilter from '@/components/shared/filters/IssuesFilter';
+import { PRIORITY_OPTIONS } from '@/constant/data';
+import { useCard } from '@/hooks/use-card';
+import { usePagination } from '@/hooks/use-pagination';
+import { useUserBoard } from '@/hooks/use-user-board';
+import { useVersion } from '@/hooks/use-version';
+import type { Card, CardListParams, User } from '@/config/interface';
 
 const IssuesPage: React.FC = () => {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const boardId = searchParams.get('boardId') ?? undefined;
+  const pagination = usePagination();
+  const [filterParams, setFilterParams] = useState<CardListParams>({});
+
+  const apiParams = {
+    ...pagination.apiParams,
+    ...filterParams,
+  };
+
+  const { cards, totalCount, isLoadingList } = useCard(boardId, apiParams);
+  const { versions } = useVersion(boardId, { skip: 0, limit: 100 });
+  const { listUser } = useUserBoard(boardId, { skip: 0, limit: 100 });
+
+  const toId = useCallback((value?: string | User | null) => {
+    if (!value) return '';
+    return typeof value === 'string' ? value : value._id;
+  }, []);
+
+  const formatDate = useCallback((value?: string | number | null) => {
+    return value ? dayjs(value).format('DD/MM/YYYY') : '—';
+  }, []);
+
+  const issueRows = useMemo<IssueRow[]>(() => {
+    const versionMap = new Map(
+      versions.map(version => [String(version._id), version.name])
+    );
+    const userMap = new Map(
+      listUser.items.map(user => [String(user.userId), user.displayName])
+    );
+
+    const getUserName = (value?: string | User | null, fallbackId?: string) => {
+      if (value && typeof value !== 'string') {
+        return value.displayName || value.username || '—';
+      }
+
+      const userId = toId(value) || fallbackId || '';
+      return userMap.get(userId) ?? '—';
+    };
+
+    const getPriorityText = (priorityId?: number | null) => {
+      return (
+        PRIORITY_OPTIONS.find(option => option.value === String(priorityId))
+          ?.label ?? '—'
+      );
+    };
+
+    const getRegisterBy = (card: Card) => {
+      return getUserName(
+        card.registeredBy ?? card.createdBy,
+        card.registeredById ?? card.createdById ?? undefined
+      );
+    };
+
+    return cards.map(card => ({
+      id: card._id,
+      issueType: card.issueType
+        ? {
+            label: card.issueType.name,
+            statusColor: card.issueType.statusColor,
+          }
+        : null,
+      key: card._id ? `#${card._id.slice(-6).toUpperCase()}` : '—',
+      subject: card.title ?? '—',
+      assignee: getUserName(card.assignee, card.assigneeId ?? undefined),
+      status: card.status
+        ? {
+            label: card.status.title,
+            statusColor: card.status.statusColor,
+          }
+        : null,
+      priority: getPriorityText(card.priorityId),
+      milestone: versionMap.get(toId(card.versionId)) ?? '—',
+      created: formatDate(card.createdAt),
+      startDate: formatDate(card.startDate),
+      dueDate: formatDate(card.dueDate),
+      estimatedHours: card.estimatedHours ?? '—',
+      actualHours: card.actualHours ?? '—',
+      registerBy: getRegisterBy(card),
+    }));
+  }, [cards, formatDate, listUser.items, toId, versions]);
+
+  const handleSearch = (params: CardListParams) => {
+    setFilterParams(params);
+    pagination.setPage(1);
+  };
+
+  const handleRowClick = useCallback(
+    (row: IssueRow) => {
+      const query = boardId ? `?boardId=${boardId}` : '';
+      router.push(`/issues/${row.id}${query}`);
+    },
+    [boardId, router]
+  );
 
   return (
-    <div className="min-h-screen w-full bg-theme-neutral-3/40 overflow-x-hidden">
-      <div className="w-full px-6 py-6 space-y-4">
-        {/* Header */}
-        <div className="mb-2">
-          <h1 className="text-2xl font-semibold text-theme-neutral-11">
-            {t('issues.title')}
-          </h1>
-          <p className="mt-1 text-sm text-theme-neutral-8">
-            {t('issues.description')}
-          </p>
-        </div>
-
-        {/* Search conditions */}
-        <div className="rounded-xl border border-theme-neutral-5 bg-theme-neutral-1 p-4 shadow-sm space-y-4">
-          <div className="flex flex-wrap gap-3 justify-between items-center">
-            <div className="flex flex-wrap gap-2 text-sm">
-              <Button
-                type="button"
-                variant="outline"
-                className="border-theme-main text-theme-main bg-theme-main-light hover:bg-theme-hover hover:text-theme-neutral-1"
-              >
-                {t('issues.filters.status.all')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="border-theme-neutral-5 text-theme-neutral-9"
-              >
-                {t('issues.filters.status.open')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="border-theme-neutral-5 text-theme-neutral-9"
-              >
-                {t('issues.filters.status.inProgress')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="border-theme-neutral-5 text-theme-neutral-9"
-              >
-                {t('issues.filters.status.resolved')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="border-theme-neutral-5 text-theme-neutral-9"
-              >
-                {t('issues.filters.status.closed')}
-              </Button>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover"
-              >
-                {t('issues.actions.search')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="border-theme-neutral-5 text-theme-neutral-9"
-              >
-                {t('issues.actions.advancedSearch')}
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <Select
-              label={t('issues.filters.issueType')}
-              options={[]}
-              placeholder={t('issues.filters.issueTypePlaceholder')}
-            />
-            <Select
-              label={t('issues.filters.category')}
-              options={[]}
-              placeholder={t('issues.filters.categoryPlaceholder')}
-            />
-            <Select
-              label={t('issues.filters.milestone')}
-              options={[]}
-              placeholder={t('issues.filters.milestonePlaceholder')}
-            />
-            <Select
-              label={t('issues.filters.assignee')}
-              options={[]}
-              placeholder={t('issues.filters.assigneePlaceholder')}
-            />
-            <DatePicker
-              label={t('issues.filters.startDate')}
-              placeholder={t('issues.filters.datePlaceholder')}
-            />
-            <DatePicker
-              label={t('issues.filters.dueDate')}
-              placeholder={t('issues.filters.datePlaceholder')}
-            />
-            <Input
-              label={t('issues.filters.keyword')}
-              placeholder={t('issues.filters.keywordPlaceholder')}
-            />
-          </div>
-        </div>
-
-        {/* Table actions + Table */}
-        <div className="flex justify-end mb-2 gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            className="border-theme-neutral-5 text-theme-neutral-9"
-          >
-            {t('issues.actions.import')}
-          </Button>
-          <Button
-            type="button"
-            className="bg-theme-main text-theme-neutral-1 hover:bg-theme-hover"
-          >
-            {t('issues.actions.export')}
-          </Button>
-        </div>
-
-        <IssuesTable data={MOCK_ISSUES} />
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-theme-neutral-11">
+          {t('issues.title')}
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
+          {t('issues.description')}
+        </p>
       </div>
+
+      <IssuesFilter boardId={boardId} onSearch={handleSearch} />
+      <IssuesTable
+        data={issueRows}
+        loading={isLoadingList}
+        totalCount={totalCount}
+        page={pagination.page}
+        limit={pagination.limit}
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setLimit}
+        onRowClick={handleRowClick}
+      />
     </div>
   );
 };
