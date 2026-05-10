@@ -80,7 +80,7 @@ export const BoardService = {
   },
 
   getUsersBoard: async (
-    boardId: string,
+    boardId?: string,
     params?: UsersBoardParams
   ): Promise<UsersBoardResponse> => {
     return await sendGet(`${API_ROOT}/v1/boards/${boardId}/usersBoard`, params);

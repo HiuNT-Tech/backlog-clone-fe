@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { MarkdownEditor } from '@/components/ui/markdown-editor';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { TimePicker } from '@/components/ui/time-picker';
@@ -13,10 +14,13 @@ import { PRIORITY } from '@/config/enum';
 import { useVersion } from '@/hooks/use-version';
 import { useColumn } from '@/hooks/use-column';
 import { useIssueType } from '@/hooks/use-issue-type';
+import { useCardDetail } from '@/hooks/use-card-detail';
 import { BoardService } from '@/lib/apis/board';
+import { CardService } from '@/lib/apis/card';
 import { toastHelpers } from '@/hooks/use-toast';
 import { CreateNewCardRequest } from '@/config/interface';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 
 type AddIssueFormData = {
   title: string;
@@ -32,6 +36,20 @@ type AddIssueFormData = {
   version: string;
 };
 
+const EMPTY_FORM: AddIssueFormData = {
+  title: '',
+  description: '',
+  status: '',
+  priority: '',
+  issueType: '',
+  assignee: '',
+  startDate: '',
+  dueDate: '',
+  estimatedHours: '',
+  actualHours: '',
+  version: '',
+};
+
 export default function AddIssuePage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -39,23 +57,44 @@ export default function AddIssuePage() {
   const searchParams = useSearchParams();
 
   const boardId = searchParams.get('boardId') || '';
+  const editId = searchParams.get('editId') || '';
+  const isEditMode = !!editId;
 
   const { versions } = useVersion(boardId);
   const { columns } = useColumn(boardId);
   const { issueTypes } = useIssueType(boardId);
-  const [formData, setFormData] = useState<AddIssueFormData>({
-    title: '',
-    description: '',
-    status: '',
-    priority: '',
-    issueType: '',
-    assignee: '',
-    startDate: '',
-    dueDate: '',
-    estimatedHours: '',
-    actualHours: '',
-    version: '',
-  });
+  const { card: editCard, isLoading: isLoadingCard } = useCardDetail(
+    isEditMode ? editId : undefined
+  );
+
+  const [formData, setFormData] = useState<AddIssueFormData>(EMPTY_FORM);
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
+
+  // Fill form with card data when in edit mode
+  useEffect(() => {
+    if (isEditMode && editCard && !isFormInitialized) {
+      const formatDateForInput = (value?: string | number | null) => {
+        if (!value) return '';
+        return dayjs(value).format('YYYY-MM-DD');
+      };
+
+      setFormData({
+        title: editCard.title ?? '',
+        description: editCard.description ?? '',
+        status: editCard.columnId ?? '',
+        priority:
+          editCard.priorityId != null ? String(editCard.priorityId) : '',
+        issueType: editCard.issueTypeId ?? '',
+        assignee: editCard.assigneeId ?? '',
+        startDate: formatDateForInput(editCard.startDate),
+        dueDate: formatDateForInput(editCard.dueDate),
+        estimatedHours: editCard.estimatedHours ?? '',
+        actualHours: editCard.actualHours ?? '',
+        version: editCard.versionId ? String(editCard.versionId) : '',
+      });
+      setIsFormInitialized(true);
+    }
+  }, [isEditMode, editCard, isFormInitialized]);
 
   const STATUS_OPTIONS = columns.map(column => ({
     value: column._id,
@@ -79,7 +118,21 @@ export default function AddIssuePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
       toastHelpers.success({ title: t('toast.success.cardCreated') });
+      router.back();
+    },
+  });
+
+  const { mutateAsync: updateCard } = useMutation({
+    mutationFn: async (data: Record<string, any>) => {
+      return await CardService.update(editId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['card-detail', editId] });
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      queryClient.invalidateQueries({ queryKey: ['boards'] });
+      toastHelpers.success({ title: t('issueDetail.updateSuccess') });
       router.back();
     },
   });
@@ -90,23 +143,48 @@ export default function AddIssuePage() {
 
     setIsSubmitting(true);
     try {
-      const payload: CreateNewCardRequest = {
-        boardId: boardId,
-        columnId: formData.status,
-        title: formData.title.trim(),
-        ...(formData.description && { description: formData.description }),
-        ...(formData.priority && { priorityId: Number(formData.priority) }),
-        ...(formData.issueType && { issueTypeId: formData.issueType }),
-        ...(formData.version && { versionId: formData.version }),
-        ...(formData.startDate && { startDate: formData.startDate }),
-        ...(formData.dueDate && { dueDate: formData.dueDate }),
-        ...(formData.estimatedHours && {
-          estimatedHours: formData.estimatedHours,
-        }),
-        ...(formData.actualHours && { actualHours: formData.actualHours }),
-      };
+      if (isEditMode) {
+        // Build update payload — only send fields accepted by BE validation
+        const updatePayload: Record<string, any> = {
+          title: formData.title.trim(),
+          ...(formData.status && { columnId: formData.status }),
+        };
 
-      await createNewCard(payload);
+        // Always include these fields (even if empty → set to null)
+        // Trim strings to satisfy BE's .trim().strict() validation
+        const desc = formData.description?.trim();
+        updatePayload.description = desc || null;
+        updatePayload.priorityId = formData.priority
+          ? Number(formData.priority)
+          : null;
+        updatePayload.issueTypeId = formData.issueType || null;
+        updatePayload.versionId = formData.version || null;
+        updatePayload.assigneeId = formData.assignee || null;
+        updatePayload.startDate = formData.startDate || null;
+        updatePayload.dueDate = formData.dueDate || null;
+        updatePayload.estimatedHours = formData.estimatedHours?.trim() || null;
+        updatePayload.actualHours = formData.actualHours?.trim() || null;
+
+        await updateCard(updatePayload);
+      } else {
+        const payload: CreateNewCardRequest = {
+          boardId: boardId,
+          columnId: formData.status,
+          title: formData.title.trim(),
+          ...(formData.description && { description: formData.description }),
+          ...(formData.priority && { priorityId: Number(formData.priority) }),
+          ...(formData.issueType && { issueTypeId: formData.issueType }),
+          ...(formData.version && { versionId: formData.version }),
+          ...(formData.startDate && { startDate: formData.startDate }),
+          ...(formData.dueDate && { dueDate: formData.dueDate }),
+          ...(formData.estimatedHours && {
+            estimatedHours: formData.estimatedHours,
+          }),
+          ...(formData.actualHours && { actualHours: formData.actualHours }),
+        };
+
+        await createNewCard(payload);
+      }
     } catch {
       toastHelpers.error({ title: t('toast.error.userLoginFailed') });
     } finally {
@@ -136,10 +214,12 @@ export default function AddIssuePage() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-theme-neutral-12">
-              {t('addIssue.title')}
+              {isEditMode ? t('issueDetail.edit') : t('addIssue.title')}
             </h1>
             <p className="mt-1 text-sm text-theme-neutral-9">
-              {t('addIssue.description') ?? ''}
+              {isEditMode
+                ? t('addIssue.section.generalHint')
+                : (t('addIssue.description') ?? '')}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -149,7 +229,7 @@ export default function AddIssuePage() {
               onClick={() => router.back()}
               className="border-theme-neutral-5"
             >
-              {t('common.preview')}
+              {isEditMode ? t('issueDetail.cancel') : t('common.preview')}
             </Button>
             <Button
               type="submit"
@@ -157,7 +237,11 @@ export default function AddIssuePage() {
               disabled={isSubmitting}
               className="bg-theme-main hover:bg-theme-hover text-theme-neutral-1"
             >
-              {isSubmitting ? t('common.loading') : t('common.add')}
+              {isSubmitting
+                ? t('common.loading')
+                : isEditMode
+                  ? t('issueDetail.save')
+                  : t('common.add')}
             </Button>
           </div>
         </div>
@@ -189,12 +273,11 @@ export default function AddIssuePage() {
                 placeholder={t('addIssue.placeholder.title')}
               />
 
-              <Textarea
+              <MarkdownEditor
                 label={t('addIssue.label.description')}
                 value={formData.description}
-                onChange={e => handleChange('description', e.target.value)}
+                onChange={value => handleChange('description', value)}
                 placeholder={t('addIssue.placeholder.description')}
-                className="min-h-[180px]"
               />
             </div>
 

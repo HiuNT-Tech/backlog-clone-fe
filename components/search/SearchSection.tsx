@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, type SelectValue } from '@/components/ui/select';
+import { MultiOptionsList } from '@/components/ui/multi-options-list';
 import { DatePicker } from '@/components/ui/date-picker';
 import { TimePicker } from '@/components/ui/time-picker';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
@@ -59,22 +60,6 @@ export const SearchSection = ({
     triggerSearchOnMount,
   });
 
-  // Check if we need to show expand button (more than itemsPerRow fields)
-  // If noExpand is true, never show expand button
-  const needsExpand = !noExpand && fields.length > itemsPerRow;
-
-  // Fields to display based on expanded state
-  // If noExpand is true, always show all fields
-  const visibleFields = useMemo(() => {
-    if (noExpand) {
-      return fields;
-    }
-    if (!needsExpand || isExpanded) {
-      return fields;
-    }
-    return fields.slice(0, itemsPerRow);
-  }, [fields, needsExpand, isExpanded, itemsPerRow, noExpand]);
-
   // Render field based on type
   const renderField = (field: SearchField) => {
     switch (field.type) {
@@ -93,21 +78,62 @@ export const SearchSection = ({
           />
         );
 
-      case 'select':
+      case 'select': {
+        const selectValue = field.selectMulti
+          ? Array.isArray(values[field.id])
+            ? values[field.id]
+            : values[field.id]
+              ? [values[field.id]]
+              : []
+          : Array.isArray(values[field.id])
+            ? (values[field.id][0] ?? '')
+            : (values[field.id] ?? '');
+
         return (
           <Select
             key={field.id}
+            {...field.props}
             label={field.label}
             required={field.required}
             options={field.options}
-            value={values[field.id] || ''}
-            onChange={e => {
-              handleChange(field.id, e.target.value);
-              onFieldChange?.(field.id, e.target.value);
+            value={selectValue}
+            mode={field.selectMulti ? 'multiple' : undefined}
+            showSearch={field.selectMulti ? true : field.props?.showSearch}
+            clearAllLabel={
+              field.selectMulti
+                ? (field.props?.clearAllLabel ??
+                  t('common.unselect', 'Unselect'))
+                : field.props?.clearAllLabel
+            }
+            onValueChange={(nextValue: SelectValue) => {
+              handleChange(field.id, nextValue);
+              onFieldChange?.(field.id, nextValue);
+            }}
+          />
+        );
+      }
+
+      case 'multiOptions': {
+        const multiValue = Array.isArray(values[field.id])
+          ? values[field.id]
+          : values[field.id]
+            ? [values[field.id]]
+            : [];
+
+        return (
+          <MultiOptionsList
+            key={field.id}
+            label={field.label}
+            options={field.options}
+            value={multiValue}
+            onChange={(nextValue: string[]) => {
+              handleChange(field.id, nextValue);
+              onFieldChange?.(field.id, nextValue);
             }}
             {...field.props}
           />
         );
+      }
 
       case 'date':
         return (
@@ -216,26 +242,9 @@ export const SearchSection = ({
               )}
             </p>
           </div>
-
-          {needsExpand && (
-            <button
-              type="button"
-              onClick={toggleExpanded}
-              className="flex items-center gap-2 text-sm font-medium text-theme-main hover:text-theme-hover transition-colors"
-            >
-              {isExpanded ? finalCollapseButtonText : finalExpandButtonText}
-              <Image
-                src={isExpanded ? Images.IconCaretDown : Images.IconCaretUp}
-                alt="arrow-up"
-                width={20}
-                height={20}
-                style={{ filter: 'var(--theme-filter-main)' }}
-              />
-            </button>
-          )}
         </div>
 
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div className="flex flex-col gap-3">
           <div
             className={cn(
               'grid flex-1 gap-3 transition-all duration-300 ease-in-out z-10 relative'
@@ -244,16 +253,8 @@ export const SearchSection = ({
               gridTemplateColumns: `repeat(${itemsPerRow}, minmax(${minItemWidth}px, 1fr))`,
             }}
           >
-            {visibleFields.map(field => (
-              <div
-                key={field.id}
-                className={cn(
-                  'transition-all duration-300 ease-in-out',
-                  isExpanded &&
-                    !visibleFields.slice(0, itemsPerRow).includes(field) &&
-                    'animate-slideDown'
-                )}
-              >
+            {fields.map(field => (
+              <div key={field.id} className="">
                 {renderField(field)}
               </div>
             ))}

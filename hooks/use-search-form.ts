@@ -22,16 +22,45 @@ const serializeValue = (value: any): string => {
   return String(value);
 };
 
+const isMultiSelectField = (field: SearchField) =>
+  (field.type === 'select' && field.selectMulti) ||
+  field.type === 'multiOptions';
+
+const isEmptyValue = (value: any): boolean => {
+  if (value === undefined || value === null || value === '') {
+    return true;
+  }
+
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+
+  return false;
+};
+
 // Deserialize value from URL string
-const deserializeValue = (str: string, fieldType: string): any => {
+const deserializeValue = (str: string, field: SearchField): any => {
   if (!str) return undefined;
 
   // Handle range types (dateRange, timeRange)
-  if (fieldType === 'dateRange' || fieldType === 'timeRange') {
+  if (field.type === 'dateRange' || field.type === 'timeRange') {
     try {
       return JSON.parse(str);
     } catch {
       return undefined;
+    }
+  }
+
+  if (isMultiSelectField(field)) {
+    try {
+      const parsedValue = JSON.parse(str);
+      return Array.isArray(parsedValue)
+        ? parsedValue.filter(Boolean)
+        : parsedValue
+          ? [String(parsedValue)]
+          : undefined;
+    } catch {
+      return str ? [str] : undefined;
     }
   }
 
@@ -85,7 +114,7 @@ export const useSearchForm = ({
           const paramKey = getParamKey(field.id);
           const urlValue = currentSearchParams.get(paramKey);
           if (urlValue) {
-            const deserializedValue = deserializeValue(urlValue, field.type);
+            const deserializedValue = deserializeValue(urlValue, field);
             if (deserializedValue !== undefined) {
               values[field.id] = deserializedValue;
             }
@@ -201,7 +230,7 @@ export const useSearchForm = ({
         const paramKey = getParamKey(field.id);
         const value = newValues[field.id];
 
-        if (value !== undefined && value !== null && value !== '') {
+        if (!isEmptyValue(value)) {
           params.set(paramKey, serializeValue(value));
         } else {
           params.delete(paramKey);
@@ -222,7 +251,7 @@ export const useSearchForm = ({
   const handleChange = useCallback((fieldId: string, value: any) => {
     setValues(prev => ({
       ...prev,
-      [fieldId]: value || undefined,
+      [fieldId]: isEmptyValue(value) ? undefined : value,
     }));
   }, []);
 

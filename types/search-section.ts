@@ -4,10 +4,12 @@ import type { DatePickerProps } from '@/components/ui/date-picker';
 import type { TimePickerProps } from '@/components/ui/time-picker';
 import type { DateRangePickerProps } from '@/components/ui/date-range-picker';
 import type { TimeRangePickerProps } from '@/components/ui/time-range-picker';
+import type { MultiOptionsListProps } from '@/components/ui/multi-options-list';
 
 export type SearchFieldType =
   | 'text'
   | 'select'
+  | 'multiOptions'
   | 'date'
   | 'time'
   | 'dateRange'
@@ -28,8 +30,28 @@ export interface TextSearchField extends BaseSearchField {
 
 export interface SelectSearchField extends BaseSearchField {
   type: 'select';
-  props?: Omit<SelectProps, 'label' | 'required' | 'options'>;
-  options: { value: string; label: string }[];
+  selectMulti?: boolean;
+  props?: Omit<
+    SelectProps,
+    | 'label'
+    | 'required'
+    | 'options'
+    | 'mode'
+    | 'value'
+    | 'defaultValue'
+    | 'onChange'
+    | 'onValueChange'
+  >;
+  options: SelectProps['options'];
+}
+
+export interface MultiOptionsSearchField extends BaseSearchField {
+  type: 'multiOptions';
+  props?: Omit<
+    MultiOptionsListProps,
+    'label' | 'options' | 'value' | 'onChange'
+  >;
+  options: { value: string; label: React.ReactNode; disabled?: boolean }[];
 }
 
 export interface DateSearchField extends BaseSearchField {
@@ -55,6 +77,7 @@ export interface TimeRangeSearchField extends BaseSearchField {
 export type SearchField =
   | TextSearchField
   | SelectSearchField
+  | MultiOptionsSearchField
   | DateSearchField
   | TimeSearchField
   | DateRangeSearchField

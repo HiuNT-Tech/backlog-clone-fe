@@ -1,18 +1,23 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
-import { usePagination } from '@/hooks/use-pagination';
+import { getIssueTypeBadgeClassName } from '@/constant/data';
+
+export interface IssueBadgeValue {
+  label: string;
+  statusColor?: number | null;
+}
 
 export interface IssueRow {
   id: string;
-  issueType: string;
+  issueType: IssueBadgeValue | null;
   key: string;
   subject: string;
   assignee: string;
-  status: string;
+  status: IssueBadgeValue | null;
   priority: string;
   milestone: string;
   created: string;
@@ -25,15 +30,38 @@ export interface IssueRow {
 
 export interface IssuesTableProps {
   data: IssueRow[];
+  loading?: boolean;
   totalCount?: number;
+  page: number;
+  limit: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (limit: number) => void;
+  onRowClick?: (row: IssueRow) => void;
 }
 
 export const IssuesTable: React.FC<IssuesTableProps> = ({
   data,
+  loading,
   totalCount,
+  page,
+  limit,
+  onPageChange,
+  onPageSizeChange,
+  onRowClick,
 }) => {
   const { t } = useTranslation();
-  const { page, limit, setPage, setLimit } = usePagination();
+
+  const renderBadge = useCallback((value?: IssueBadgeValue | null) => {
+    if (!value?.label) return <span className="text-theme-neutral-7">—</span>;
+
+    return (
+      <span
+        className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${getIssueTypeBadgeClassName(value.statusColor)}`}
+      >
+        {value.label}
+      </span>
+    );
+  }, []);
 
   const columns = useMemo<TableColumn<IssueRow>[]>(
     () => [
@@ -42,11 +70,7 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         title: t('issues.table.issueType'),
         dataIndex: 'issueType',
         minWidth: 140,
-        render: value => (
-          <span className="inline-flex items-center rounded-full border border-theme-main bg-theme-main-light px-3 py-1 text-xs font-semibold text-theme-main">
-            {value}
-          </span>
-        ),
+        render: value => renderBadge(value),
       },
       {
         key: 'key',
@@ -79,11 +103,7 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         title: t('issues.table.status'),
         dataIndex: 'status',
         minWidth: 140,
-        render: value => (
-          <span className="inline-flex items-center rounded-full bg-theme-main-light px-3 py-1 text-xs font-semibold text-theme-main">
-            {value}
-          </span>
-        ),
+        render: value => renderBadge(value),
       },
       {
         key: 'priority',
@@ -134,7 +154,14 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         minWidth: 160,
       },
     ],
-    [t]
+    [renderBadge, t]
+  );
+
+  const handleRow = useCallback(
+    (record: IssueRow) => ({
+      onClick: onRowClick ? () => onRowClick(record) : undefined,
+    }),
+    [onRowClick]
   );
 
   return (
@@ -142,14 +169,16 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
       rowKey="id"
       columns={columns}
       dataSource={data}
+      loading={loading}
       emptyText={t('issues.table.empty')}
       horizontalScroll={true}
+      onRow={handleRow}
       pagination={{
         current: page,
         total: totalCount || 0,
         pageSize: limit,
-        onChange: setPage,
-        onShowSizeChange: setLimit,
+        onChange: onPageChange,
+        onShowSizeChange: onPageSizeChange,
       }}
     />
   );
