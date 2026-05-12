@@ -27,6 +27,11 @@ export const getMenuItems = (boardId?: string) => [
     href: boardId ? `/issues?boardId=${boardId}` : '/issues',
   },
   {
+    titleKey: 'sidebar.chat',
+    icon: Images.IconChat,
+    href: boardId ? `/chat?boardId=${boardId}` : '/chat',
+  },
+  {
     titleKey: 'sidebar.board',
     icon: Images.IconBoard,
     href: boardId ? `/board?id=${boardId}` : '/board',

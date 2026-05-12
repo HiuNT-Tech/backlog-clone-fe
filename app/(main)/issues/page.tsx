@@ -116,7 +116,7 @@ const IssuesPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 ml-3">
       <div>
         <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-theme-neutral-11">
           {t('issues.title')}

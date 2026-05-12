@@ -9,6 +9,7 @@ import IconArrowCollapseSidebar from '@/assets/images/arrow-collapse-sidebar.svg
 import IconHome from '@/assets/images/icon-home.svg';
 import IconCreate from '@/assets/images/icon-create.svg';
 import IconList from '@/assets/images/icon-list.svg';
+import IconChat from '@/assets/images/icon-chat.svg';
 import IconBoard from '@/assets/images/icon-board.svg';
 import IconLock from '@/assets/images/icon-lock.svg';
 import IconTrello from '@/assets/images/icon-trello.svg';
@@ -33,6 +34,7 @@ const Images = {
   IconHome,
   IconCreate,
   IconList,
+  IconChat,
   IconBoard,
   IconLock,
   IconTrello,

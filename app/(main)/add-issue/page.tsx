@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -15,10 +14,14 @@ import { useVersion } from '@/hooks/use-version';
 import { useColumn } from '@/hooks/use-column';
 import { useIssueType } from '@/hooks/use-issue-type';
 import { useCardDetail } from '@/hooks/use-card-detail';
+import { useUserBoard } from '@/hooks/use-user-board';
 import { BoardService } from '@/lib/apis/board';
 import { CardService } from '@/lib/apis/card';
 import { toastHelpers } from '@/hooks/use-toast';
-import { CreateNewCardRequest } from '@/config/interface';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCurrentUser } from '@/redux/user/userSlice';
+import { PreviewIssue } from './preview-issue';
+import type { Card, CreateNewCardRequest, User } from '@/config/interface';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
@@ -55,6 +58,7 @@ export default function AddIssuePage() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentUser = useAppSelector(selectCurrentUser);
 
   const boardId = searchParams.get('boardId') || '';
   const editId = searchParams.get('editId') || '';
@@ -63,14 +67,15 @@ export default function AddIssuePage() {
   const { versions } = useVersion(boardId);
   const { columns } = useColumn(boardId);
   const { issueTypes } = useIssueType(boardId);
+  const { listUser } = useUserBoard(boardId, { skip: 0, limit: 100 });
   const { card: editCard, isLoading: isLoadingCard } = useCardDetail(
     isEditMode ? editId : undefined
   );
 
   const [formData, setFormData] = useState<AddIssueFormData>(EMPTY_FORM);
   const [isFormInitialized, setIsFormInitialized] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
 
-  // Fill form with card data when in edit mode
   useEffect(() => {
     if (isEditMode && editCard && !isFormInitialized) {
       const formatDateForInput = (value?: string | number | null) => {
@@ -106,6 +111,26 @@ export default function AddIssuePage() {
     label: version.name,
   }));
 
+  const USER_OPTIONS = useMemo(
+    () =>
+      listUser.items.map(user => ({
+        value: String(user.userId),
+        label: user.displayName || user.username || user.email || user.userId,
+      })),
+    [listUser.items]
+  );
+
+  const userMap = useMemo(
+    () =>
+      new Map(
+        listUser.items.map(user => [
+          String(user.userId),
+          user.displayName || user.username || user.email || user.userId,
+        ])
+      ),
+    [listUser.items]
+  );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -137,21 +162,20 @@ export default function AddIssuePage() {
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (
+    e?: React.FormEvent | React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e?.preventDefault();
     if (!formData.title || !formData.status) return;
 
     setIsSubmitting(true);
     try {
       if (isEditMode) {
-        // Build update payload — only send fields accepted by BE validation
         const updatePayload: Record<string, any> = {
           title: formData.title.trim(),
           ...(formData.status && { columnId: formData.status }),
         };
 
-        // Always include these fields (even if empty → set to null)
-        // Trim strings to satisfy BE's .trim().strict() validation
         const desc = formData.description?.trim();
         updatePayload.description = desc || null;
         updatePayload.priorityId = formData.priority
@@ -175,6 +199,7 @@ export default function AddIssuePage() {
           ...(formData.priority && { priorityId: Number(formData.priority) }),
           ...(formData.issueType && { issueTypeId: formData.issueType }),
           ...(formData.version && { versionId: formData.version }),
+          ...(formData.assignee && { assigneeId: formData.assignee }),
           ...(formData.startDate && { startDate: formData.startDate }),
           ...(formData.dueDate && { dueDate: formData.dueDate }),
           ...(formData.estimatedHours && {
@@ -196,21 +221,134 @@ export default function AddIssuePage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const PRIORITY_OPTIONS = [
-    { value: String(PRIORITY.LOW), label: t('priority.low') },
-    { value: String(PRIORITY.NORMAL), label: t('priority.normal') },
-    { value: String(PRIORITY.HIGH), label: t('priority.high') },
-  ];
+  const handleAssignToMyself = () => {
+    if (!currentUser?._id) return;
+    handleChange('assignee', currentUser._id);
+  };
+
+  const PRIORITY_OPTIONS = useMemo(
+    () => [
+      { value: String(PRIORITY.LOW), label: t('priority.low') },
+      { value: String(PRIORITY.NORMAL), label: t('priority.normal') },
+      { value: String(PRIORITY.HIGH), label: t('priority.high') },
+    ],
+    [t]
+  );
 
   const ISSUE_TYPE_OPTIONS = issueTypes.map(issueType => ({
     value: issueType._id,
     label: issueType.name,
   }));
 
+  const resolveUser = useCallback(
+    (val?: string | User | null, fallbackId?: string) => {
+      if (val && typeof val !== 'string') {
+        return val.displayName || val.username || '—';
+      }
+
+      const id = (typeof val === 'string' ? val : '') || fallbackId || '';
+      return id ? (userMap.get(id) ?? t('issueDetail.unassigned')) : '—';
+    },
+    [t, userMap]
+  );
+
+  const previewStatusInfo = useMemo(() => {
+    if (!formData.status) return null;
+
+    const column = columns.find(item => item._id === formData.status);
+    if (!column) return null;
+
+    return {
+      _id: column._id,
+      boardId: column.boardId,
+      title: column.title,
+      statusColor: column.statusColor,
+    };
+  }, [columns, formData.status]);
+
+  const previewIssueTypeInfo = useMemo(() => {
+    if (!formData.issueType) return null;
+
+    const issueType = issueTypes.find(item => item._id === formData.issueType);
+    if (!issueType) return null;
+
+    return {
+      _id: issueType._id,
+      boardId,
+      name: issueType.name,
+      statusColor: issueType.statusColor,
+    };
+  }, [boardId, formData.issueType, issueTypes]);
+
+  const previewPriorityLabel = useMemo(() => {
+    if (!formData.priority) return null;
+    return (
+      PRIORITY_OPTIONS.find(option => option.value === formData.priority)
+        ?.label ?? null
+    );
+  }, [PRIORITY_OPTIONS, formData.priority]);
+
+  const previewCard = useMemo<Card>(
+    () => ({
+      _id: editId || 'preview',
+      boardId,
+      columnId: formData.status,
+      title: formData.title,
+      description: formData.description || null,
+      priorityId: formData.priority ? Number(formData.priority) : null,
+      assigneeId: formData.assignee || null,
+      assignee: null,
+      issueTypeId: formData.issueType || null,
+      issueType: previewIssueTypeInfo,
+      status: previewStatusInfo,
+      versionId: formData.version || null,
+      startDate: formData.startDate || null,
+      dueDate: formData.dueDate || null,
+      estimatedHours: formData.estimatedHours || null,
+      actualHours: formData.actualHours || null,
+      createdAt: editCard?.createdAt ?? Date.now(),
+      updatedAt: editCard?.updatedAt ?? null,
+    }),
+    [
+      boardId,
+      editCard?.createdAt,
+      editCard?.updatedAt,
+      editId,
+      formData.actualHours,
+      formData.assignee,
+      formData.description,
+      formData.dueDate,
+      formData.estimatedHours,
+      formData.issueType,
+      formData.priority,
+      formData.startDate,
+      formData.status,
+      formData.title,
+      formData.version,
+      previewIssueTypeInfo,
+      previewStatusInfo,
+    ]
+  );
+
+  if (isPreviewing && !isEditMode) {
+    return (
+      <PreviewIssue
+        card={previewCard}
+        versions={versions}
+        issueTypeInfo={previewIssueTypeInfo}
+        statusInfo={previewStatusInfo}
+        priorityLabel={previewPriorityLabel}
+        resolveUser={resolveUser}
+        isSubmitting={isSubmitting}
+        onBack={() => setIsPreviewing(false)}
+        onAdd={() => handleSubmit()}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen w-full bg-theme-neutral-3/40">
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Page Header */}
+      <div className="max-w-9xl px-6 py-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-theme-neutral-12">
@@ -226,7 +364,10 @@ export default function AddIssuePage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.back()}
+              onClick={() => {
+                if (isEditMode) router.back();
+                else setIsPreviewing(true);
+              }}
               className="border-theme-neutral-5"
             >
               {isEditMode ? t('issueDetail.cancel') : t('common.preview')}
@@ -327,10 +468,7 @@ export default function AddIssuePage() {
                     <Select
                       label={t('addIssue.label.assignee')}
                       showSearch={true}
-                      options={[
-                        { value: 'user1', label: 'User 1' },
-                        { value: 'user2', label: 'User 2' },
-                      ]}
+                      options={USER_OPTIONS}
                       value={formData.assignee}
                       onValueChange={value => handleChange('assignee', value)}
                       placeholder={t('addIssue.placeholder.assignee')}
@@ -338,7 +476,8 @@ export default function AddIssuePage() {
                     <button
                       type="button"
                       className="mt-2 text-sm text-theme-main hover:underline cursor-pointer"
-                      onClick={() => handleChange('assignee', 'me')}
+                      onClick={handleAssignToMyself}
+                      disabled={!currentUser?._id}
                     >
                       {t('addIssue.myself')}
                     </button>
