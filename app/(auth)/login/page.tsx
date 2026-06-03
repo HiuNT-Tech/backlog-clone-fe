@@ -119,7 +119,7 @@ function LoginForm() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full mt-6 bg-theme-main hover:bg-theme-hover text-white interceptor-loading"
+          className="w-full mt-6 bg-theme-main hover:bg-theme-hover text-white"
         >
           {t('auth.login.submitButton')}
         </Button>

@@ -10,26 +10,32 @@ import {
   updateCurrentActiveBoard,
 } from '@/redux/activeBoard/activeBoardSlice';
 import type { AppDispatch } from '@/redux/store';
-import type { Board, Column as ColumnType, Card } from '@/config/interface';
+import type {
+  Board,
+  Column as ColumnType,
+  Card,
+  EntityId,
+} from '@/config/interface';
 import { useBoard } from '@/hooks/use-board';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { toPositionPayload, withSequentialPositions } from '@/utils/sorts';
 
 function BoardPageContent() {
   const dispatch = useDispatch<AppDispatch>();
   const board = useSelector(selectCurrentActiveBoard) as Board | null;
-  const searchParams = useSearchParams();
-  const boardId = searchParams.get('id');
+  const params = useParams<{ projectId: string }>();
+  const boardId = params.projectId;
 
-  // Use the hook to get mutation functions
+  // Use the hook to get mutation functions - use board.id for mutations (numeric ID)
   const {
     updateBoardDetail,
     updateColumnDetails,
     moveCardToDifferentColumn: moveCardToDifferentColumnAPI,
-  } = useBoard(boardId || '', '');
+  } = useBoard(board?.id);
 
   useEffect(() => {
     if (!boardId) return;
-    dispatch(fetchBoardDetailsAPI(boardId));
+    dispatch(fetchBoardDetailsAPI(parseInt(boardId)));
   }, [dispatch, boardId]);
 
   if (!board) {
@@ -41,75 +47,58 @@ function BoardPageContent() {
   }
 
   const moveColumns = (dndOrderedColumns: ColumnType[]) => {
-    // Update cho chuẩn dữ liệu state Board
-    const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id);
+    const positionedColumns = withSequentialPositions(dndOrderedColumns);
     const newBoard = cloneDeep(board);
-    newBoard.columns = dndOrderedColumns;
-    newBoard.columnOrderIds = dndOrderedColumnsIds;
+    newBoard.columns = positionedColumns;
     dispatch(updateCurrentActiveBoard(newBoard));
 
-    // Gọi API update Board
     updateBoardDetail({
-      _id: board._id,
-      columnOrderIds: dndOrderedColumnsIds,
+      id: board.id,
+      columns: toPositionPayload(positionedColumns),
     });
   };
 
-  /**
-   * Khi di chuyển card trong cùng Column:
-   * Chỉ cần gọi API để cập nhật mảng cardOrderIds của Column chứa nó (thay đổi vị trí trong mảng)
-   */
   const moveCardInTheSameColumn = (
     dndOrderedCards: Card[],
-    dndOrderedCardIds: string[],
-    columnId: string
+    columnId: EntityId
   ) => {
-    // Update cho chuẩn dữ liệu state Board
+    const positionedCards = withSequentialPositions(dndOrderedCards);
     const newBoard = cloneDeep(board);
     const columnToUpdate = newBoard.columns.find(
-      column => column._id === columnId
+      column => column.id === columnId
     );
     if (columnToUpdate) {
-      columnToUpdate.cards = dndOrderedCards;
-      columnToUpdate.cardOrderIds = dndOrderedCardIds;
+      columnToUpdate.cards = positionedCards;
     }
     dispatch(updateCurrentActiveBoard(newBoard));
 
-    // Gọi API update Column
-    updateColumnDetails({ _id: columnId, cardOrderIds: dndOrderedCardIds });
+    updateColumnDetails({
+      id: columnId,
+      cards: toPositionPayload(positionedCards),
+    });
   };
 
   const moveCardToDifferentColumn = (
-    currentCardId: string,
-    prevColumnId: string,
-    nextColumnId: string,
+    currentCardId: EntityId,
+    prevColumnId: EntityId,
+    nextColumnId: EntityId,
     dndOrderedColumns: ColumnType[]
   ) => {
-    // Update cho chuẩn dữ liệu state Board
-    const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id);
     const newBoard = cloneDeep(board);
     newBoard.columns = dndOrderedColumns;
-    newBoard.columnOrderIds = dndOrderedColumnsIds;
     dispatch(updateCurrentActiveBoard(newBoard));
 
-    // Get prevCardOrderIds (filter out placeholder cards)
-    let prevCardOrderIds =
-      dndOrderedColumns.find(c => c._id === prevColumnId)?.cardOrderIds || [];
-    if (prevCardOrderIds[0]?.includes('placeholder-card')) {
-      prevCardOrderIds = [];
-    }
+    const prevCards =
+      dndOrderedColumns.find(c => c.id === prevColumnId)?.cards || [];
+    const nextCards =
+      dndOrderedColumns.find(c => c.id === nextColumnId)?.cards || [];
 
-    // Get nextCardOrderIds
-    const nextCardOrderIds =
-      dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds || [];
-
-    // Call API with correct payload structure
     moveCardToDifferentColumnAPI({
       currentCardId,
       prevColumnId,
-      prevCardOrderIds,
+      prevCards: toPositionPayload(prevCards),
       nextColumnId,
-      nextCardOrderIds,
+      nextCards: toPositionPayload(nextCards),
     });
   };
 

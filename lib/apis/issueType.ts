@@ -1,10 +1,14 @@
 import { sendGet, sendPost, sendPut, sendDelete } from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
-import type { CreateIssueTypeRequest, IssueType } from '@/config/interface';
+import type {
+  CreateIssueTypeRequest,
+  EntityId,
+  IssueType,
+} from '@/config/interface';
 
 export const IssueTypeService = {
   getList: async (
-    boardId: string,
+    boardId: EntityId,
     params?: Record<string, any>
   ): Promise<{ items: IssueType[]; count: number }> => {
     return await sendGet(
@@ -14,7 +18,7 @@ export const IssueTypeService = {
   },
 
   createNew: async (
-    boardId: string,
+    boardId: EntityId,
     payload: CreateIssueTypeRequest
   ): Promise<IssueType> => {
     return await sendPost(
@@ -23,15 +27,15 @@ export const IssueTypeService = {
     );
   },
 
-  delete: async (boardId: string, id: string) => {
+  delete: async (boardId: EntityId, id: EntityId) => {
     return await sendDelete(
       `${API_ROOT}/v1/boards/${boardId}/issue-types/${id}`
     );
   },
 
   edit: async (
-    boardId: string,
-    id: string,
+    boardId: EntityId,
+    id: EntityId,
     payload: CreateIssueTypeRequest
   ) => {
     return await sendPut(

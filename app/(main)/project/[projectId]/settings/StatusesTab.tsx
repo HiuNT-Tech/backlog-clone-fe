@@ -1,21 +1,23 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@/components/ui/button';
-import { IssueTypesTable } from '@/components/shared/tables/IssueTypesTable';
-import { IssueTypeCreateForm } from '@/components/shared/forms/IssueTypesCreateForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
-import { useIssueType } from '@/hooks/use-issue-type';
+import { useColumn } from '@/hooks/use-column';
 import { toastHelpers } from '@/hooks/use-toast';
 import { COLOR_KEY_TO_STATUS } from '@/constant/data';
 import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-form-schemas';
-import IssueTypesFilter from '@/components/shared/filters/IssueTypesFilter';
+import { Button } from '@/components/ui/button';
+import { StatusesTable } from '@/components/shared/tables/StatusesTable';
+import { StatusCreateForm } from '@/components/shared/forms/StatusCreateForm';
+import StatusesFilter from '@/components/shared/filters/StatusesFilter';
 import { usePagination } from '@/hooks/use-pagination';
+import type { EntityId } from '@/config/interface';
 
-export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
+export const StatusesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -31,20 +33,18 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   };
 
   const {
-    issueTypes,
-    totalCount,
-    isLoadingList,
-    createNewIssueType,
-    deleteIssueType,
+    columns: columnList,
+    isLoading,
+    createNewColumn,
+    deleteColumn,
     isCreatePending,
-  } = useIssueType(boardId, apiParams);
+  } = useColumn(boardId, apiParams);
 
-  const isCreateModeFromUrl = searchParams.get('issueTypesMode') === 'create';
-  const [isCreatingIssueType, setIsCreatingIssueType] =
-    useState(isCreateModeFromUrl);
+  const isCreateModeFromUrl = searchParams.get('statusesMode') === 'create';
+  const [isCreatingStatus, setIsCreatingStatus] = useState(isCreateModeFromUrl);
 
   useEffect(() => {
-    setIsCreatingIssueType(isCreateModeFromUrl);
+    setIsCreatingStatus(isCreateModeFromUrl);
   }, [isCreateModeFromUrl]);
 
   const handleSearch = (params: Record<string, any>) => {
@@ -54,44 +54,43 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
 
   const handleCloseCreate = () => {
     replaceWithUpdatedSearchParams(router, pathname, searchParams, params => {
-      params.set('tab', 'issueTypes');
-      params.delete('issueTypesMode');
+      params.set('tab', 'statuses');
+      params.delete('statusesMode');
     });
-    setIsCreatingIssueType(false);
+    setIsCreatingStatus(false);
   };
 
-  const handleSubmitIssueType = async (data: CreateIssueTypeFormData) => {
+  const handleSubmitColumn = async (data: CreateIssueTypeFormData) => {
     try {
       const statusColor = COLOR_KEY_TO_STATUS[data.selectedColorKey];
-      await createNewIssueType({
-        boardId,
-        name: data.name.trim(),
+      await createNewColumn({
+        title: data.name.trim(),
         statusColor,
+        selectedColorKey: data.selectedColorKey,
       });
       toastHelpers.success({
-        title: t('common.success.add'),
+        title: t('settings.issueTypes.createSuccess'),
       });
       handleCloseCreate();
     } catch {
-      // Toast đã xử lý trong useIssueType
+      // Toast đã xử lý trong hook
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: EntityId) => {
     try {
-      await deleteIssueType(id);
+      await deleteColumn(id);
       toastHelpers.success({
         title: t('common.success.delete'),
       });
     } catch {}
   };
 
-  if (isCreatingIssueType) {
+  if (isCreatingStatus) {
     return (
-      <IssueTypeCreateForm
-        boardId={boardId}
+      <StatusCreateForm
         onClose={handleCloseCreate}
-        onSubmit={handleSubmitIssueType}
+        onSubmit={handleSubmitColumn}
         isPending={isCreatePending}
       />
     );
@@ -102,10 +101,10 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
       <div className="flex flex-col gap-4 border-b border-theme-neutral-4 pb-5 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-theme-neutral-11">
-            {t('settings.issueTypes.heading')}
+            {t('settings.statuses.heading')}
           </h2>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
-            {t('settings.issueTypes.hint')}
+            {t('settings.statuses.hint')}
           </p>
         </div>
         <Button
@@ -116,24 +115,23 @@ export const IssueTypesTab: React.FC<{ boardId: string }> = ({ boardId }) => {
               pathname,
               searchParams,
               params => {
-                params.set('tab', 'issueTypes');
-                params.set('issueTypesMode', 'create');
+                params.set('tab', 'statuses');
+                params.set('statusesMode', 'create');
               }
             );
-            setIsCreatingIssueType(true);
+            setIsCreatingStatus(true);
           }}
         >
-          {t('settings.issueTypes.actions.add')}
+          {t('settings.statuses.actions.add')}
         </Button>
       </div>
 
-      <IssueTypesFilter onSearch={handleSearch} />
+      <StatusesFilter onSearch={handleSearch} />
 
-      <IssueTypesTable
+      <StatusesTable
         boardId={boardId}
-        data={issueTypes}
-        loading={isLoadingList}
-        totalCount={totalCount}
+        data={columnList}
+        loading={isLoading}
         page={pagination.page}
         limit={pagination.limit}
         onPageChange={pagination.setPage}

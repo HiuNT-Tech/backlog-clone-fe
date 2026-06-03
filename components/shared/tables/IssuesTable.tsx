@@ -5,14 +5,15 @@ import { useTranslation } from 'react-i18next';
 
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { getIssueTypeBadgeClassName } from '@/constant/data';
+import type { EntityId } from '@/config/interface';
 
 export interface IssueBadgeValue {
   label: string;
-  statusColor?: number | null;
+  statusColor?: string | null;
 }
 
 export interface IssueRow {
-  id: string;
+  id: EntityId;
   issueType: IssueBadgeValue | null;
   key: string;
   subject: string;
@@ -77,14 +78,6 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         title: t('issues.table.key'),
         dataIndex: 'key',
         minWidth: 120,
-        render: value => (
-          <button
-            type="button"
-            className="text-theme-main hover:underline text-sm font-medium"
-          >
-            {value}
-          </button>
-        ),
       },
       {
         key: 'subject',

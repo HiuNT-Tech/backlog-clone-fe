@@ -3,12 +3,12 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
-import { Column } from '@/config/interface';
+import { Column, EntityId } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 
 export interface StatusesTableProps {
-  boardId: string;
+  boardId: EntityId;
   data: Column[];
   loading?: boolean;
   totalCount?: number;
@@ -16,7 +16,7 @@ export interface StatusesTableProps {
   limit: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
-  onDelete?: (id: string) => void;
+  onDelete?: (id: EntityId) => void;
 }
 
 export const StatusesTable: React.FC<StatusesTableProps> = ({
@@ -45,7 +45,7 @@ export const StatusesTable: React.FC<StatusesTableProps> = ({
         key: 'issues',
         title: t('settings.issueTypes.table.issues'),
         align: 'center',
-        render: (_value, record) => record?.cardOrderIds?.length ?? 0,
+        render: (_value, record) => record?._count?.cards ?? '-',
       },
     ],
     [t]
@@ -57,14 +57,14 @@ export const StatusesTable: React.FC<StatusesTableProps> = ({
         name: record?.title ?? '—',
       }),
       onOk: () => {
-        if (record?._id) onDelete?.(record._id);
+        if (record?.id) onDelete?.(record.id);
       },
     });
   };
 
   return (
     <CustomTable
-      rowKey="_id"
+      rowKey="id"
       columns={columns}
       dataSource={data}
       loading={loading}

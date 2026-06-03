@@ -1,56 +1,48 @@
 import React from 'react';
 import { t, type TFunction } from 'i18next';
 
-import { MemberRole, PRIORITY, StatusColor } from '@/config/enum';
+import { PRIORITY, StatusColor } from '@/config/enum';
+import type { BoardMemberRole } from '@/config/interface';
 import { cn } from '@/lib/utils';
-
-export const MEMBER_ROLE_STATUS_DATA = {
-  [MemberRole.MEMBER]: {
-    labelKey: 'settings.members.roleOptions.member',
-    badgeClassName: 'bg-gray-100 text-gray-700',
-  },
-  [MemberRole.ADMINISTRATOR]: {
-    labelKey: 'settings.members.roleOptions.administrator',
-    badgeClassName: 'bg-red-100 text-red-600',
-  },
-  [MemberRole.PROJECT_MANAGER]: {
-    labelKey: 'settings.members.roleOptions.projectManager',
-    badgeClassName: 'bg-blue-100 text-blue-600',
-  },
-} as const;
 
 type MemberRoleStatusConfig = {
   labelKey: string;
   badgeClassName: string;
 };
 
+export const MEMBER_ROLE_STATUS_DATA = {
+  MEMBER: {
+    labelKey: 'settings.members.roleOptions.member',
+    badgeClassName: 'bg-gray-100 text-gray-700',
+  },
+  ADMIN: {
+    labelKey: 'settings.members.roleOptions.administrator',
+    badgeClassName: 'bg-red-100 text-red-600',
+  },
+  PM: {
+    labelKey: 'settings.members.roleOptions.projectManager',
+    badgeClassName: 'bg-blue-100 text-blue-600',
+  },
+  GUEST: {
+    labelKey: 'settings.members.roleOptions.guest',
+    badgeClassName: 'bg-yellow-100 text-yellow-700',
+  },
+} satisfies Record<BoardMemberRole, MemberRoleStatusConfig>;
+
 export const getMemberRoleStatusConfig = (
-  role: MemberRole | string | number
-): MemberRoleStatusConfig => {
-  let numericRole = Number(role) as MemberRole;
-
-  if (typeof role === 'string') {
-    const upperRole = role.toUpperCase();
-    if (upperRole === 'ADMIN') numericRole = MemberRole.ADMINISTRATOR;
-    else if (upperRole === 'PM') numericRole = MemberRole.PROJECT_MANAGER;
-    else if (upperRole === 'MEMBER') numericRole = MemberRole.MEMBER;
-  }
-
-  return (
-    MEMBER_ROLE_STATUS_DATA[numericRole] || {
-      labelKey: '',
-      badgeClassName: '',
-    }
-  );
+  role: BoardMemberRole | string | null | undefined
+): MemberRoleStatusConfig | null => {
+  const normalizedRole = role?.toUpperCase() as BoardMemberRole | undefined;
+  return normalizedRole ? MEMBER_ROLE_STATUS_DATA[normalizedRole] : null;
 };
 
 export const renderMemberRoleBadge = (
-  role: MemberRole | string | number,
+  role: BoardMemberRole | string | null | undefined,
   t: TFunction,
   additionalText?: string
 ): React.ReactNode => {
   const config = getMemberRoleStatusConfig(role);
-  if (!config.labelKey) return null;
+  if (!config) return null;
 
   return React.createElement(
     'span',
@@ -67,56 +59,19 @@ export const renderMemberRoleBadge = (
 // Issue Types - Color status options & renderer
 
 export const COLOR_STATUS_OPTIONS = [
-  // Đỏ cam
-  {
-    key: 'red',
-    className: 'bg-[#E52E00] text-[#ffffff] border-[#E52E00]',
-  },
-  // Cam
-  {
-    key: 'orange',
-    className: 'bg-[#E68A40] text-[#ffffff] border-[#E68A40]',
-  },
-  // Hồng nhạt
-  {
-    key: 'pink',
-    className: 'bg-[#DB7F9B] text-[#ffffff] border-[#DB7F9B]',
-  },
-  // Tím/indigo
-  {
-    key: 'indigo',
-    className: 'bg-[#868DB8] text-[#ffffff] border-[#868DB8]',
-  },
-  // Xanh dương
-  {
-    key: 'blue',
-    className: 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]',
-  },
-  // Xanh ngọc
-  {
-    key: 'teal',
-    className: 'bg-[#45AC94] text-[#ffffff] border-[#45AC94]',
-  },
-  // Xanh lá
-  {
-    key: 'green',
-    className: 'bg-[#90A631] text-[#ffffff] border-[#90A631]',
-  },
-  // Vàng
-  {
-    key: 'yellow',
-    className: 'bg-[#D8921B] text-[#ffffff] border-[#D8921B]',
-  },
-  // Đỏ tươi (Hồng cánh sen)
+  { key: 'red', className: 'bg-[#E52E00] text-[#ffffff] border-[#E52E00]' },
+  { key: 'orange', className: 'bg-[#E68A40] text-[#ffffff] border-[#E68A40]' },
+  { key: 'pink', className: 'bg-[#DB7F9B] text-[#ffffff] border-[#DB7F9B]' },
+  { key: 'indigo', className: 'bg-[#868DB8] text-[#ffffff] border-[#868DB8]' },
+  { key: 'blue', className: 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]' },
+  { key: 'teal', className: 'bg-[#45AC94] text-[#ffffff] border-[#45AC94]' },
+  { key: 'green', className: 'bg-[#90A631] text-[#ffffff] border-[#90A631]' },
+  { key: 'yellow', className: 'bg-[#D8921B] text-[#ffffff] border-[#D8921B]' },
   {
     key: 'bright-red',
     className: 'bg-[#F2245F] text-[#ffffff] border-[#F2245F]',
   },
-  // Đen
-  {
-    key: 'black',
-    className: 'bg-[#333333] text-[#ffffff] border-[#333333]',
-  },
+  { key: 'black', className: 'bg-[#333333] text-[#ffffff] border-[#333333]' },
 ] as const;
 
 export type ColorStatusKey = (typeof COLOR_STATUS_OPTIONS)[number]['key'];
@@ -151,7 +106,7 @@ export const STATUS_TO_COLOR_KEY: Record<StatusColor, ColorStatusKey> = {
 
 /** Trả về cấu hình badge (màu sắc) cho issue type */
 export const renderIssueTypeBadge = (
-  statusColor?: number | null,
+  statusColor?: string | null,
   name?: string
 ): React.ReactNode => {
   return React.createElement(
@@ -168,15 +123,30 @@ export const renderIssueTypeBadge = (
 
 /** Trả về className badge theo statusColor (số từ API); mặc định blue nếu không khớp */
 export const getIssueTypeBadgeClassName = (
-  statusColor?: number | null
+  statusColor?: string | null
 ): string => {
+  // Support legacy db records
+  const legacyMap: Record<string, string> = {
+    GRAY: 'bg-theme-neutral-5 text-theme-neutral-10 border-theme-neutral-5', // actual gray
+    PURPLE: 'bg-[#9b59b6] text-white border-[#9b59b6]',
+  };
+
+  if (statusColor && legacyMap[statusColor]) {
+    return cn(
+      legacyMap[statusColor],
+      'min-w-[100px] justify-center text-center'
+    );
+  }
+
   const key =
     statusColor != null
-      ? ((STATUS_TO_COLOR_KEY as Record<number, ColorStatusKey>)[statusColor] ??
+      ? ((STATUS_TO_COLOR_KEY as Record<string, ColorStatusKey>)[statusColor] ??
         'blue')
       : 'blue';
   const option = COLOR_STATUS_OPTIONS.find(o => o.key === key);
-  return option?.className ?? 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]';
+  const baseClassName =
+    option?.className ?? 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]';
+  return cn(baseClassName, 'min-w-[100px] justify-center text-center');
 };
 
 export const renderStatusBadge = (

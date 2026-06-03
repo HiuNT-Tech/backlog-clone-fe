@@ -91,7 +91,7 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
 
   // Options from hooks and enums
   const statusOptions = columns.map(column => ({
-    value: column._id,
+    value: String(column.id),
     label: column.title,
   }));
 
@@ -102,12 +102,12 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
   ];
 
   const versionOptions = versions.map(version => ({
-    value: version._id,
+    value: String(version.id),
     label: version.name,
   }));
 
   const issueTypeOptions = issueTypes.map(issueType => ({
-    value: issueType._id,
+    value: String(issueType.id),
     label: issueType.name,
   }));
 

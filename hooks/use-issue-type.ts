@@ -2,10 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { IssueTypeService } from '@/lib/apis/issueType';
 import { toastHelpers } from '@/hooks/use-toast';
-import type { CreateIssueTypeRequest, IssueType } from '@/config/interface';
+import type {
+  CreateIssueTypeRequest,
+  EntityId,
+  IssueType,
+} from '@/config/interface';
 
 export const useIssueType = (
-  boardId?: string,
+  boardId?: EntityId,
   params?: Record<string, any>
 ) => {
   const { t } = useTranslation();
@@ -13,7 +17,7 @@ export const useIssueType = (
 
   const {
     data = { items: [], count: 0 },
-    isLoading: isLoadingList,
+    isLoading,
     error: issueTypesError,
     refetch: refetchIssueTypes,
   } = useQuery({
@@ -39,7 +43,7 @@ export const useIssueType = (
     isPending: isDeletePending,
     error: deleteIssueTypeError,
   } = useMutation({
-    mutationFn: (id: string) => IssueTypeService.delete(boardId!, id),
+    mutationFn: (id: EntityId) => IssueTypeService.delete(boardId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issue-types', boardId] });
     },
@@ -47,7 +51,7 @@ export const useIssueType = (
   return {
     issueTypes: data.items,
     totalCount: data.count,
-    isLoadingList,
+    isLoading,
     issueTypesError,
     refetchIssueTypes,
 

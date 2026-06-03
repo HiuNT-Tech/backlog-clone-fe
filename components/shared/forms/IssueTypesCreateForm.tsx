@@ -15,9 +15,10 @@ import {
   type CreateIssueTypeFormData,
 } from '@/validation/create-issue-type-form-schemas';
 import { cn } from '@/lib/utils';
+import type { EntityId } from '@/config/interface';
 
 export interface IssueTypeCreateFormProps {
-  boardId: string;
+  boardId: EntityId;
   onClose: () => void;
   onSubmit: (data: CreateIssueTypeFormData) => Promise<void>;
   isPending: boolean;
@@ -30,7 +31,7 @@ export const IssueTypeCreateForm: React.FC<IssueTypeCreateFormProps> = ({
   isPending,
 }) => {
   const { t } = useTranslation();
-  const { issueTypes, isLoadingList } = useIssueType(boardId);
+  const { issueTypes, isLoading } = useIssueType(boardId);
 
   const {
     register,
@@ -131,7 +132,7 @@ export const IssueTypeCreateForm: React.FC<IssueTypeCreateFormProps> = ({
             {t('settings.issueTypes.add.existingLabel')}
           </p>
           <div className="flex flex-wrap gap-2">
-            {isLoadingList ? (
+            {isLoading ? (
               <p className="text-xs text-theme-neutral-8">
                 {t('common.loading')}
               </p>
@@ -142,7 +143,7 @@ export const IssueTypeCreateForm: React.FC<IssueTypeCreateFormProps> = ({
             ) : (
               issueTypes.map(type => (
                 <span
-                  key={type._id}
+                  key={type.id}
                   className={cn(
                     'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium text-white',
                     getIssueTypeBadgeClassName(type.statusColor)

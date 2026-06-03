@@ -176,7 +176,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                 </div>
                 <Select
                   options={STATUS_OPTIONS}
-                  value={card.columnId ?? ''}
+                  value={card.columnId ? String(card.columnId) : ''}
                   onValueChange={v => handleFieldUpdate('columnId', v)}
                   placeholder="—"
                   allowClear={false}
@@ -194,7 +194,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                     <button
                       type="button"
                       className="text-[10px] text-theme-main hover:underline cursor-pointer"
-                      onClick={() => handleFieldUpdate('assigneeId', 'me')}
+                      onClick={() => handleFieldUpdate('assigneeUserId', 'me')}
                     >
                       {t('issueDetail.assignToMyself')}
                     </button>
@@ -202,8 +202,10 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   <Select
                     showSearch
                     options={USER_OPTIONS}
-                    value={card.assigneeId ?? ''}
-                    onValueChange={v => handleFieldUpdate('assigneeId', v)}
+                    value={
+                      card.assigneeUserId ? String(card.assigneeUserId) : ''
+                    }
+                    onValueChange={v => handleFieldUpdate('assigneeUserId', v)}
                     placeholder="—"
                     className="[&_.ant-select-selector]:h-8! [&_.ant-select-selector]:min-h-[32px]! h-8"
                   />

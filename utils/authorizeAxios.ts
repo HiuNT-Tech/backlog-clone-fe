@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { toastHelpers } from '@/hooks/use-toast';
-import { interceptorLoadingElements } from './formatters';
 import config from '@/config';
 import { API_ROOT } from '@/utils/constants';
 
@@ -34,12 +33,9 @@ let refreshTokenPromise: Promise<unknown> | null = null;
 // Interceptor request: Can thiệp vào giữa những cái request API
 authorizedAxiosInstance.interceptors.request.use(
   config => {
-    // Kỹ thuật chặn user spam click
-    interceptorLoadingElements(true);
     return config;
   },
   error => {
-    // Do something with request error
     return Promise.reject(error);
   }
 );
@@ -47,16 +43,12 @@ authorizedAxiosInstance.interceptors.request.use(
 // Interceptor response: Can thiệp vào giữa những cái response API
 authorizedAxiosInstance.interceptors.response.use(
   response => {
-    // Kỹ thuật chặn user spam click
-    interceptorLoadingElements(false);
     return response;
   },
   (error: AxiosError) => {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    // Kỹ thuật chặn user spam click
-    interceptorLoadingElements(false);
-    //  Mọi những mã http status code ngoài khoang 200 - 299 sẽ là error và rơi vào đây
+    // Mọi những mã http status code ngoài khoang 200 - 299 sẽ là error và rơi vào đây
     const { response, config } = error;
 
     // Trường hợp cần refresh token (BE trả về 410)
@@ -79,7 +71,7 @@ authorizedAxiosInstance.interceptors.response.use(
       // Nếu chưa có promise refresh đang chạy thì tạo mới
       if (!refreshTokenPromise) {
         refreshTokenPromise = axios
-          .get(`${API_ROOT}/v1/users/refresh_token`, {
+          .get(`${API_ROOT}/v1/auth/refresh_token`, {
             withCredentials: true,
           })
           .catch((refreshError: AxiosError) => {
