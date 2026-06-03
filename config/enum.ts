@@ -1,20 +1,21 @@
 export enum MemberRole {
-  MEMBER = 1,
-  ADMINISTRATOR = 2,
-  PROJECT_MANAGER = 3,
+  ADMINISTRATOR = 'ADMIN',
+  PROJECT_MANAGER = 'PM',
+  MEMBER = 'MEMBER',
+  GUEST = 'GUEST',
 }
 
 export enum StatusColor {
-  RED = 1,
-  ORANGE = 2,
-  PINK = 3,
-  INDIGO = 4,
-  BLUE = 5,
-  TEAL = 6,
-  GREEN = 7,
-  YELLOW = 8,
-  BRIGHT_RED = 9,
-  BLACK = 10,
+  RED = 'RED',
+  ORANGE = 'ORANGE',
+  PINK = 'PINK',
+  INDIGO = 'INDIGO',
+  BLUE = 'BLUE',
+  TEAL = 'TEAL',
+  GREEN = 'GREEN',
+  YELLOW = 'YELLOW',
+  BRIGHT_RED = 'BRIGHT_RED',
+  BLACK = 'BLACK',
 }
 
 export enum PRIORITY {

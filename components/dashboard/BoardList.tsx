@@ -13,8 +13,8 @@ export default function BoardList({ boards }: BoardListProps) {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const handleBoardClick = (boardId: string) => {
-    router.push(`/board?id=${boardId}`);
+  const handleBoardClick = (id: number) => {
+    router.push(`project/${id}/issues`);
   };
 
   if (boards.length === 0) {
@@ -25,8 +25,8 @@ export default function BoardList({ boards }: BoardListProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {boards.map(board => (
         <div
-          key={board._id}
-          onClick={() => handleBoardClick(board._id)}
+          key={board.id}
+          onClick={() => handleBoardClick(board.id)}
           className="group relative cursor-pointer rounded-lg border border-theme-neutral-5 bg-theme-neutral-1 p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-theme-main hover:-translate-y-0.5"
         >
           {/* Color accent bar */}
@@ -51,7 +51,7 @@ export default function BoardList({ boards }: BoardListProps) {
             <span className="inline-flex items-center gap-1 rounded-full bg-theme-neutral-3 px-2 py-0.5 capitalize">
               {board.type}
             </span>
-            <span>{board.columnOrderIds?.length ?? 0} columns</span>
+            <span>{board.columns?.length ?? 0} columns</span>
           </div>
         </div>
       ))}

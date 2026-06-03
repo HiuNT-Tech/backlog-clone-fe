@@ -6,10 +6,16 @@ import {
   Board,
   Card,
   Column,
+  EntityId,
   MoveCardToDifferentColumnRequest,
+  UpdateBoardDetailRequest,
+  UpdateColumnDetailsRequest,
 } from '@/config/interface';
 
-export const useBoard = (boardId: string, columnId?: string) => {
+export const useBoard = (
+  boardId: EntityId | undefined,
+  columnId?: EntityId
+) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -20,7 +26,7 @@ export const useBoard = (boardId: string, columnId?: string) => {
   } = useMutation({
     mutationFn: async (data: { title: string }) => {
       return await BoardService.createNewColumn({
-        boardId,
+        boardId: boardId!,
         title: data.title,
       });
     },
@@ -34,10 +40,14 @@ export const useBoard = (boardId: string, columnId?: string) => {
     isPending: isUpdatePending,
     error: updateColumnDetailsError,
   } = useMutation({
-    mutationFn: async (column: Partial<Column>) => {
+    mutationFn: async (
+      column: UpdateColumnDetailsRequest['updateData'] & { id?: EntityId }
+    ) => {
+      const { id, ...updateData } = column;
       return await BoardService.updateColumnDetails({
-        columnId: column._id || columnId!,
-        updateData: column,
+        boardId: boardId!,
+        columnId: id ?? columnId!,
+        updateData,
       });
     },
     onSuccess: () => {
@@ -50,10 +60,13 @@ export const useBoard = (boardId: string, columnId?: string) => {
     isPending: isUpdateBoardDetailPending,
     error: updateBoardDetailError,
   } = useMutation({
-    mutationFn: async (board: Partial<Board>) => {
+    mutationFn: async (
+      board: UpdateBoardDetailRequest['updateData'] & { id?: EntityId }
+    ) => {
+      const { id, ...updateData } = board;
       return await BoardService.updateBoardDetail({
-        boardId: board._id || boardId,
-        updateData: board,
+        boardId: id ?? boardId!,
+        updateData,
       });
     },
     onSuccess: () => {
@@ -66,8 +79,11 @@ export const useBoard = (boardId: string, columnId?: string) => {
     isPending: isDeletePending,
     error: deleteColumnDetailsError,
   } = useMutation({
-    mutationFn: async (columnId: string) => {
-      return await BoardService.deleteColumnDetails({ columnId });
+    mutationFn: async (columnId: EntityId) => {
+      return await BoardService.deleteColumnDetails({
+        boardId: boardId!,
+        columnId,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
@@ -93,8 +109,8 @@ export const useBoard = (boardId: string, columnId?: string) => {
     error: createNewCardError,
   } = useMutation({
     mutationFn: async (card: {
-      boardId: string;
-      columnId: string;
+      boardId: EntityId;
+      columnId: EntityId;
       title: string;
     }) => {
       return await BoardService.createNewCard(card);

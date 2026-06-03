@@ -124,7 +124,7 @@ export default function RegisterPage() {
         {/* Submit Button */}
         <Button
           disabled={isSubmitting}
-          className="w-full mt-6 bg-theme-main hover:bg-theme-hover text-white interceptor-loading"
+          className="w-full mt-6 bg-theme-main hover:bg-theme-hover text-white"
           onClick={handleSubmit(onSubmit, onError)}
         >
           {t('auth.register.submitButton')}

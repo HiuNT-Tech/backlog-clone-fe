@@ -8,22 +8,22 @@ import {
 
 export const AuthService = {
   registerUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return await sendPost(`${API_ROOT}/v1/users/register`, user);
+    return await sendPost(`${API_ROOT}/v1/auth/register`, user);
   },
 
   verifyUser: async ({ user }: { user: Record<string, unknown> }) => {
-    return await sendPost(`${API_ROOT}/v1/users/verify-account`, user);
+    return await sendPost(`${API_ROOT}/v1/auth/verify-account`, user);
   },
 
   loginUser: async (user: LoginUserRequest): Promise<LoginUserResponse> => {
-    return await sendPost(`${API_ROOT}/v1/users/login`, user);
+    return await sendPost(`${API_ROOT}/v1/auth/login`, user);
   },
 
   logout: async (): Promise<void> => {
-    await sendDelete(`${API_ROOT}/v1/users/logout`);
+    await sendDelete(`${API_ROOT}/v1/auth/logout`);
   },
 
   refreshToken: async (): Promise<RefreshTokenResponse> => {
-    return await sendGet(`${API_ROOT}/v1/users/refresh_token`);
+    return await sendGet(`${API_ROOT}/v1/auth/refresh_token`);
   },
 };

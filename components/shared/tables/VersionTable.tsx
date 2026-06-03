@@ -3,12 +3,12 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
-import type { Version } from '@/config/interface';
+import type { EntityId, Version } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import dayjs from 'dayjs';
 
 export interface VersionTableProps {
-  boardId?: string;
+  boardId?: EntityId;
   data: Version[];
   loading?: boolean;
   totalCount?: number;
@@ -16,7 +16,7 @@ export interface VersionTableProps {
   limit: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
-  onDelete?: (id: string) => void;
+  onDelete?: (id: EntityId) => void;
   onEdit?: (record: Version) => void;
 }
 
@@ -71,7 +71,7 @@ const VersionTable: React.FC<VersionTableProps> = ({
 
   return (
     <CustomTable
-      rowKey="_id"
+      rowKey="id"
       columns={columns}
       dataSource={data}
       loading={loading}
@@ -88,7 +88,7 @@ const VersionTable: React.FC<VersionTableProps> = ({
           icon: Images.IconTrash,
           title: t('settings.versions.table.delete'),
           onClick: (record: Version) => {
-            if (record?._id) onDelete?.(record._id);
+            if (record?.id) onDelete?.(record.id);
           },
         },
         {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
@@ -21,7 +21,17 @@ import { toastHelpers } from '@/hooks/use-toast';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { PreviewIssue } from './preview-issue';
-import type { Card, CreateNewCardRequest, User } from '@/config/interface';
+import type {
+  Card,
+  CreateNewCardRequest,
+  EntityId,
+  User,
+} from '@/config/interface';
+import {
+  toEntityIdOrNull,
+  toEntityIdOrUndefined,
+  toSelectValue,
+} from '@/lib/entity-id';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
@@ -58,11 +68,21 @@ export default function AddIssuePage() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
   const currentUser = useAppSelector(selectCurrentUser);
 
-  const boardId = searchParams.get('boardId') || '';
-  const editId = searchParams.get('editId') || '';
+  const boardId =
+    toEntityIdOrUndefined(params?.projectId as string) ??
+    toEntityIdOrUndefined(params?.id as string) ??
+    toEntityIdOrUndefined(searchParams.get('boardId'));
+  const editId = toEntityIdOrUndefined(searchParams.get('editId'));
   const isEditMode = !!editId;
+
+  // useEffect(() => {
+  //   if (!boardId && !isEditMode) {
+  //     router.replace('/dashboard');
+  //   }
+  // }, [boardId, isEditMode, router]);
 
   const { versions } = useVersion(boardId);
   const { columns } = useColumn(boardId);
@@ -86,11 +106,11 @@ export default function AddIssuePage() {
       setFormData({
         title: editCard.title ?? '',
         description: editCard.description ?? '',
-        status: editCard.columnId ?? '',
+        status: toSelectValue(editCard.columnId),
         priority:
           editCard.priorityId != null ? String(editCard.priorityId) : '',
-        issueType: editCard.issueTypeId ?? '',
-        assignee: editCard.assigneeId ?? '',
+        issueType: toSelectValue(editCard.issueTypeId),
+        assignee: toSelectValue(editCard.assigneeUserId),
         startDate: formatDateForInput(editCard.startDate),
         dueDate: formatDateForInput(editCard.dueDate),
         estimatedHours: editCard.estimatedHours ?? '',
@@ -102,12 +122,12 @@ export default function AddIssuePage() {
   }, [isEditMode, editCard, isFormInitialized]);
 
   const STATUS_OPTIONS = columns.map(column => ({
-    value: column._id,
+    value: String(column.id),
     label: column.title,
   }));
 
   const VERSION_OPTIONS = versions.map(version => ({
-    value: version._id,
+    value: String(version.id),
     label: version.name,
   }));
 
@@ -115,7 +135,11 @@ export default function AddIssuePage() {
     () =>
       listUser.items.map(user => ({
         value: String(user.userId),
-        label: user.displayName || user.username || user.email || user.userId,
+        label:
+          user.displayName ||
+          user.username ||
+          user.email ||
+          String(user.userId),
       })),
     [listUser.items]
   );
@@ -124,8 +148,11 @@ export default function AddIssuePage() {
     () =>
       new Map(
         listUser.items.map(user => [
-          String(user.userId),
-          user.displayName || user.username || user.email || user.userId,
+          user.userId,
+          user.displayName ||
+            user.username ||
+            user.email ||
+            String(user.userId),
         ])
       ),
     [listUser.items]
@@ -151,7 +178,7 @@ export default function AddIssuePage() {
 
   const { mutateAsync: updateCard } = useMutation({
     mutationFn: async (data: Record<string, any>) => {
-      return await CardService.update(editId, data);
+      return await CardService.update(editId!, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['card-detail', editId] });
@@ -173,7 +200,9 @@ export default function AddIssuePage() {
       if (isEditMode) {
         const updatePayload: Record<string, any> = {
           title: formData.title.trim(),
-          ...(formData.status && { columnId: formData.status }),
+          ...(formData.status && {
+            columnId: toEntityIdOrUndefined(formData.status),
+          }),
         };
 
         const desc = formData.description?.trim();
@@ -181,9 +210,9 @@ export default function AddIssuePage() {
         updatePayload.priorityId = formData.priority
           ? Number(formData.priority)
           : null;
-        updatePayload.issueTypeId = formData.issueType || null;
-        updatePayload.versionId = formData.version || null;
-        updatePayload.assigneeId = formData.assignee || null;
+        updatePayload.issueTypeId = toEntityIdOrNull(formData.issueType);
+        updatePayload.versionId = toEntityIdOrNull(formData.version);
+        updatePayload.assigneeUserId = toEntityIdOrNull(formData.assignee);
         updatePayload.startDate = formData.startDate || null;
         updatePayload.dueDate = formData.dueDate || null;
         updatePayload.estimatedHours = formData.estimatedHours?.trim() || null;
@@ -192,14 +221,20 @@ export default function AddIssuePage() {
         await updateCard(updatePayload);
       } else {
         const payload: CreateNewCardRequest = {
-          boardId: boardId,
-          columnId: formData.status,
+          boardId: boardId!,
+          columnId: toEntityIdOrUndefined(formData.status)!,
           title: formData.title.trim(),
           ...(formData.description && { description: formData.description }),
           ...(formData.priority && { priorityId: Number(formData.priority) }),
-          ...(formData.issueType && { issueTypeId: formData.issueType }),
-          ...(formData.version && { versionId: formData.version }),
-          ...(formData.assignee && { assigneeId: formData.assignee }),
+          ...(formData.issueType && {
+            issueTypeId: toEntityIdOrUndefined(formData.issueType),
+          }),
+          ...(formData.version && {
+            versionId: toEntityIdOrUndefined(formData.version),
+          }),
+          ...(formData.assignee && {
+            assigneeUserId: toEntityIdOrUndefined(formData.assignee),
+          }),
           ...(formData.startDate && { startDate: formData.startDate }),
           ...(formData.dueDate && { dueDate: formData.dueDate }),
           ...(formData.estimatedHours && {
@@ -222,8 +257,8 @@ export default function AddIssuePage() {
   };
 
   const handleAssignToMyself = () => {
-    if (!currentUser?._id) return;
-    handleChange('assignee', currentUser._id);
+    if (!currentUser?.id) return;
+    handleChange('assignee', String(currentUser.id));
   };
 
   const PRIORITY_OPTIONS = useMemo(
@@ -236,17 +271,17 @@ export default function AddIssuePage() {
   );
 
   const ISSUE_TYPE_OPTIONS = issueTypes.map(issueType => ({
-    value: issueType._id,
+    value: String(issueType.id),
     label: issueType.name,
   }));
 
   const resolveUser = useCallback(
-    (val?: string | User | null, fallbackId?: string) => {
-      if (val && typeof val !== 'string') {
-        return val.displayName || val.username || '—';
+    (val?: EntityId | User | null, fallbackId?: EntityId) => {
+      if (val && typeof val !== 'number') {
+        return val.displayName || '—';
       }
 
-      const id = (typeof val === 'string' ? val : '') || fallbackId || '';
+      const id = val ?? fallbackId;
       return id ? (userMap.get(id) ?? t('issueDetail.unassigned')) : '—';
     },
     [t, userMap]
@@ -255,11 +290,12 @@ export default function AddIssuePage() {
   const previewStatusInfo = useMemo(() => {
     if (!formData.status) return null;
 
-    const column = columns.find(item => item._id === formData.status);
+    const columnId = toEntityIdOrUndefined(formData.status);
+    const column = columns.find(item => item.id === columnId);
     if (!column) return null;
 
     return {
-      _id: column._id,
+      id: column.id,
       boardId: column.boardId,
       title: column.title,
       statusColor: column.statusColor,
@@ -269,12 +305,13 @@ export default function AddIssuePage() {
   const previewIssueTypeInfo = useMemo(() => {
     if (!formData.issueType) return null;
 
-    const issueType = issueTypes.find(item => item._id === formData.issueType);
+    const issueTypeId = toEntityIdOrUndefined(formData.issueType);
+    const issueType = issueTypes.find(item => item.id === issueTypeId);
     if (!issueType) return null;
 
     return {
-      _id: issueType._id,
-      boardId,
+      id: issueType.id,
+      boardId: boardId ?? -1,
       name: issueType.name,
       statusColor: issueType.statusColor,
     };
@@ -290,18 +327,19 @@ export default function AddIssuePage() {
 
   const previewCard = useMemo<Card>(
     () => ({
-      _id: editId || 'preview',
-      boardId,
-      columnId: formData.status,
+      id: editId ?? -1,
+      boardId: boardId ?? -1,
+      columnId: toEntityIdOrUndefined(formData.status) ?? -1,
+      position: editCard?.position ?? 0,
       title: formData.title,
       description: formData.description || null,
       priorityId: formData.priority ? Number(formData.priority) : null,
-      assigneeId: formData.assignee || null,
+      assigneeUserId: toEntityIdOrNull(formData.assignee),
       assignee: null,
-      issueTypeId: formData.issueType || null,
+      issueTypeId: toEntityIdOrNull(formData.issueType),
       issueType: previewIssueTypeInfo,
-      status: previewStatusInfo,
-      versionId: formData.version || null,
+      column: previewStatusInfo,
+      versionId: toEntityIdOrNull(formData.version),
       startDate: formData.startDate || null,
       dueDate: formData.dueDate || null,
       estimatedHours: formData.estimatedHours || null,
@@ -477,7 +515,7 @@ export default function AddIssuePage() {
                       type="button"
                       className="mt-2 text-sm text-theme-main hover:underline cursor-pointer"
                       onClick={handleAssignToMyself}
-                      disabled={!currentUser?._id}
+                      disabled={!currentUser?.id}
                     >
                       {t('addIssue.myself')}
                     </button>
@@ -500,19 +538,23 @@ export default function AddIssuePage() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <TimePicker
+                    <Input
+                      onlyFloat
                       label={t('addIssue.label.estimatedHours')}
                       value={formData.estimatedHours}
                       onChange={e =>
                         handleChange('estimatedHours', e.target.value)
                       }
+                      placeholder="e.g. 4.5"
                     />
-                    <TimePicker
+                    <Input
+                      onlyFloat
                       label={t('addIssue.label.actualHours')}
                       value={formData.actualHours}
                       onChange={e =>
                         handleChange('actualHours', e.target.value)
                       }
+                      placeholder="e.g. 2.5"
                     />
                   </div>
                   <Select

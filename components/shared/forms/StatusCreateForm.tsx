@@ -28,7 +28,7 @@ export const StatusCreateForm: React.FC<StatusCreateFormProps> = ({
   isPending,
 }) => {
   const { t } = useTranslation();
-  const { columns, isLoadingList } = useColumn();
+  const { columns, isLoading } = useColumn();
 
   const {
     register,
@@ -129,7 +129,7 @@ export const StatusCreateForm: React.FC<StatusCreateFormProps> = ({
             {t('settings.statuses.add.existingLabel')}
           </p>
           <div className="flex flex-wrap gap-2">
-            {isLoadingList ? (
+            {isLoading ? (
               <p className="text-xs text-theme-neutral-8">
                 {t('common.loading')}
               </p>
@@ -140,7 +140,7 @@ export const StatusCreateForm: React.FC<StatusCreateFormProps> = ({
             ) : (
               columns?.map(column => (
                 <span
-                  key={column._id}
+                  key={column.id}
                   className={cn(
                     'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium text-white',
                     getIssueTypeBadgeClassName(column.statusColor)

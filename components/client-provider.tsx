@@ -16,6 +16,7 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from './layout/sidebar';
 import { Header } from './layout/header';
 import { ModalConfirmInstance } from './modal/static-method-confirm';
+import { LoadingBarProvider } from './providers/LoadingBarProvider';
 
 export default function ClientProviders({
   children,
@@ -27,14 +28,16 @@ export default function ClientProviders({
     return (
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <div className="h-screen flex flex-col overflow-hidden">
-            <Header />
-            <div className="flex flex-1 overflow-hidden">
-              {pathname !== '/dashboard' && <Sidebar />}
-              <div className="flex-1 overflow-auto">{children}</div>
+          <LoadingBarProvider>
+            <div className="h-screen flex flex-col overflow-hidden">
+              <Header />
+              <div className="flex flex-1 overflow-hidden">
+                {pathname !== '/dashboard' && <Sidebar />}
+                <div className="flex-1 overflow-auto">{children}</div>
+              </div>
+              <ModalConfirmInstance />
             </div>
-            <ModalConfirmInstance />
-          </div>
+          </LoadingBarProvider>
         </QueryClientProvider>
       </Provider>
     );
@@ -43,8 +46,10 @@ export default function ClientProviders({
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        {children}
-        <ModalConfirmInstance />
+        <LoadingBarProvider>
+          {children}
+          <ModalConfirmInstance />
+        </LoadingBarProvider>
       </QueryClientProvider>
     </Provider>
   );

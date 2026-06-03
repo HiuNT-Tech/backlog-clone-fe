@@ -13,6 +13,7 @@ import {
   User,
   UsersBoardParams,
   UsersBoardResponse,
+  EntityId,
 } from '@/config/interface';
 
 export const BoardService = {
@@ -20,28 +21,29 @@ export const BoardService = {
     return await sendGet(`${API_ROOT}/v1/boards`);
   },
 
-  getBoardById: async (boardId: string): Promise<Board> => {
+  getBoardById: async (boardId: EntityId): Promise<Board> => {
     return await sendGet(`${API_ROOT}/v1/boards/${boardId}`);
   },
 
   createNewColumn: async (payload: CreateNewColumnRequest) => {
     const { boardId, title, statusColor } = payload;
-    return await sendPost(`${API_ROOT}/v1/columns`, {
-      boardId,
+    return await sendPost(`${API_ROOT}/v1/boards/${boardId}/columns`, {
       title,
       statusColor,
     });
   },
 
-  deleteColumn: async (columnId: string) => {
-    return await sendDelete(`${API_ROOT}/v1/columns/${columnId}`);
+  deleteColumn: async (boardId: EntityId, columnId: EntityId) => {
+    return await sendDelete(
+      `${API_ROOT}/v1/boards/${boardId}/columns/${columnId}`
+    );
   },
 
   getColumns: async (
-    boardId: string,
+    boardId: EntityId,
     params?: Record<string, any>
   ): Promise<Column[]> => {
-    return await sendGet(`${API_ROOT}/v1/columns`, { boardId, ...params });
+    return await sendGet(`${API_ROOT}/v1/boards/${boardId}/columns`, params);
   },
 
   moveCardToDifferentColumn: async (
@@ -54,10 +56,14 @@ export const BoardService = {
   },
 
   updateColumnDetails: async ({
+    boardId,
     columnId,
     updateData,
   }: UpdateColumnDetailsRequest) => {
-    return await sendPut(`${API_ROOT}/v1/columns/${columnId}`, updateData);
+    return await sendPut(
+      `${API_ROOT}/v1/boards/${boardId}/columns/${columnId}`,
+      updateData
+    );
   },
 
   updateBoardDetail: async ({
@@ -67,8 +73,16 @@ export const BoardService = {
     return await sendPut(`${API_ROOT}/v1/boards/${boardId}`, updateData);
   },
 
-  deleteColumnDetails: async ({ columnId }: { columnId: string }) => {
-    return await sendDelete(`${API_ROOT}/v1/columns/${columnId}`);
+  deleteColumnDetails: async ({
+    boardId,
+    columnId,
+  }: {
+    boardId: EntityId;
+    columnId: EntityId;
+  }) => {
+    return await sendDelete(
+      `${API_ROOT}/v1/boards/${boardId}/columns/${columnId}`
+    );
   },
 
   createNewCard: async (card: CreateNewCardRequest) => {
@@ -80,7 +94,7 @@ export const BoardService = {
   },
 
   getUsersBoard: async (
-    boardId?: string,
+    boardId?: EntityId,
     params?: UsersBoardParams
   ): Promise<UsersBoardResponse> => {
     return await sendGet(`${API_ROOT}/v1/boards/${boardId}/usersBoard`, params);

@@ -19,7 +19,7 @@ function Card({ card }: CardProps) {
     transition,
     isDragging,
   } = useSortable({
-    id: card._id,
+    id: card.id,
     data: { ...card },
   });
 
@@ -37,11 +37,6 @@ function Card({ card }: CardProps) {
       !!card?.attachments?.length
     );
   };
-
-  // Hide placeholder cards
-  if (card?.FE_PlaceholderCard) {
-    return null;
-  }
 
   return (
     <div
@@ -64,8 +59,13 @@ function Card({ card }: CardProps) {
       )}
 
       {/* Card Content */}
-      <div className="p-3">
-        <p className="text-theme-neutral-11 text-sm">{card?.title}</p>
+      <div className="p-3 pb-1">
+        {card?.cardCode && (
+          <p className="text-xs text-theme-neutral-7 mb-1">{card.cardCode}</p>
+        )}
+        <p className="text-theme-neutral-11 text-sm font-medium leading-tight">
+          {card?.title}
+        </p>
       </div>
 
       {/* Card Actions */}

@@ -209,6 +209,7 @@ const vi = {
         member: 'Thành viên',
         administrator: 'Quản trị viên',
         projectManager: 'Quản lý dự án',
+        guest: 'Khách',
       },
       table: {
         member: 'Thành viên',
@@ -317,7 +318,7 @@ const vi = {
   dashboard: {
     title: 'Bảng điều khiển',
     description: 'Xem và quản lý các board của bạn.',
-    addNewBoard: 'Thêm Board mới',
+    addNewProject: 'Thêm Project mới',
     empty: {
       title: 'Chưa có board nào',
       description: 'Bạn chưa có board nào. Hãy tạo một board để bắt đầu!',
@@ -325,15 +326,16 @@ const vi = {
     boardCard: {
       noDescription: 'Không có mô tả',
     },
-    createBoard: {
-      title: 'Tạo Board mới',
-      description: 'Thêm một board mới để tổ chức dự án của bạn.',
-      nameLabel: 'Tên Board',
-      namePlaceholder: 'Nhập tên board',
+    createProject: {
+      title: 'Tạo project mới',
+      description: 'Thêm một project mới vào chức dự án của bạn.',
+      nameLabel: 'Tên project',
+      namePlaceholder: 'Nhập tên project',
       descriptionLabel: 'Mô tả',
-      descriptionPlaceholder: 'Nhập mô tả board',
+      descriptionPlaceholder: 'Nhập mô tả project',
       submit: 'Tạo',
       cancel: 'Hủy',
+      codeLable: 'Mã Project',
     },
     validation: {
       nameRequired: 'Trường này là bắt buộc',

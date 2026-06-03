@@ -5,16 +5,20 @@ import { toastHelpers } from '@/hooks/use-toast';
 import type {
   Version,
   CreateVersionRequest,
+  EntityId,
   UpdateVersionRequest,
 } from '@/config/interface';
 
-export const useVersion = (boardId?: string, params?: Record<string, any>) => {
+export const useVersion = (
+  boardId?: EntityId,
+  params?: Record<string, any>
+) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const {
     data = { items: [], count: 0 },
-    isLoading: isLoadingList,
+    isLoading,
     error: versionsError,
     refetch: refetchVersions,
   } = useQuery({
@@ -44,7 +48,7 @@ export const useVersion = (boardId?: string, params?: Record<string, any>) => {
       id,
       payload,
     }: {
-      id: string;
+      id: EntityId;
       payload: UpdateVersionRequest;
     }): Promise<Version> => VersionService.update(boardId!, id, payload),
     onSuccess: () => {
@@ -57,7 +61,7 @@ export const useVersion = (boardId?: string, params?: Record<string, any>) => {
     isPending: isDeletePending,
     error: deleteVersionError,
   } = useMutation({
-    mutationFn: (id: string) => VersionService.delete(boardId!, id),
+    mutationFn: (id: EntityId) => VersionService.delete(boardId!, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['versions', boardId] });
     },
@@ -66,7 +70,7 @@ export const useVersion = (boardId?: string, params?: Record<string, any>) => {
   return {
     versions: data.items,
     totalCount: data.count,
-    isLoadingList,
+    isLoading,
     versionsError,
     refetchVersions,
 

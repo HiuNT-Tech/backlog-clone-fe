@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
   Check,
@@ -36,7 +36,8 @@ import { useUserBoard } from '@/hooks/use-user-board';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { cn } from '@/lib/utils';
-import type { UserBoardMember } from '@/config/interface';
+import type { BoardMemberRole, UserBoardMember } from '@/config/interface';
+import { toEntityIdOrUndefined } from '@/lib/entity-id';
 
 type Presence = 'online' | 'away' | 'busy' | 'offline';
 
@@ -94,16 +95,15 @@ const getInitials = (name: string) => {
     .toUpperCase();
 };
 
-const getRoleLabel = (role: string | number) => {
-  if (typeof role === 'string' && Number.isNaN(Number(role))) {
-    return role;
-  }
-
-  switch (Number(role)) {
-    case 2:
+const getRoleLabel = (role: BoardMemberRole) => {
+  switch (role) {
+    case 'ADMIN':
       return 'Admin';
-    case 3:
+    case 'PM':
       return 'PM';
+    case 'GUEST':
+      return 'Guest';
+    case 'MEMBER':
     default:
       return 'Member';
   }
@@ -251,9 +251,15 @@ const ConversationIcon = ({ conversation }: { conversation: Conversation }) => {
 export function ProjectChatClient() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const boardId = searchParams.get('boardId') || searchParams.get('id') || '';
+  const params = useParams();
+  const boardId = toEntityIdOrUndefined(
+    (params?.projectId as string) ||
+      (params?.id as string) ||
+      searchParams.get('boardId') ||
+      searchParams.get('id')
+  );
   const currentUser = useAppSelector(selectCurrentUser);
-  const { listUser, isListLoading } = useUserBoard(boardId, {
+  const { listUser, isLoading: isListLoading } = useUserBoard(boardId, {
     skip: 0,
     limit: 100,
   });
@@ -276,18 +282,18 @@ export function ProjectChatClient() {
 
   const members = useMemo<ChatMember[]>(() => {
     const boardMembers = listUser.items.map(memberFromBoardUser);
-    const hasCurrentUser = currentUser?._id
-      ? boardMembers.some(member => member.id === currentUser._id)
+    const hasCurrentUser = currentUser?.id
+      ? boardMembers.some(member => member.id === String(currentUser.id))
       : true;
 
-    if (!currentUser?._id || hasCurrentUser) {
+    if (!currentUser?.id || hasCurrentUser) {
       return boardMembers;
     }
 
     return [
       {
-        id: currentUser._id,
-        name: currentUser.displayName || currentUser.username || 'Me',
+        id: String(currentUser.id),
+        name: currentUser.displayName || 'Me',
         email: currentUser.email,
         avatar: currentUser.avatar,
         role: 'Member',
@@ -298,9 +304,11 @@ export function ProjectChatClient() {
   }, [currentUser, listUser.items]);
 
   const currentMember = useMemo(() => {
-    if (!currentUser?._id) return members[0];
-    return members.find(member => member.id === currentUser._id) ?? members[0];
-  }, [currentUser?._id, members]);
+    if (!currentUser?.id) return members[0];
+    return (
+      members.find(member => member.id === String(currentUser.id)) ?? members[0]
+    );
+  }, [currentUser?.id, members]);
 
   const baseConversations = useMemo<Conversation[]>(() => {
     const otherMembers = members.filter(

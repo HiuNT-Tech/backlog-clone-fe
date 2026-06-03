@@ -1,32 +1,42 @@
 import type { ColorStatusKey } from '@/constant/data';
 
 // Types for Board, Column, and Card entities
+export type EntityId = number;
+export type BoardType = 'PUBLIC' | 'PRIVATE';
+export type BoardMemberRole = 'ADMIN' | 'PM' | 'MEMBER' | 'GUEST';
+
+export interface ReorderPositionInput {
+  id: EntityId;
+  position: number;
+}
 
 export interface Card {
-  _id: string;
-  boardId: string;
-  columnId: string;
+  id: EntityId;
+  boardId: EntityId;
+  columnId: EntityId;
+  position: number;
+  cardCode?: string;
   title?: string;
   description?: string | null;
   cover?: string | null;
-  memberIds?: string[];
+  memberIds?: EntityId[];
   comments?: string[];
   attachments?: string[];
   priorityId?: number | null;
-  assigneeId?: string | null;
+  assigneeUserId?: EntityId | null;
   assignee?: User | null;
-  issueTypeId?: string | null;
+  issueTypeId?: EntityId | null;
   issueType?: CardIssueType | null;
-  status?: CardStatus | null;
-  versionId?: string | null;
+  column?: CardStatus | null;
+  versionId?: EntityId | null;
   startDate?: string | null;
   dueDate?: string | null;
   estimatedHours?: string | null;
   actualHours?: string | null;
-  registeredBy?: string | User | null;
-  registeredById?: string | null;
-  createdBy?: string | User | null;
-  createdById?: string | null;
+  registeredBy?: EntityId | User | null;
+  registeredByUserId?: EntityId | null;
+  createdBy?: EntityId | User | null;
+  createdByUserId?: EntityId | null;
   createdAt?: number | string;
   updatedAt?: number | string | null;
   _destroy?: boolean;
@@ -34,17 +44,18 @@ export interface Card {
 }
 
 export interface CardStatus {
-  _id: string;
-  boardId: string;
+  id: EntityId;
+  boardId: EntityId;
   title: string;
-  statusColor?: number | null;
+  position?: number;
+  statusColor?: string | null;
 }
 
 export interface CardIssueType {
-  _id: string;
-  boardId: string;
+  id: EntityId;
+  boardId: EntityId;
   name: string;
-  statusColor?: number | null;
+  statusColor?: string | null;
 }
 
 export interface CardListParams {
@@ -52,8 +63,8 @@ export interface CardListParams {
   priorityId?: string;
   issueTypeId?: string;
   columnId?: string;
-  assigneeId?: string;
-  registeredBy?: string;
+  assigneeUserId?: string;
+  registeredByUserId?: string;
   versionId?: string;
   startDate?: string;
   dueDate?: string;
@@ -67,23 +78,25 @@ export interface CardListResponse {
 }
 
 export interface Column {
-  _id: string;
-  boardId: string;
+  id: EntityId;
+  boardId: EntityId;
   title: string;
-  cardOrderIds: string[];
+  position: number;
   cards: Card[];
-  // Thuộc tính màu cho status/column (tùy BE)
-  statusColor?: number;
+  statusColor?: string;
+  _count?: {
+    cards?: number;
+  };
   selectedColorKey?: ColorStatusKey;
 }
 
 export interface Board {
-  _id: string;
+  id: EntityId;
   title: string;
+  boardCode: string;
   description?: string;
-  type: 'public' | 'private';
-  members: { userId: string; role: 'ADMIN' | 'PM' | 'MEMBER' }[];
-  columnOrderIds: string[];
+  type: BoardType;
+  members: { userId: EntityId; role: BoardMemberRole }[];
   columns: Column[];
 }
 export interface BoardListResponse {
@@ -92,15 +105,16 @@ export interface BoardListResponse {
 
 export interface CreateBoardRequest {
   title: string;
-  description: string;
-  type: 'public' | 'private';
+  boardCode: string;
+  type: BoardType;
 }
 
 export interface IssueType {
-  _id: string;
+  id: EntityId;
+  boardId?: EntityId;
   name: string;
   issueCount?: number;
-  statusColor?: number;
+  statusColor?: string;
   createdAt?: number;
   updatedAt?: number | null;
 }
@@ -108,12 +122,13 @@ export interface IssueType {
 /** Payload tạo issue type: name, statusColor (1–10) */
 export interface CreateIssueTypeRequest {
   name: string;
-  statusColor: number;
-  boardId?: string;
+  statusColor: string;
+  boardId?: EntityId;
 }
 
 export interface Version {
-  _id: string;
+  id: EntityId;
+  boardId?: EntityId;
   name: string;
   startDate?: string | null;
   endDate?: string | null;
@@ -128,7 +143,7 @@ export interface CreateVersionRequest {
   startDate?: string | null;
   endDate?: string | null;
   description?: string | null;
-  boardId?: string;
+  boardId?: EntityId;
 }
 
 /** Payload cập nhật version */
@@ -144,39 +159,44 @@ export interface ActiveBoardState {
 }
 
 export interface MoveCardToDifferentColumnRequest {
-  currentCardId: string;
-  prevColumnId: string;
-  prevCardOrderIds: string[];
-  nextColumnId: string;
-  nextCardOrderIds: string[];
+  currentCardId: EntityId;
+  prevColumnId: EntityId;
+  prevCards: ReorderPositionInput[];
+  nextColumnId: EntityId;
+  nextCards: ReorderPositionInput[];
 }
 
 /** Payload tạo column mới: boardId, title, statusColor (+ lưu cả key màu UI) */
 export interface CreateNewColumnRequest {
-  boardId: string;
+  boardId: EntityId;
   title: string;
-  statusColor?: number;
+  statusColor?: string;
 }
 
 export interface UpdateColumnDetailsRequest {
-  columnId: string;
-  updateData: Partial<Column>;
+  boardId: EntityId;
+  columnId: EntityId;
+  updateData: Partial<Omit<Column, 'cards'>> & {
+    cards?: ReorderPositionInput[];
+  };
 }
 
 export interface UpdateBoardDetailRequest {
-  boardId: string;
-  updateData: Partial<Board>;
+  boardId: EntityId;
+  updateData: Partial<Omit<Board, 'columns'>> & {
+    columns?: ReorderPositionInput[];
+  };
 }
 
 export interface CreateNewCardRequest {
-  boardId: string;
-  columnId: string;
+  boardId: EntityId;
+  columnId: EntityId;
   title: string;
   description?: string;
   priorityId?: number;
-  assigneeId?: string;
-  issueTypeId?: string;
-  versionId?: string;
+  assigneeUserId?: EntityId;
+  issueTypeId?: EntityId;
+  versionId?: EntityId;
   startDate?: string;
   dueDate?: string;
   estimatedHours?: string;
@@ -191,7 +211,7 @@ export interface RegisterUserRequest {
 
 export interface RegisterUserResponse {
   email: string;
-  _id: string;
+  id: number;
 }
 
 export interface VerifyUserRequest {
@@ -205,9 +225,8 @@ export interface LoginUserRequest {
 }
 
 export interface LoginUserResponse {
-  _id: string;
+  id: number;
   email: string;
-  username: string;
   displayName: string;
   avatar: string | null;
   role: string;
@@ -221,9 +240,8 @@ export interface RefreshTokenResponse {
 }
 
 export interface User {
-  _id: string;
+  id: number;
   email: string;
-  username: string;
   displayName: string;
   avatar: string | null;
   isActive: boolean;
@@ -231,7 +249,7 @@ export interface User {
 
 export interface UsersBoardParams {
   search?: string;
-  role?: number | null;
+  role?: BoardMemberRole | null;
   skip?: number;
   limit?: number;
 }
@@ -242,13 +260,12 @@ export interface UsersBoardResponse {
 }
 
 export interface UserBoardMember {
-  userId: string;
-  role: number | string;
+  userId: EntityId;
+  role: BoardMemberRole;
   email: string;
   username: string;
   displayName: string;
   avatar: string | null;
-  _destroy: boolean;
   createdAt: number;
   updatedAt: number | null;
 }

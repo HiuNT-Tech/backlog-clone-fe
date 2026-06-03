@@ -26,16 +26,20 @@ const MembersFilter = ({
       type: 'select',
       options: [
         {
-          value: MemberRole.ADMINISTRATOR.toString(),
+          value: MemberRole.ADMINISTRATOR,
           label: t('settings.members.roleOptions.administrator'),
         },
         {
-          value: MemberRole.PROJECT_MANAGER.toString(),
+          value: MemberRole.PROJECT_MANAGER,
           label: t('settings.members.roleOptions.projectManager'),
         },
         {
-          value: MemberRole.MEMBER.toString(),
+          value: MemberRole.MEMBER,
           label: t('settings.members.roleOptions.member'),
+        },
+        {
+          value: MemberRole.GUEST,
+          label: t('settings.members.roleOptions.guest'),
         },
       ],
       props: {
@@ -53,7 +57,7 @@ const MembersFilter = ({
       params.search = String(search).trim();
     }
     if (role) {
-      params.role = Number(role);
+      params.role = role;
     }
     onSearch(params);
   };

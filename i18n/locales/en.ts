@@ -215,6 +215,7 @@ const en = {
         member: 'Member',
         administrator: 'Administrator',
         projectManager: 'Project Manager',
+        guest: 'Guest',
       },
       table: {
         member: 'Member',
@@ -324,7 +325,7 @@ const en = {
   dashboard: {
     title: 'Dashboard',
     description: 'Browse and manage your boards.',
-    addNewBoard: 'Add New Board',
+    addNewProject: 'Add New Project',
     empty: {
       title: 'No boards yet',
       description: "You don't have any boards yet. Create one to get started!",
@@ -332,15 +333,16 @@ const en = {
     boardCard: {
       noDescription: 'No description',
     },
-    createBoard: {
-      title: 'Create New Board',
-      description: 'Add a new board to organize your projects.',
-      nameLabel: 'Board Name',
-      namePlaceholder: 'Enter board name',
+    createProject: {
+      title: 'Create New Project',
+      description: 'Add new project to your organize .',
+      nameLabel: 'Project Name',
+      namePlaceholder: 'Enter project name',
       descriptionLabel: 'Description',
-      descriptionPlaceholder: 'Enter board description',
+      descriptionPlaceholder: 'Enter Project description',
       submit: 'Create',
       cancel: 'Cancel',
+      codeLable: 'Project code',
     },
     validation: {
       nameRequired: 'This field is required',

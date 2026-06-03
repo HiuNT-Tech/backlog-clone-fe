@@ -10,13 +10,14 @@ import type {
   Card,
   CardIssueType,
   CardStatus,
+  EntityId,
   Version,
 } from '@/config/interface';
 import { DescriptionCard } from '../issues/[id]/description-card';
 
 const StatusBadge: React.FC<{
   label?: string;
-  statusColor?: number | null;
+  statusColor?: string | null;
 }> = ({ label, statusColor }) => {
   if (!label) return <span className="text-theme-neutral-7">—</span>;
 
@@ -35,7 +36,10 @@ interface PreviewIssueProps {
   issueTypeInfo: CardIssueType | null;
   statusInfo: CardStatus | null;
   priorityLabel: string | null;
-  resolveUser: (user: Card['assignee'], fallbackId?: string) => string;
+  resolveUser: (
+    user: Card['assignee'] | EntityId,
+    fallbackId?: EntityId
+  ) => string;
   isSubmitting: boolean;
   onBack: () => void;
   onAdd: () => void;
@@ -73,7 +77,7 @@ export const PreviewIssue: React.FC<PreviewIssueProps> = ({
               />
             )}
             <span className="font-mono text-sm text-theme-neutral-9">
-              {format.shortKey(card._id)}
+              {format.shortKey(card.id)}
             </span>
           </div>
 

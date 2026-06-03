@@ -2,15 +2,15 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
 import { toastHelpers } from '@/hooks/use-toast';
-import { Column } from '@/config/interface';
+import { Column, EntityId } from '@/config/interface';
 import type { ColorStatusKey } from '@/constant/data';
 
-export const useColumn = (boardId?: string, params?: Record<string, any>) => {
+export const useColumn = (boardId?: EntityId, params?: Record<string, any>) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const {
     data: columns = [],
-    isLoading: isLoadingList,
+    isLoading,
     error: listError,
   } = useQuery({
     queryKey: ['columns', boardId, params],
@@ -25,7 +25,7 @@ export const useColumn = (boardId?: string, params?: Record<string, any>) => {
   } = useMutation({
     mutationFn: async (input: {
       title: string;
-      statusColor: number;
+      statusColor: string;
       selectedColorKey: ColorStatusKey;
     }): Promise<Column> => {
       return await BoardService.createNewColumn({
@@ -44,8 +44,8 @@ export const useColumn = (boardId?: string, params?: Record<string, any>) => {
     isPending: isDeletePending,
     error: deleteColumnError,
   } = useMutation({
-    mutationFn: async (id: string): Promise<void> => {
-      return await BoardService.deleteColumn(id);
+    mutationFn: async (id: EntityId): Promise<void> => {
+      return await BoardService.deleteColumn(boardId!, id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns', boardId] });
@@ -54,7 +54,7 @@ export const useColumn = (boardId?: string, params?: Record<string, any>) => {
 
   return {
     columns,
-    isLoadingList,
+    isLoading,
     listError,
 
     createNewColumn,
