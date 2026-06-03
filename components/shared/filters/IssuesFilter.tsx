@@ -2,18 +2,18 @@
 import { useTranslation } from 'react-i18next';
 import { SearchSection } from '@/components/search/SearchSection';
 import type { SearchField } from '@/types/search-section';
-import type { CardListParams } from '@/config/interface';
+import type { CardListParams, EntityId } from '@/config/interface';
 import { useColumn } from '@/hooks/use-column';
 import { useVersion } from '@/hooks/use-version';
 import { useIssueType } from '@/hooks/use-issue-type';
 import { useUserBoard } from '@/hooks/use-user-board';
-import { PRIORITY_OPTIONS } from '@/constant/data';
+import { PRIORITY_OPTIONS, renderIssueTypeBadge } from '@/constant/data';
 
 const IssuesFilter = ({
   boardId,
   onSearch,
 }: {
-  boardId?: string;
+  boardId?: EntityId;
   onSearch: (params: CardListParams) => void;
 }) => {
   const { t } = useTranslation();
@@ -24,18 +24,26 @@ const IssuesFilter = ({
   const { listUser } = useUserBoard(boardId, { skip: 0, limit: 100 });
 
   const OptionsStatus = columnList.map(column => ({
-    value: column._id.toString(),
-    label: column.title,
+    value: column.id.toString(),
+    label: (
+      <div className="flex items-center gap-2">
+        {renderIssueTypeBadge(column.statusColor, column.title)}
+      </div>
+    ),
   }));
 
   const VersionOptions = versions.map(version => ({
-    value: version._id.toString(),
+    value: version.id.toString(),
     label: version.name,
   }));
 
   const IssueTypeOptions = issueTypes.map(issueType => ({
-    value: issueType._id.toString(),
-    label: issueType.name,
+    value: issueType.id.toString(),
+    label: (
+      <div className="flex items-center gap-2">
+        {renderIssueTypeBadge(issueType.statusColor, issueType.name)}
+      </div>
+    ),
   }));
 
   const Assignee = listUser.items.map(user => ({
@@ -136,8 +144,8 @@ const IssuesFilter = ({
     params.versionId = normalizeMultiParam(version);
     params.issueTypeId = normalizeMultiParam(issueType);
     params.priorityId = normalizeMultiParam(priority);
-    params.assigneeId = normalizeMultiParam(assignee);
-    params.registeredBy = normalizeMultiParam(registeredBy);
+    params.assigneeUserId = normalizeMultiParam(assignee);
+    params.registeredByUserId = normalizeMultiParam(registeredBy);
 
     onSearch(params);
   };

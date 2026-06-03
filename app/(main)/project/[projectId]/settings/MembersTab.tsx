@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { MembersTable } from '@/components/shared/tables/MembersTable';
 import MembersFilter from '@/components/shared/filters/MembersFilter';
-import { UsersBoardParams } from '@/config/interface';
+import { EntityId, UsersBoardParams } from '@/config/interface';
 import { usePagination } from '@/hooks/use-pagination';
 import { useUserBoard } from '@/hooks/use-user-board';
 
-export const MembersTab: React.FC<{ boardId: string }> = ({ boardId }) => {
+export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const { t } = useTranslation();
   const { page, limit, setPage, setLimit, apiParams } = usePagination();
   const [searchParamsState, setSearchParamsState] =
@@ -21,7 +21,7 @@ export const MembersTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     ...searchParamsState,
   };
 
-  const { listUser, isListLoading, listError, refetchList } = useUserBoard(
+  const { listUser, isLoading, listError, refetchList } = useUserBoard(
     boardId,
     staffParams
   );
@@ -53,7 +53,7 @@ export const MembersTab: React.FC<{ boardId: string }> = ({ boardId }) => {
         <MembersTable
           boardId={boardId}
           listUser={listUser}
-          isListLoading={isListLoading}
+          isListLoading={isLoading}
           listError={listError}
           refetchList={refetchList}
           page={page}

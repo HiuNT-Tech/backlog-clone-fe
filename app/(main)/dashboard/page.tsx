@@ -15,7 +15,7 @@ export default function DashboardPage() {
 
   const {
     boards,
-    isBoardListLoading,
+    isLoading,
     boardListError,
     refetchBoardList,
     createBoard,
@@ -25,8 +25,8 @@ export default function DashboardPage() {
   const handleCreateBoard = async (data: CreateBoardFormData) => {
     await createBoard({
       title: data.title,
-      description: data.description || '',
-      type: 'public',
+      boardCode: data.boardCode || '',
+      type: 'PUBLIC',
     });
     setIsCreateDialogOpen(false);
   };
@@ -50,12 +50,12 @@ export default function DashboardPage() {
           onClick={() => setIsCreateDialogOpen(true)}
         >
           <Plus className="mr-2 h-4 w-4" />
-          {t('dashboard.addNewBoard')}
+          {t('dashboard.addNewProject')}
         </Button>
       </div>
 
       {/* Content */}
-      {isBoardListLoading && (
+      {isLoading && (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-theme-neutral-5 border-t-theme-main" />
@@ -66,7 +66,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {boardListError && !isBoardListLoading && (
+      {boardListError && !isLoading && (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3 text-center">
             <p className="text-sm text-red-500">
@@ -84,7 +84,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!isBoardListLoading && !boardListError && boards.length === 0 && (
+      {!isLoading && !boardListError && boards.length === 0 && (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-theme-main-1">
@@ -104,13 +104,13 @@ export default function DashboardPage() {
               onClick={() => setIsCreateDialogOpen(true)}
             >
               <Plus className="mr-2 h-4 w-4" />
-              {t('dashboard.addNewBoard')}
+              {t('dashboard.addNewProject')}
             </Button>
           </div>
         </div>
       )}
 
-      {!isBoardListLoading && !boardListError && boards.length > 0 && (
+      {!isLoading && !boardListError && boards.length > 0 && (
         <BoardList boards={boards} />
       )}
 

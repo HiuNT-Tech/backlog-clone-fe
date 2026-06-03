@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 
 import {
@@ -15,28 +15,39 @@ import { useCard } from '@/hooks/use-card';
 import { usePagination } from '@/hooks/use-pagination';
 import { useUserBoard } from '@/hooks/use-user-board';
 import { useVersion } from '@/hooks/use-version';
-import type { Card, CardListParams, User } from '@/config/interface';
+import type { Card, CardListParams, EntityId, User } from '@/config/interface';
+import { toEntityIdOrUndefined } from '@/lib/entity-id';
 
 const IssuesPage: React.FC = () => {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
+  const params = useParams();
   const router = useRouter();
-  const boardId = searchParams.get('boardId') ?? undefined;
+  const boardId =
+    toEntityIdOrUndefined(params?.projectId as string) ??
+    toEntityIdOrUndefined(params?.id as string) ??
+    toEntityIdOrUndefined(searchParams.get('boardId'));
   const pagination = usePagination();
   const [filterParams, setFilterParams] = useState<CardListParams>({});
+
+  useEffect(() => {
+    if (!boardId) {
+      router.replace('/dashboard');
+    }
+  }, [boardId, router]);
 
   const apiParams = {
     ...pagination.apiParams,
     ...filterParams,
   };
 
-  const { cards, totalCount, isLoadingList } = useCard(boardId, apiParams);
+  const { cards, totalCount, isLoading } = useCard(boardId, apiParams);
   const { versions } = useVersion(boardId, { skip: 0, limit: 100 });
   const { listUser } = useUserBoard(boardId, { skip: 0, limit: 100 });
 
-  const toId = useCallback((value?: string | User | null) => {
-    if (!value) return '';
-    return typeof value === 'string' ? value : value._id;
+  const toId = useCallback((value?: EntityId | User | null) => {
+    if (!value) return undefined;
+    return typeof value === 'number' ? value : value.id;
   }, []);
 
   const formatDate = useCallback((value?: string | number | null) => {
@@ -45,18 +56,22 @@ const IssuesPage: React.FC = () => {
 
   const issueRows = useMemo<IssueRow[]>(() => {
     const versionMap = new Map(
-      versions.map(version => [String(version._id), version.name])
+      versions.map(version => [version.id, version.name])
     );
     const userMap = new Map(
-      listUser.items.map(user => [String(user.userId), user.displayName])
+      listUser.items.map(user => [user.userId, user.displayName])
     );
 
-    const getUserName = (value?: string | User | null, fallbackId?: string) => {
-      if (value && typeof value !== 'string') {
-        return value.displayName || value.username || '—';
+    const getUserName = (
+      value?: EntityId | User | null,
+      fallbackId?: EntityId
+    ) => {
+      if (value && typeof value !== 'number') {
+        return value.displayName || '—';
       }
 
-      const userId = toId(value) || fallbackId || '';
+      const userId = toId(value) ?? fallbackId;
+      if (!userId) return '—';
       return userMap.get(userId) ?? '—';
     };
 
@@ -70,29 +85,29 @@ const IssuesPage: React.FC = () => {
     const getRegisterBy = (card: Card) => {
       return getUserName(
         card.registeredBy ?? card.createdBy,
-        card.registeredById ?? card.createdById ?? undefined
+        card.registeredByUserId ?? card.createdByUserId ?? undefined
       );
     };
 
     return cards.map(card => ({
-      id: card._id,
+      id: card.id,
       issueType: card.issueType
         ? {
             label: card.issueType.name,
             statusColor: card.issueType.statusColor,
           }
         : null,
-      key: card._id ? `#${card._id.slice(-6).toUpperCase()}` : '—',
+      key: card.cardCode ?? '—',
       subject: card.title ?? '—',
-      assignee: getUserName(card.assignee, card.assigneeId ?? undefined),
-      status: card.status
+      assignee: getUserName(card.assignee, card.assigneeUserId ?? undefined),
+      status: card.column
         ? {
-            label: card.status.title,
-            statusColor: card.status.statusColor,
+            label: card.column.title,
+            statusColor: card.column.statusColor,
           }
         : null,
       priority: getPriorityText(card.priorityId),
-      milestone: versionMap.get(toId(card.versionId)) ?? '—',
+      milestone: card.versionId ? (versionMap.get(card.versionId) ?? '—') : '—',
       created: formatDate(card.createdAt),
       startDate: formatDate(card.startDate),
       dueDate: formatDate(card.dueDate),
@@ -109,8 +124,7 @@ const IssuesPage: React.FC = () => {
 
   const handleRowClick = useCallback(
     (row: IssueRow) => {
-      const query = boardId ? `?boardId=${boardId}` : '';
-      router.push(`/issues/${row.id}${query}`);
+      router.push(`/project/${boardId}/issues/${row.id}`);
     },
     [boardId, router]
   );
@@ -129,7 +143,7 @@ const IssuesPage: React.FC = () => {
       <IssuesFilter boardId={boardId} onSearch={handleSearch} />
       <IssuesTable
         data={issueRows}
-        loading={isLoadingList}
+        loading={isLoading}
         totalCount={totalCount}
         page={pagination.page}
         limit={pagination.limit}

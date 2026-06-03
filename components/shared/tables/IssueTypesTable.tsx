@@ -3,13 +3,13 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Images from '@/assets';
-import type { IssueType } from '@/config/interface';
+import type { EntityId, IssueType } from '@/config/interface';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import staticMethodConfirm from '@/components/modal/static-method-confirm';
 import { renderIssueTypeBadge } from '@/constant/data';
 
 export interface IssueTypesTableProps {
-  boardId: string;
+  boardId: EntityId;
   data: IssueType[];
   loading?: boolean;
   totalCount?: number;
@@ -17,7 +17,7 @@ export interface IssueTypesTableProps {
   limit: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
-  onDelete?: (id: string) => void;
+  onDelete?: (id: EntityId) => void;
 }
 
 export const IssueTypesTable: React.FC<IssueTypesTableProps> = ({
@@ -60,14 +60,14 @@ export const IssueTypesTable: React.FC<IssueTypesTableProps> = ({
         name: record?.name ?? '—',
       }),
       onOk: () => {
-        if (record?._id) onDelete?.(record._id);
+        if (record?.id) onDelete?.(record.id);
       },
     });
   };
 
   return (
     <CustomTable
-      rowKey="_id"
+      rowKey="id"
       columns={columns}
       dataSource={data}
       loading={loading}

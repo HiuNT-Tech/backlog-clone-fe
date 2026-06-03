@@ -20,7 +20,9 @@ import { cloneDeep } from 'lodash';
 import { toastHelpers } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CreateNewCardRequest } from '@/config/interface';
+import { toEntityIdOrUndefined } from '@/lib/entity-id';
 import { useTranslation } from 'react-i18next';
+import { sortByPosition } from '@/utils/sorts';
 
 interface ColumnProps {
   column: ColumnType;
@@ -40,7 +42,7 @@ function Column({ column }: ColumnProps) {
     transition,
     isDragging,
   } = useSortable({
-    id: column._id,
+    id: `column-${column.id}`,
     data: { ...column },
   });
 
@@ -66,19 +68,17 @@ function Column({ column }: ColumnProps) {
         // Update Redux state locally
         const newBoard = cloneDeep(board);
         const columnToUpdate = newBoard.columns.find(
-          col => col._id === createdCard.columnId
+          col => col.id === createdCard.columnId
         );
 
         if (columnToUpdate) {
-          // If column has placeholder card, remove it and add the new card
           if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
             columnToUpdate.cards = [createdCard];
-            columnToUpdate.cardOrderIds = [createdCard._id];
           } else {
-            // Otherwise just push to the end
             columnToUpdate.cards.push(createdCard);
-            columnToUpdate.cardOrderIds.push(createdCard._id);
           }
+
+          columnToUpdate.cards = sortByPosition(columnToUpdate.cards);
         }
 
         dispatch(updateCurrentActiveBoard(newBoard));
@@ -93,13 +93,20 @@ function Column({ column }: ColumnProps) {
 
     try {
       const payload: CreateNewCardRequest = {
-        boardId: board._id,
-        columnId: column._id,
+        boardId: board.id,
+        columnId: column.id,
         title: cardData.title.trim(),
         ...(cardData.description && { description: cardData.description }),
         ...(cardData.priority && { priorityId: Number(cardData.priority) }),
-        ...(cardData.issueType && { issueTypeId: cardData.issueType }),
-        ...(cardData.version && { versionId: cardData.version }),
+        ...(cardData.assignee && {
+          assigneeUserId: toEntityIdOrUndefined(cardData.assignee),
+        }),
+        ...(cardData.issueType && {
+          issueTypeId: toEntityIdOrUndefined(cardData.issueType),
+        }),
+        ...(cardData.version && {
+          versionId: toEntityIdOrUndefined(cardData.version),
+        }),
         ...(cardData.startDate && { startDate: cardData.startDate }),
         ...(cardData.dueDate && { dueDate: cardData.dueDate }),
         ...(cardData.estimatedHours && {
@@ -115,15 +122,16 @@ function Column({ column }: ColumnProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
-      <div
-        {...listeners}
-        className="min-w-[300px] max-w-[300px] bg-theme-neutral-3 ml-4 rounded-lg h-full max-h-[calc(100vh-6rem)]"
-      >
+    <div ref={setNodeRef} style={dndKitColumnStyles}>
+      <div className="min-w-[300px] max-w-[300px] bg-theme-neutral-3 ml-4 rounded-lg h-full max-h-[calc(100vh-6rem)] flex flex-col">
         <div className="flex flex-row items-center justify-between pr-3">
-          {/* Column Header */}
-          <div className="h-14 p-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-theme-neutral-11 cursor-pointer">
+          {/* Column Header — drag handle for column sorting */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="h-14 p-4 flex items-center justify-between cursor-grab"
+          >
+            <h3 className="text-base font-bold text-theme-neutral-11">
               {column?.title}
             </h3>
           </div>
@@ -136,7 +144,7 @@ function Column({ column }: ColumnProps) {
         </div>
 
         {/* List Cards */}
-        <ListCards cards={orderedCards} columnId={column._id} />
+        <ListCards cards={orderedCards} columnId={column.id} />
 
         {/* Add New Card Popup */}
         <AddNewCardPopup

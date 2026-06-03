@@ -1,11 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { CardService } from '@/lib/apis/card';
-import type { CardListParams, CardListResponse } from '@/config/interface';
+import type {
+  CardListParams,
+  CardListResponse,
+  EntityId,
+} from '@/config/interface';
 
-export const useCard = (boardId?: string, params?: CardListParams) => {
+export const useCard = (boardId?: EntityId, params?: CardListParams) => {
   const {
     data = { items: [], total: 0 },
-    isLoading: isLoadingList,
+    isLoading,
     error: cardsError,
     refetch: refetchCards,
   } = useQuery<CardListResponse>({
@@ -17,7 +21,7 @@ export const useCard = (boardId?: string, params?: CardListParams) => {
   return {
     cards: data.items,
     totalCount: data.total,
-    isLoadingList,
+    isLoading,
     cardsError,
     refetchCards,
   };

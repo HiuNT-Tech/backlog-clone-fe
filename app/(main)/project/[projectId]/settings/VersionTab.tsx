@@ -11,11 +11,11 @@ import { replaceWithUpdatedSearchParams } from '@/lib/url';
 import { usePagination } from '@/hooks/use-pagination';
 import { useVersion } from '@/hooks/use-version';
 import { toastHelpers } from '@/hooks/use-toast';
-import type { Version } from '@/config/interface';
+import type { EntityId, Version } from '@/config/interface';
 import type { CreateVersionFormData } from '@/validation/version-form-schema';
 import VersionsFilter from '@/components/shared/filters/VersionsFilter';
 
-export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
+export const VersionsTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -33,7 +33,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
   const {
     versions,
     totalCount,
-    isLoadingList,
+    isLoading,
     createNewVersion,
     updateVersion,
     deleteVersion,
@@ -77,7 +77,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
 
     try {
       if (editingVersion) {
-        await updateVersion({ id: editingVersion._id, payload });
+        await updateVersion({ id: editingVersion.id, payload });
         toastHelpers.success({
           title: t('settings.versions.updateSuccess'),
         });
@@ -91,7 +91,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
     } catch {}
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: EntityId) => {
     try {
       await deleteVersion(id);
       toastHelpers.success({
@@ -149,7 +149,7 @@ export const VersionsTab: React.FC<{ boardId: string }> = ({ boardId }) => {
       <VersionTable
         boardId={boardId}
         data={versions}
-        loading={isLoadingList}
+        loading={isLoading}
         totalCount={totalCount}
         page={pagination.page}
         limit={pagination.limit}

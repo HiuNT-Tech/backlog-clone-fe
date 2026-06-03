@@ -8,10 +8,14 @@ import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { renderMemberRoleBadge } from '@/constant/data';
 import Images from '@/assets';
 import StaticMethodConfirm from '@/components/modal/static-method-confirm';
-import { UserBoardMember, UsersBoardResponse } from '@/config/interface';
+import {
+  EntityId,
+  UserBoardMember,
+  UsersBoardResponse,
+} from '@/config/interface';
 
 export interface MembersTableProps {
-  boardId?: string;
+  boardId?: EntityId;
   listUser: UsersBoardResponse;
   isListLoading: boolean;
   listError: Error | null;

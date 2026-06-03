@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import {
   createBoardFormSchema,
@@ -39,14 +37,22 @@ export default function CreateBoardDialog({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CreateBoardFormData>({
     resolver: zodResolver(createBoardFormSchema),
     defaultValues: {
       title: '',
-      description: '',
+      boardCode: '',
     },
   });
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setValue('title', value);
+    setValue('boardCode', value.toUpperCase());
+  };
 
   const handleFormSubmit = async (data: CreateBoardFormData) => {
     await onSubmit(data);
@@ -62,9 +68,9 @@ export default function CreateBoardDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[480px] bg-white">
         <DialogHeader>
-          <DialogTitle>{t('dashboard.createBoard.title')}</DialogTitle>
+          <DialogTitle>{t('dashboard.createProject.title')}</DialogTitle>
           <DialogDescription>
-            {t('dashboard.createBoard.description')}
+            {t('dashboard.createProject.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -74,18 +80,18 @@ export default function CreateBoardDialog({
           id="create-board-form"
         >
           <Input
-            label={t('dashboard.createBoard.nameLabel')}
-            placeholder={t('dashboard.createBoard.namePlaceholder')}
+            label={t('dashboard.createProject.nameLabel')}
             error={errors.title?.message}
             requiredIndicator
             {...register('title')}
+            onChange={handleTitleChange}
           />
 
-          <Textarea
-            label={t('dashboard.createBoard.descriptionLabel')}
-            placeholder={t('dashboard.createBoard.descriptionPlaceholder')}
-            error={errors.description?.message}
-            {...register('description')}
+          <Input
+            label={t('dashboard.createProject.codeLable')}
+            error={errors.boardCode?.message}
+            requiredIndicator
+            {...register('boardCode')}
           />
         </form>
 
@@ -96,7 +102,7 @@ export default function CreateBoardDialog({
             onClick={handleClose}
             disabled={isPending}
           >
-            {t('dashboard.createBoard.cancel')}
+            {t('dashboard.createProject.cancel')}
           </Button>
           <Button
             type="submit"
@@ -106,7 +112,7 @@ export default function CreateBoardDialog({
           >
             {isPending
               ? t('common.loading')
-              : t('dashboard.createBoard.submit')}
+              : t('dashboard.createProject.submit')}
           </Button>
         </DialogFooter>
       </DialogContent>

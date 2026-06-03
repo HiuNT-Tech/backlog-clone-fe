@@ -3,7 +3,12 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import { useState } from 'react';
 import Images from '@/assets';
 import Image from 'next/image';
@@ -19,27 +24,27 @@ export const getMenuItems = (boardId?: string) => [
   {
     titleKey: 'sidebar.addIssue',
     icon: Images.IconCreate,
-    href: boardId ? `/add-issue?boardId=${boardId}` : '/add-issue',
+    href: boardId ? `/project/${boardId}/add-issue` : '/add-issue',
   },
   {
     titleKey: 'sidebar.issue',
     icon: Images.IconList,
-    href: boardId ? `/issues?boardId=${boardId}` : '/issues',
+    href: boardId ? `/project/${boardId}/issues` : '/issues',
   },
   {
     titleKey: 'sidebar.chat',
     icon: Images.IconChat,
-    href: boardId ? `/chat?boardId=${boardId}` : '/chat',
+    href: boardId ? `/project/${boardId}/chat` : '/chat',
   },
   {
     titleKey: 'sidebar.board',
     icon: Images.IconBoard,
-    href: boardId ? `/board?id=${boardId}` : '/board',
+    href: boardId ? `/project/${boardId}/board` : '/board',
   },
   {
     titleKey: 'sidebar.settings',
     icon: Images.IconSetting,
-    href: boardId ? `/settings?boardId=${boardId}` : '/settings',
+    href: boardId ? `/project/${boardId}/settings` : '/settings',
   },
 ];
 
@@ -150,10 +155,15 @@ export function Sidebar(
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const searchParams = useSearchParams();
+  const params = useParams();
 
-  // Get boardId from URL (supports both ?id= and ?boardId= patterns)
+  // Get boardId from params (dynamic route) or URL (supports both ?id= and ?boardId= patterns)
   const boardId =
-    searchParams.get('boardId') || searchParams.get('id') || undefined;
+    (params?.projectId as string) ||
+    (params?.id as string) ||
+    searchParams.get('boardId') ||
+    searchParams.get('id') ||
+    undefined;
   const menuItems = getMenuItems(boardId);
 
   const toggleCollapse = () => {

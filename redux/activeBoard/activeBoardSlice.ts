@@ -4,10 +4,8 @@ import {
   PayloadAction,
   ActionReducerMapBuilder,
 } from '@reduxjs/toolkit';
-import { mapOrder } from '@/utils/sorts';
-import { isEmpty } from 'lodash';
-import { generatePlaceholderCard } from '@/utils/formatters';
-import type { Board, ActiveBoardState } from '@/config/interface';
+import { sortByPosition } from '@/utils/sorts';
+import type { Board, ActiveBoardState, EntityId } from '@/config/interface';
 import { BoardService } from '@/lib/apis/board';
 
 // Initial state with proper typing
@@ -15,13 +13,12 @@ const initialState: ActiveBoardState = {
   currentActiveBoard: null,
 };
 // Async thunk for fetching board details
-export const fetchBoardDetailsAPI = createAsyncThunk<Board, string>(
+export const fetchBoardDetailsAPI = createAsyncThunk<Board, EntityId>(
   'activeBoard/fetchBoardDetailsAPI',
-  async (boardId: string) => {
+  async (boardId: EntityId) => {
     return await BoardService.getBoardById(boardId);
   }
 );
-
 // Redux slice for active board
 export const activeBoardSlice = createSlice({
   name: 'activeBoard',
@@ -37,20 +34,10 @@ export const activeBoardSlice = createSlice({
       (state, action: PayloadAction<Board>) => {
         const board = action.payload;
 
-        // Sort columns based on columnOrderIds
-        board.columns = mapOrder(board.columns, board.columnOrderIds, '_id');
+        board.columns = sortByPosition(board.columns);
 
-        // Process each column
         board.columns.forEach(column => {
-          if (isEmpty(column.cards)) {
-            // Add placeholder card for empty columns (for drag-and-drop functionality)
-            const placeholderCard = generatePlaceholderCard(column);
-            column.cards = [placeholderCard];
-            column.cardOrderIds = [placeholderCard._id];
-          } else {
-            // Sort cards based on cardOrderIds
-            column.cards = mapOrder(column.cards, column.cardOrderIds, '_id');
-          }
+          column.cards = sortByPosition(column.cards);
         });
 
         state.currentActiveBoard = board;

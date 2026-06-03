@@ -7,6 +7,6 @@ export const format = {
     v ? dayjs(v).format('YYYY-MM-DD') : '',
   dateTime: (v?: string | number | null) =>
     v ? dayjs(v).format('YYYY/MM/DD HH:mm:ss') : '—',
-  shortKey: (id?: string) => (id ? id.slice(-6).toUpperCase() : ''),
+  shortKey: (id?: string | number | null) => (id ? String(id) : ''),
   hours: (v?: string | number | null) => (v ? `${v}h` : '—'),
 };

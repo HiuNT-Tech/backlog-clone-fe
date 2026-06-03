@@ -2,7 +2,12 @@
 
 import { useEffect } from 'react';
 import { Tabs } from 'antd';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -16,16 +21,21 @@ import {
 } from '@/redux/activeBoard/activeBoardSlice';
 import type { AppDispatch } from '@/redux/store';
 import { StatusesTab } from './StatusesTab';
+import { toEntityIdOrUndefined } from '@/lib/entity-id';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const params = useParams();
   const dispatch = useDispatch<AppDispatch>();
   const currentActiveBoard = useSelector(selectCurrentActiveBoard);
 
-  const boardId = searchParams.get('boardId') || '';
+  const boardId =
+    toEntityIdOrUndefined(params?.projectId as string) ??
+    toEntityIdOrUndefined(params?.id as string) ??
+    toEntityIdOrUndefined(searchParams.get('boardId'));
 
   // Fetch board context if not already loaded
   useEffect(() => {

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CardService } from '@/lib/apis/card';
-import type { Card } from '@/config/interface';
+import type { Card, EntityId } from '@/config/interface';
 
-export const useCardDetail = (cardId?: string) => {
+export const useCardDetail = (cardId?: EntityId) => {
   const queryClient = useQueryClient();
 
   const {

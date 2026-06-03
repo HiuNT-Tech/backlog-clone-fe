@@ -11,7 +11,7 @@ export const useDashboard = () => {
   // Query: Lấy danh sách boards
   const {
     data: boardListData,
-    isLoading: isBoardListLoading,
+    isLoading,
     error: boardListError,
     refetch: refetchBoardList,
   } = useQuery({
@@ -45,7 +45,7 @@ export const useDashboard = () => {
 
   return {
     boards: boardListData ?? [],
-    isBoardListLoading,
+    isLoading,
     boardListError,
     refetchBoardList,
 
