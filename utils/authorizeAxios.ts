@@ -43,6 +43,18 @@ authorizedAxiosInstance.interceptors.request.use(
 // Interceptor response: Can thiệp vào giữa những cái response API
 authorizedAxiosInstance.interceptors.response.use(
   response => {
+    // BE bọc resource đơn trong envelope { item: ... }. Tự động unwrap để
+    // các consumer dùng thẳng object như trước. List ({ items, total/count })
+    // và body rỗng (204) được giữ nguyên.
+    const body = response.data;
+    if (
+      body &&
+      typeof body === 'object' &&
+      !Array.isArray(body) &&
+      'item' in body
+    ) {
+      response.data = (body as { item: unknown }).item;
+    }
     return response;
   },
   (error: AxiosError) => {
