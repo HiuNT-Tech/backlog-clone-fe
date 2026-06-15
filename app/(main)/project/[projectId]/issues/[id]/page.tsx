@@ -433,13 +433,14 @@ export default function IssueDetailPage() {
           onAssignToMyself={handleAssignToMyself}
         />
 
-        <CommentList />
+        <CommentList cardId={cardId} currentUserId={currentUser?.id} />
       </div>
 
       {/* ── Sticky Comment Bar (only in read mode) ── */}
       {!isEditMode && (
         <StickyCommentBar
           card={card}
+          cardId={cardId}
           isEditing={isCommentEditing}
           setIsEditing={setIsCommentEditing}
           commentValue={commentValue}
