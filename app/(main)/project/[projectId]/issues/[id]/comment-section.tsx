@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Paperclip, Pencil, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,39 +8,220 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 import { format } from '@/constant/format';
-import type { Card } from '@/config/interface';
+import { toastHelpers } from '@/hooks/use-toast';
+import { useComments } from '@/hooks/use-comment';
+import type { Card, Comment, EntityId } from '@/config/interface';
 
-export const CommentList: React.FC = () => {
+/* ─── Helpers ─── */
+
+const markdownClassName =
+  'prose prose-sm max-w-none text-theme-neutral-11 text-sm leading-relaxed [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-2 [&_h1]:mb-1 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-2 [&_h2]:mb-1 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_a]:text-theme-main [&_a]:hover:underline [&_blockquote]:border-l-4 [&_blockquote]:border-theme-neutral-5 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-theme-neutral-8 [&_code]:bg-theme-neutral-3 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-theme-neutral-3 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2';
+
+/* ═══════════════════════════ Comment List ═══════════════════════════ */
+
+export interface CommentListProps {
+  cardId?: EntityId;
+  currentUserId?: number;
+}
+
+const CommentItem: React.FC<{
+  comment: Comment;
+  isOwner: boolean;
+  isEditing: boolean;
+  editValue: string;
+  setEditValue: (v: string) => void;
+  onEditStart: () => void;
+  onEditCancel: () => void;
+  onEditSave: () => void;
+  onDelete: () => void;
+  isSaving: boolean;
+}> = ({
+  comment,
+  isOwner,
+  isEditing,
+  editValue,
+  setEditValue,
+  onEditStart,
+  onEditCancel,
+  onEditSave,
+  onDelete,
+  isSaving,
+}) => {
   const { t } = useTranslation();
+  const isEdited = comment.updatedAt !== comment.createdAt;
+
+  return (
+    <div className="bg-white rounded-lg border border-theme-neutral-5/60 p-4">
+      {/* Author row */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {comment.user.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={comment.user.avatar}
+              alt=""
+              className="w-6 h-6 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-theme-main flex items-center justify-center text-white text-xs font-semibold shrink-0">
+              {comment.user.displayName?.[0]?.toUpperCase() ?? '?'}
+            </div>
+          )}
+          <span className="text-sm font-semibold text-theme-neutral-11 truncate">
+            {comment.user.displayName}
+          </span>
+          <span className="text-xs text-theme-neutral-7 shrink-0">
+            {format.dateTime(comment.createdAt)}
+            {isEdited && ` (${t('issueDetail.comments.edited')})`}
+          </span>
+        </div>
+
+        {isOwner && !isEditing && (
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={onEditStart}
+              className="text-xs text-theme-neutral-7 hover:text-theme-main px-1 cursor-pointer"
+            >
+              {t('issueDetail.edit')}
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="text-xs text-theme-neutral-7 hover:text-red-500 px-1 cursor-pointer"
+            >
+              {t('common.delete')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Content or inline editor */}
+      {isEditing ? (
+        <div>
+          <MarkdownEditor
+            value={editValue}
+            onChange={setEditValue}
+            placeholder={t('issueDetail.comments.placeholder')}
+            className="[&_.EasyMDEContainer]:border-theme-neutral-5 [&_.EasyMDEContainer]:rounded-lg [&_.CodeMirror]:min-h-[80px] [&_.CodeMirror]:text-sm"
+          />
+          <div className="flex gap-2 mt-2">
+            <Button
+              type="button"
+              size="sm"
+              className="bg-theme-main hover:bg-theme-hover text-theme-neutral-1"
+              onClick={onEditSave}
+              disabled={!editValue.trim() || isSaving}
+            >
+              {isSaving ? t('common.loading') : t('issueDetail.save')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="border-theme-neutral-5 text-theme-neutral-9"
+              onClick={onEditCancel}
+              disabled={isSaving}
+            >
+              {t('issueDetail.cancel')}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className={markdownClassName}>
+          <ReactMarkdown>{comment.content}</ReactMarkdown>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const CommentList: React.FC<CommentListProps> = ({
+  cardId,
+  currentUserId,
+}) => {
+  const { t } = useTranslation();
+  const {
+    comments,
+    total,
+    isLoading,
+    updateComment,
+    isUpdating,
+    deleteComment,
+  } = useComments(cardId);
+
+  const [editingId, setEditingId] = useState<EntityId | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const handleEditStart = (comment: Comment) => {
+    setEditingId(comment.id);
+    setEditValue(comment.content);
+  };
+
+  const handleEditSave = async (commentId: EntityId) => {
+    if (!editValue.trim()) return;
+    try {
+      await updateComment({ commentId, content: editValue.trim() });
+      setEditingId(null);
+      toastHelpers.success({ title: t('issueDetail.comments.updateSuccess') });
+    } catch {
+      toastHelpers.error({ title: t('issueDetail.comments.postError') });
+    }
+  };
+
+  const handleDelete = async (commentId: EntityId) => {
+    if (!window.confirm(t('issueDetail.comments.confirmDelete'))) return;
+    try {
+      await deleteComment(commentId);
+      toastHelpers.success({ title: t('issueDetail.comments.deleteSuccess') });
+    } catch {
+      toastHelpers.error({ title: t('issueDetail.comments.postError') });
+    }
+  };
 
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base font-semibold text-theme-neutral-11">
           {t('issueDetail.comments.title')}{' '}
-          <span className="text-theme-neutral-7 font-normal">(0)</span>
+          <span className="text-theme-neutral-7 font-normal">({total})</span>
         </h2>
-        <div className="flex items-center gap-2 text-sm text-theme-neutral-8">
-          <span>View:</span>
-          <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded">
-            Show all
-          </span>
-          <span className="cursor-pointer hover:text-theme-neutral-11">
-            Show only comments
-          </span>
-        </div>
       </div>
 
-      {/* Empty state */}
-      <div className="bg-white rounded-lg border border-theme-neutral-5/60 p-6 text-center text-sm text-theme-neutral-7">
-        {t('issueDetail.comments.comingSoon')}
-      </div>
+      {isLoading ? (
+        <div className="h-20 animate-pulse bg-theme-neutral-3 rounded-lg" />
+      ) : comments.length === 0 ? (
+        <div className="bg-white rounded-lg border border-theme-neutral-5/60 p-6 text-center text-sm text-theme-neutral-7">
+          {t('issueDetail.comments.empty')}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {comments.map(comment => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              isOwner={comment.user.id === currentUserId}
+              isEditing={editingId === comment.id}
+              editValue={editValue}
+              setEditValue={setEditValue}
+              onEditStart={() => handleEditStart(comment)}
+              onEditCancel={() => setEditingId(null)}
+              onEditSave={() => handleEditSave(comment.id)}
+              onDelete={() => handleDelete(comment.id)}
+              isSaving={isUpdating}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
+/* ═══════════════════════════ Sticky Comment Bar ═══════════════════════════ */
+
 export interface StickyCommentBarProps {
   card: Card;
+  cardId?: EntityId;
   isEditing: boolean;
   setIsEditing: (v: boolean) => void;
   commentValue: string;
@@ -55,6 +236,7 @@ export interface StickyCommentBarProps {
 
 export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
   card,
+  cardId,
   isEditing,
   setIsEditing,
   commentValue,
@@ -67,6 +249,20 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
   handleFieldUpdate,
 }) => {
   const { t } = useTranslation();
+  const { createComment, isCreating } = useComments(cardId);
+
+  const handlePost = async () => {
+    if (!commentValue.trim()) return;
+    try {
+      await createComment(commentValue.trim());
+      setCommentValue('');
+      setIsEditing(false);
+      setIsPreviewComment(false);
+      toastHelpers.success({ title: t('issueDetail.comments.postSuccess') });
+    } catch {
+      toastHelpers.error({ title: t('issueDetail.comments.postError') });
+    }
+  };
 
   return (
     <div className="sticky bottom-0 bg-white border-t border-theme-neutral-4/60 z-30">
@@ -110,7 +306,9 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
               </div>
 
               {isPreviewComment ? (
-                <div className="prose prose-sm max-w-none text-theme-neutral-11 leading-relaxed [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_a]:text-theme-main [&_a]:hover:underline [&_blockquote]:border-l-4 [&_blockquote]:border-theme-neutral-5 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-theme-neutral-8 [&_code]:bg-theme-neutral-3 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-theme-neutral-3 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2 p-4 border border-theme-neutral-5 rounded-lg min-h-[100px] bg-theme-neutral-2/30 mb-[22px]">
+                <div
+                  className={`${markdownClassName} p-4 border border-theme-neutral-5 rounded-lg min-h-[100px] bg-theme-neutral-2/30 mb-[22px]`}
+                >
                   {commentValue ? (
                     <ReactMarkdown>{commentValue}</ReactMarkdown>
                   ) : (
@@ -158,9 +356,12 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   type="button"
                   size="sm"
                   className="bg-theme-main hover:bg-theme-hover text-theme-neutral-1"
-                  disabled={!commentValue.trim()}
+                  disabled={!commentValue.trim() || isCreating}
+                  onClick={handlePost}
                 >
-                  {t('issueDetail.comments.post')}
+                  {isCreating
+                    ? t('common.loading')
+                    : t('issueDetail.comments.post')}
                 </Button>
               </div>
             </div>

@@ -269,3 +269,39 @@ export interface UserBoardMember {
   createdAt: number;
   updatedAt: number | null;
 }
+
+// ─── Comment ───────────────────────────────────────────────────
+
+export interface CommentUser {
+  id: EntityId;
+  email: string;
+  displayName: string;
+  avatar: string | null;
+}
+
+export interface Comment {
+  id: EntityId;
+  cardId: EntityId;
+  content: string;
+  user: CommentUser;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommentListResponse {
+  total: number;
+  items: Comment[];
+}
+
+export interface CommentListParams {
+  skip?: number;
+  limit?: number;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+}
+
+export interface UpdateCommentRequest {
+  content: string;
+}
