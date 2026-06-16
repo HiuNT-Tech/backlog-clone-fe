@@ -128,7 +128,7 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = ({
                     value={
                       priorityLabel ? (
                         <span
-                          className={`font-medium ${PRIORITY_STYLES[card.priorityId!] ?? ''}`}
+                          className={`font-medium ${PRIORITY_STYLES[card.priority!] ?? ''}`}
                         >
                           → {priorityLabel}
                         </span>

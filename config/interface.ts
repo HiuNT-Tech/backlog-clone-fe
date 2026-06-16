@@ -22,7 +22,7 @@ export interface Card {
   memberIds?: EntityId[];
   comments?: string[];
   attachments?: string[];
-  priorityId?: number | null;
+  priority?: number | null;
   assigneeUserId?: EntityId | null;
   assignee?: User | null;
   issueTypeId?: EntityId | null;
@@ -60,7 +60,7 @@ export interface CardIssueType {
 
 export interface CardListParams {
   search?: string;
-  priorityId?: string;
+  priority?: string;
   issueTypeId?: string;
   columnId?: string;
   assigneeUserId?: string;
@@ -193,7 +193,7 @@ export interface CreateNewCardRequest {
   columnId: EntityId;
   title: string;
   description?: string;
-  priorityId?: number;
+  priority?: number;
   assigneeUserId?: EntityId;
   issueTypeId?: EntityId;
   versionId?: EntityId;

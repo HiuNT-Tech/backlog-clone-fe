@@ -107,8 +107,7 @@ export default function AddIssuePage() {
         title: editCard.title ?? '',
         description: editCard.description ?? '',
         status: toSelectValue(editCard.columnId),
-        priority:
-          editCard.priorityId != null ? String(editCard.priorityId) : '',
+        priority: editCard.priority != null ? String(editCard.priority) : '',
         issueType: toSelectValue(editCard.issueTypeId),
         assignee: toSelectValue(editCard.assigneeUserId),
         startDate: formatDateForInput(editCard.startDate),
@@ -207,7 +206,7 @@ export default function AddIssuePage() {
 
         const desc = formData.description?.trim();
         updatePayload.description = desc || null;
-        updatePayload.priorityId = formData.priority
+        updatePayload.priority = formData.priority
           ? Number(formData.priority)
           : null;
         updatePayload.issueTypeId = toEntityIdOrNull(formData.issueType);
@@ -225,7 +224,7 @@ export default function AddIssuePage() {
           columnId: toEntityIdOrUndefined(formData.status)!,
           title: formData.title.trim(),
           ...(formData.description && { description: formData.description }),
-          ...(formData.priority && { priorityId: Number(formData.priority) }),
+          ...(formData.priority && { priority: Number(formData.priority) }),
           ...(formData.issueType && {
             issueTypeId: toEntityIdOrUndefined(formData.issueType),
           }),
@@ -333,7 +332,7 @@ export default function AddIssuePage() {
       position: editCard?.position ?? 0,
       title: formData.title,
       description: formData.description || null,
-      priorityId: formData.priority ? Number(formData.priority) : null,
+      priority: formData.priority ? Number(formData.priority) : null,
       assigneeUserId: toEntityIdOrNull(formData.assignee),
       assignee: null,
       issueTypeId: toEntityIdOrNull(formData.issueType),

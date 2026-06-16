@@ -143,7 +143,7 @@ const IssuesFilter = ({
     params.columnId = normalizeMultiParam(status);
     params.versionId = normalizeMultiParam(version);
     params.issueTypeId = normalizeMultiParam(issueType);
-    params.priorityId = normalizeMultiParam(priority);
+    params.priority = normalizeMultiParam(priority);
     params.assigneeUserId = normalizeMultiParam(assignee);
     params.registeredByUserId = normalizeMultiParam(registeredBy);
 

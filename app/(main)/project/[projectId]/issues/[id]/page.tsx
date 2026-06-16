@@ -55,7 +55,7 @@ const cardToFormData = (
   title: card.title ?? '',
   description: card.description ?? '',
   columnId: card.columnId ? String(card.columnId) : '',
-  priorityId: card.priorityId != null ? String(card.priorityId) : '',
+  priority: card.priority != null ? String(card.priority) : '',
   issueTypeId: card.issueTypeId ? String(card.issueTypeId) : '',
   assigneeUserId: card.assigneeUserId ? String(card.assigneeUserId) : '',
   versionId: card.versionId ? String(card.versionId) : '',
@@ -93,7 +93,7 @@ export default function IssueDetailPage() {
     title: '',
     description: '',
     columnId: '',
-    priorityId: '',
+    priority: '',
     issueTypeId: '',
     assigneeUserId: '',
     versionId: '',
@@ -134,9 +134,7 @@ export default function IssueDetailPage() {
         title: editFormData.title.trim() || undefined,
         description: editFormData.description?.trim() || null,
         columnId: toEntityIdOrNull(editFormData.columnId) ?? undefined,
-        priorityId: editFormData.priorityId
-          ? Number(editFormData.priorityId)
-          : null,
+        priority: editFormData.priority ? Number(editFormData.priority) : null,
         issueTypeId: toEntityIdOrNull(editFormData.issueTypeId),
         assigneeUserId: toEntityIdOrNull(editFormData.assigneeUserId),
         versionId: toEntityIdOrNull(editFormData.versionId),
@@ -237,12 +235,12 @@ export default function IssueDetailPage() {
   }, [card, issueTypes, boardId]);
 
   const priorityLabel = useMemo(() => {
-    if (!card?.priorityId) return null;
+    if (!card?.priority) return null;
     return (
-      PRIORITY_OPTIONS.find(o => o.value === String(card.priorityId))?.label ??
+      PRIORITY_OPTIONS.find(o => o.value === String(card.priority))?.label ??
       null
     );
-  }, [card?.priorityId]);
+  }, [card?.priority]);
 
   /* ── Inline field update (for sticky comment bar) ── */
   const handleFieldUpdate = useCallback(
@@ -252,8 +250,8 @@ export default function IssueDetailPage() {
         const payload: Record<string, any> = {};
         if (field === 'description')
           payload.description = value?.trim() || null;
-        else if (field === 'priorityId')
-          payload.priorityId = value ? Number(value) : null;
+        else if (field === 'priority')
+          payload.priority = value ? Number(value) : null;
         else if (field === 'estimatedHours' || field === 'actualHours')
           payload[field] = value?.trim() || null;
         else if (

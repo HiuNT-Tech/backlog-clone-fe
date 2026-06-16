@@ -17,7 +17,7 @@ import {
 } from '@/config/interface';
 
 export const BoardService = {
-  getBoard: async (): Promise<Board[]> => {
+  getBoard: async (): Promise<{ items: Board[]; total: number }> => {
     return await sendGet(`${API_ROOT}/v1/boards`);
   },
 
@@ -43,7 +43,11 @@ export const BoardService = {
     boardId: EntityId,
     params?: Record<string, any>
   ): Promise<Column[]> => {
-    return await sendGet(`${API_ROOT}/v1/boards/${boardId}/columns`, params);
+    const res = await sendGet(
+      `${API_ROOT}/v1/boards/${boardId}/columns`,
+      params
+    );
+    return res?.items ?? res ?? [];
   },
 
   moveCardToDifferentColumn: async (
