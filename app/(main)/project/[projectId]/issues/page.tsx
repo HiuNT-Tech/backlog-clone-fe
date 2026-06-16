@@ -106,7 +106,7 @@ const IssuesPage: React.FC = () => {
             statusColor: card.column.statusColor,
           }
         : null,
-      priority: getPriorityText(card.priorityId),
+      priority: getPriorityText(card.priority),
       milestone: card.versionId ? (versionMap.get(card.versionId) ?? '—') : '—',
       created: formatDate(card.createdAt),
       startDate: formatDate(card.startDate),

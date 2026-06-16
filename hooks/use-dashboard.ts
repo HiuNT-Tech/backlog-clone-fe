@@ -44,7 +44,7 @@ export const useDashboard = () => {
   });
 
   return {
-    boards: boardListData ?? [],
+    boards: boardListData?.items ?? [],
     isLoading,
     boardListError,
     refetchBoardList,

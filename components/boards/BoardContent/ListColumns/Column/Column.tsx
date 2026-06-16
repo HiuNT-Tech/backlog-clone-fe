@@ -97,7 +97,7 @@ function Column({ column }: ColumnProps) {
         columnId: column.id,
         title: cardData.title.trim(),
         ...(cardData.description && { description: cardData.description }),
-        ...(cardData.priority && { priorityId: Number(cardData.priority) }),
+        ...(cardData.priority && { priority: Number(cardData.priority) }),
         ...(cardData.assignee && {
           assigneeUserId: toEntityIdOrUndefined(cardData.assignee),
         }),

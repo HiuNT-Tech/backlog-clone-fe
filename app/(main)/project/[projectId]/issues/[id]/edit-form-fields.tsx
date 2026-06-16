@@ -14,7 +14,7 @@ export interface EditFormData {
   title: string;
   description: string;
   columnId: string;
-  priorityId: string;
+  priority: string;
   issueTypeId: string;
   assigneeUserId: string;
   versionId: string;
@@ -105,8 +105,8 @@ export const EditableMetadata: React.FC<EditFormFieldsProps> = ({
           <Select
             label={t('issueDetail.metadata.priority', 'Priority')}
             options={priorityOptions}
-            value={formData.priorityId}
-            onValueChange={v => onChange('priorityId', v)}
+            value={formData.priority}
+            onValueChange={v => onChange('priority', v)}
             placeholder="—"
           />
 

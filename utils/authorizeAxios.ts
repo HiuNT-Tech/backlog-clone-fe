@@ -137,43 +137,55 @@ authorizedAxiosInstance.interceptors.response.use(
   }
 );
 
+const unwrapItem = (data: any) => {
+  if (
+    data &&
+    typeof data === 'object' &&
+    !Array.isArray(data) &&
+    'item' in data
+  ) {
+    return (data as { item: unknown }).item;
+  }
+  return data;
+};
+
 export const sendGet = async (path: string, params: any = {}) => {
   const res = await authorizedAxiosInstance.get(path, { params });
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendPost = async (path: string, params?: any) => {
   const res = await authorizedAxiosInstance.post(path, params);
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendPatch = async (path: string, params?: any) => {
   const res = await authorizedAxiosInstance.patch(path, params);
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendPut = async (path: string, params?: any) => {
   const res = await authorizedAxiosInstance.put(path, params);
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendDelete = async (path: string, params?: any) => {
   const res = await authorizedAxiosInstance.delete(path, { params });
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendPostFormData = async (path: string, formData: FormData) => {
   const res = await authorizedAxiosInstance.post(path, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendPatchFormData = async (path: string, formData: FormData) => {
   const res = await authorizedAxiosInstance.patch(path, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-  return res.data;
+  return unwrapItem(res.data);
 };
 
 export const sendGetBlob = async (path: string, params: any = {}) => {
