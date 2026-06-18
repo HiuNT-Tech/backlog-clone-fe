@@ -21,6 +21,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const registeredEmail = searchParams.get('registeredEmail');
   const verifiedEmail = searchParams.get('verifiedEmail');
+  const redirect = searchParams.get('redirect');
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -39,9 +40,13 @@ function LoginForm() {
         description: t('toast.success.userLoggedIn'),
       });
 
-      router.push('/dashboard');
+      router.push(getSafeRedirectPath(redirect));
     } catch (error) {}
   };
+
+  const registerHref = redirect
+    ? `/register?redirect=${encodeURIComponent(redirect)}`
+    : '/register';
 
   return (
     <form onSubmit={handleSubmit(submitLogin)} className="w-full max-w-sm">
@@ -128,7 +133,7 @@ function LoginForm() {
         <div className="mt-4 text-center text-sm">
           <p className="text-gray-600">{t('auth.login.noAccount')}</p>
           <Link
-            href="/register"
+            href={registerHref}
             className="text-theme-main hover:text-theme-hover font-medium"
           >
             {t('auth.login.createAccount')}
@@ -138,6 +143,14 @@ function LoginForm() {
     </form>
   );
 }
+
+const getSafeRedirectPath = (value: string | null) => {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return '/dashboard';
+  }
+
+  return value;
+};
 
 export default function LoginPage() {
   return (

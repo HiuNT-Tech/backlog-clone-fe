@@ -5,6 +5,14 @@ export enum MemberRole {
   GUEST = 'GUEST',
 }
 
+export enum BoardInvitationStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  DECLINED = 'DECLINED',
+  REVOKED = 'REVOKED',
+  EXPIRED = 'EXPIRED',
+}
+
 export enum StatusColor {
   RED = 'RED',
   ORANGE = 'ORANGE',

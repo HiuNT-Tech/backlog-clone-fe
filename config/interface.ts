@@ -1,4 +1,5 @@
 import type { ColorStatusKey } from '@/constant/data';
+import type { BoardInvitationStatus } from '@/config/enum';
 
 // Types for Board, Column, and Card entities
 export type EntityId = number;
@@ -268,6 +269,50 @@ export interface UserBoardMember {
   avatar: string | null;
   createdAt: number;
   updatedAt: number | null;
+}
+
+export interface InvitationBoard {
+  id: EntityId;
+  title: string;
+  boardCode: string;
+}
+
+export interface InvitationUser {
+  id: EntityId;
+  email: string;
+  displayName: string;
+  avatar: string | null;
+}
+
+export interface BoardInvitation {
+  id: EntityId;
+  boardId: EntityId;
+  email: string;
+  inviteeUserId: EntityId | null;
+  invitedByUserId: EntityId | null;
+  role: BoardMemberRole;
+  status: BoardInvitationStatus;
+  expiresAt: string;
+  respondedAt: string | null;
+  board: InvitationBoard;
+  invitee: InvitationUser | null;
+  invitedBy: InvitationUser | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateInvitationRequest {
+  email: string;
+  role: BoardMemberRole;
+}
+
+export interface InvitationListParams {
+  status?: BoardInvitationStatus;
+}
+
+export interface InvitationListResponse {
+  total: number;
+  items: BoardInvitation[];
 }
 
 // ─── Comment ───────────────────────────────────────────────────

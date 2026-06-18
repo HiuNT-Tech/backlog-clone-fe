@@ -4,7 +4,12 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = ['/dashboard'];
 
 const guestOnlyRoutes = ['/login', '/register'];
-const publicRoutes = ['/login', '/register', '/account/verification'];
+const publicRoutes = [
+  '/login',
+  '/register',
+  '/account/verification',
+  '/invitations',
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

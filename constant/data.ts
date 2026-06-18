@@ -1,7 +1,7 @@
 import React from 'react';
 import { t, type TFunction } from 'i18next';
 
-import { PRIORITY, StatusColor } from '@/config/enum';
+import { BoardInvitationStatus, PRIORITY, StatusColor } from '@/config/enum';
 import type { BoardMemberRole } from '@/config/interface';
 import { cn } from '@/lib/utils';
 
@@ -53,6 +53,74 @@ export const renderMemberRoleBadge = (
       ),
     },
     `${t(config.labelKey)} ${additionalText || ''}`.trim()
+  );
+};
+
+type InvitationStatusConfig = {
+  labelKey: string;
+  badgeClassName: string;
+};
+
+export const INVITATION_STATUS_DATA = {
+  [BoardInvitationStatus.PENDING]: {
+    labelKey: 'settings.invitations.status.pending',
+    badgeClassName: 'border-theme-main-2 bg-theme-main-1 text-theme-main-6',
+  },
+  [BoardInvitationStatus.ACCEPTED]: {
+    labelKey: 'settings.invitations.status.accepted',
+    badgeClassName: 'border-theme-main-3 bg-theme-main-1 text-theme-main-7',
+  },
+  [BoardInvitationStatus.DECLINED]: {
+    labelKey: 'settings.invitations.status.declined',
+    badgeClassName:
+      'border-theme-neutral-5 bg-theme-neutral-3 text-theme-neutral-8',
+  },
+  [BoardInvitationStatus.REVOKED]: {
+    labelKey: 'settings.invitations.status.revoked',
+    badgeClassName:
+      'border-theme-neutral-5 bg-theme-neutral-3 text-theme-neutral-8',
+  },
+  [BoardInvitationStatus.EXPIRED]: {
+    labelKey: 'settings.invitations.status.expired',
+    badgeClassName:
+      'border-theme-neutral-5 bg-theme-neutral-2 text-theme-neutral-7',
+  },
+} satisfies Record<BoardInvitationStatus, InvitationStatusConfig>;
+
+export const getInvitationStatusConfig = (
+  status: BoardInvitationStatus | string | null | undefined
+): InvitationStatusConfig | null => {
+  const normalizedStatus = status?.toUpperCase() as
+    | BoardInvitationStatus
+    | undefined;
+  return normalizedStatus ? INVITATION_STATUS_DATA[normalizedStatus] : null;
+};
+
+export const getInvitationStatusLabelKey = (
+  status: BoardInvitationStatus | string | null | undefined
+): string => {
+  return (
+    getInvitationStatusConfig(status)?.labelKey ??
+    'settings.invitations.status.unknown'
+  );
+};
+
+export const renderInvitationStatusBadge = (
+  status: BoardInvitationStatus | string | null | undefined,
+  t: TFunction
+): React.ReactNode => {
+  const config = getInvitationStatusConfig(status);
+
+  return React.createElement(
+    'span',
+    {
+      className: cn(
+        'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold',
+        config?.badgeClassName ??
+          'border-theme-neutral-5 bg-theme-neutral-2 text-theme-neutral-8'
+      ),
+    },
+    t(config?.labelKey ?? 'settings.invitations.status.unknown')
   );
 };
 
