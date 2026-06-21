@@ -11,6 +11,8 @@ const vi = {
     submit: 'Lưu',
     search: 'Tìm kiếm',
     reset: 'Đặt lại',
+    retry: 'Thử lại',
+    unknown: 'Không xác định',
     of: 'trên',
     rowsPerPage: 'Số hàng mỗi trang',
     filterHint: 'Thu gọn danh sách bằng các bộ lọc phù hợp trước khi thao tác.',
@@ -220,6 +222,54 @@ const vi = {
         deleteContent: 'Bạn có chắc chắn muốn xóa thành viên này không?',
       },
     },
+    invitations: {
+      heading: 'Lời mời đang gửi',
+      hint: 'Theo dõi lời mời vào dự án, trạng thái phản hồi và thời hạn hiệu lực.',
+      searchTitle: 'Lọc lời mời',
+      statusFilterPlaceholder: 'Lọc theo trạng thái',
+      form: {
+        title: 'Mời thành viên',
+        description:
+          'Gửi email mời cộng tác viên tham gia board với vai trò phù hợp.',
+        emailLabel: 'Email người nhận',
+        emailPlaceholder: 'member@example.com',
+        roleLabel: 'Vai trò',
+        submit: 'Gửi lời mời',
+      },
+      table: {
+        email: 'Email',
+        role: 'Vai trò',
+        status: 'Trạng thái',
+        invitedBy: 'Người mời',
+        expiresAt: 'Hết hạn',
+        createdAt: 'Ngày gửi',
+        empty: 'Chưa có lời mời nào.',
+        error: 'Không tải được danh sách lời mời.',
+        revoke: 'Thu hồi lời mời',
+      },
+      status: {
+        pending: 'Đang chờ',
+        accepted: 'Đã chấp nhận',
+        declined: 'Đã từ chối',
+        revoked: 'Đã thu hồi',
+        expired: 'Đã hết hạn',
+        unknown: 'Không xác định',
+      },
+      validation: {
+        roleRequired: 'Vui lòng chọn vai trò.',
+      },
+      revokeModal: {
+        title: 'Thu hồi lời mời',
+        content: 'Bạn có chắc chắn muốn thu hồi lời mời tới {{email}}?',
+        okText: 'Thu hồi',
+      },
+      toast: {
+        created: 'Đã gửi lời mời.',
+        revoked: 'Đã thu hồi lời mời.',
+        accepted: 'Đã chấp nhận lời mời.',
+        declined: 'Đã từ chối lời mời.',
+      },
+    },
     issueTypes: {
       heading: 'Quản lý loại công việc',
       hint: 'Cấu hình danh mục công việc và template cho quy trình làm việc.',
@@ -322,6 +372,14 @@ const vi = {
     empty: {
       title: 'Chưa có board nào',
       description: 'Bạn chưa có board nào. Hãy tạo một board để bắt đầu!',
+    },
+    invitations: {
+      bannerTitle: 'Lời mời đang chờ',
+      bannerHint_one: 'Bạn có {{count}} lời mời tham gia board đang chờ.',
+      bannerHint_other: 'Bạn có {{count}} lời mời tham gia board đang chờ.',
+      bannerHint: 'Bạn có {{count}} lời mời tham gia board đang chờ.',
+      invitedBy: 'Được mời bởi {{name}}',
+      viewAction: 'Xem',
     },
     boardCard: {
       noDescription: 'Không có mô tả',
@@ -504,6 +562,28 @@ const vi = {
       loading: 'Đang xác minh tài khoản...',
     },
     author: 'Tác giả: TrungHieuDev',
+  },
+  invitation: {
+    pageLabel: 'Lời mời dự án',
+    loading: 'Đang tải lời mời...',
+    loadErrorTitle: 'Không tìm thấy lời mời',
+    loadErrorDescription:
+      'Lời mời có thể đã bị thu hồi, hết hạn hoặc đường dẫn không chính xác.',
+    description: 'Bạn được mời tham gia board mã {{boardCode}}.',
+    emailLabel: 'Email nhận lời mời',
+    roleLabel: 'Vai trò',
+    invitedByLabel: 'Người mời',
+    expiresAtLabel: 'Hết hạn',
+    authenticatedAs: 'Bạn đang đăng nhập bằng {{email}}.',
+    emailMismatchHint:
+      'Lời mời này được gửi tới {{email}}. Hãy đăng nhập bằng đúng email đó để tiếp tục.',
+    unauthenticatedHint:
+      'Đăng nhập bằng email được mời để chấp nhận hoặc từ chối lời mời này.',
+    accept: 'Chấp nhận',
+    decline: 'Từ chối',
+    signIn: 'Đăng nhập',
+    createAccount: 'Tạo tài khoản',
+    goDashboard: 'Về Dashboard',
   },
   notFound: {
     title: '404',

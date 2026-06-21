@@ -6,6 +6,7 @@ import { Plus, LayoutDashboard, RefreshCw } from 'lucide-react';
 import { useDashboard } from '@/hooks/use-dashboard';
 import BoardList from '@/components/dashboard/BoardList';
 import CreateBoardDialog from '@/components/dashboard/CreateBoardDialog';
+import MyInvitationsBanner from '@/components/shared/invitations/MyInvitationsBanner';
 import { Button } from '@/components/ui/button';
 import type { CreateBoardFormData } from '@/validation/create-board-form-schemas';
 
@@ -53,6 +54,9 @@ export default function DashboardPage() {
           {t('dashboard.addNewProject')}
         </Button>
       </div>
+
+      {/* Pending Invitations Banner */}
+      <MyInvitationsBanner />
 
       {/* Content */}
       {isLoading && (

@@ -11,6 +11,8 @@ const en = {
     submit: 'Submit',
     search: 'Search',
     reset: 'Reset',
+    retry: 'Retry',
+    unknown: 'Unknown',
     of: 'of',
     rowsPerPage: 'Rows per page',
     filterHint:
@@ -226,6 +228,54 @@ const en = {
         deleteContent: 'Are you sure you want to delete this member?',
       },
     },
+    invitations: {
+      heading: 'Sent invitations',
+      hint: 'Track project invitations, response status, and expiration windows.',
+      searchTitle: 'Filter invitations',
+      statusFilterPlaceholder: 'Filter by status',
+      form: {
+        title: 'Invite member',
+        description:
+          'Send an email invitation and assign the collaborator a board role.',
+        emailLabel: 'Recipient email',
+        emailPlaceholder: 'member@example.com',
+        roleLabel: 'Role',
+        submit: 'Send invitation',
+      },
+      table: {
+        email: 'Email',
+        role: 'Role',
+        status: 'Status',
+        invitedBy: 'Invited by',
+        expiresAt: 'Expires at',
+        createdAt: 'Sent at',
+        empty: 'No invitations found.',
+        error: 'Could not load invitations.',
+        revoke: 'Revoke invitation',
+      },
+      status: {
+        pending: 'Pending',
+        accepted: 'Accepted',
+        declined: 'Declined',
+        revoked: 'Revoked',
+        expired: 'Expired',
+        unknown: 'Unknown',
+      },
+      validation: {
+        roleRequired: 'Please select a role.',
+      },
+      revokeModal: {
+        title: 'Revoke invitation',
+        content: 'Are you sure you want to revoke the invitation to {{email}}?',
+        okText: 'Revoke',
+      },
+      toast: {
+        created: 'Invitation sent.',
+        revoked: 'Invitation revoked.',
+        accepted: 'Invitation accepted.',
+        declined: 'Invitation declined.',
+      },
+    },
     issueTypes: {
       heading: 'Issue Type Management',
       hint: 'Configure issue categories and templates for your workflow.',
@@ -329,6 +379,14 @@ const en = {
     empty: {
       title: 'No boards yet',
       description: "You don't have any boards yet. Create one to get started!",
+    },
+    invitations: {
+      bannerTitle: 'Pending invitations',
+      bannerHint_one: 'You have {{count}} pending board invitation.',
+      bannerHint_other: 'You have {{count}} pending board invitations.',
+      bannerHint: 'You have {{count}} pending board invitation(s).',
+      invitedBy: 'Invited by {{name}}',
+      viewAction: 'View',
     },
     boardCard: {
       noDescription: 'No description',
@@ -511,6 +569,28 @@ const en = {
       loading: 'Verifying your account...',
     },
     author: 'Author: TrungHieuDev',
+  },
+  invitation: {
+    pageLabel: 'Project invitation',
+    loading: 'Loading invitation...',
+    loadErrorTitle: 'Invitation not found',
+    loadErrorDescription:
+      'This invitation may have been revoked, expired, or opened from an invalid link.',
+    description: 'You have been invited to join board {{boardCode}}.',
+    emailLabel: 'Invited email',
+    roleLabel: 'Role',
+    invitedByLabel: 'Invited by',
+    expiresAtLabel: 'Expires at',
+    authenticatedAs: 'You are signed in as {{email}}.',
+    emailMismatchHint:
+      'This invitation was sent to {{email}}. Sign in with that email to continue.',
+    unauthenticatedHint:
+      'Sign in with the invited email to accept or decline this invitation.',
+    accept: 'Accept',
+    decline: 'Decline',
+    signIn: 'Sign in',
+    createAccount: 'Create account',
+    goDashboard: 'Go to Dashboard',
   },
   notFound: {
     title: '404',

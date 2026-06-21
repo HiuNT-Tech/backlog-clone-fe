@@ -5,7 +5,12 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 
-const PUBLIC_ROUTES = ['/login', '/register', '/account/verification'];
+const PUBLIC_ROUTES = [
+  '/login',
+  '/register',
+  '/account/verification',
+  '/invitations',
+];
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.some(

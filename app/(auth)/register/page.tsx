@@ -1,6 +1,8 @@
 'use client';
 
+import { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -21,17 +23,33 @@ interface RegisterFormData extends RegisterUserRequest {
 
 type FormData = z.infer<typeof registerFormSchema>;
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const invitationEmail = searchParams.get('email');
+  const invitationToken = searchParams.get('invitationToken');
+  const redirect = searchParams.get('redirect');
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      email: invitationEmail ?? '',
+      password: '',
+      passwordConfirmation: '',
+    },
   });
+
+  useEffect(() => {
+    if (invitationEmail) {
+      setValue('email', invitationEmail, { shouldValidate: true });
+    }
+  }, [invitationEmail, setValue]);
 
   const getFieldError = (field: keyof FormData): string | undefined => {
     return errors[field]?.message;
@@ -48,7 +66,18 @@ export default function RegisterPage() {
         description: t('auth.register.pending'),
       });
 
-      router.push(`/login?registeredEmail=${response.email}`);
+      const loginParams = new URLSearchParams({
+        registeredEmail: response.email,
+      });
+      const nextRedirect =
+        redirect ??
+        (invitationToken ? `/invitations/${invitationToken}` : undefined);
+
+      if (nextRedirect) {
+        loginParams.set('redirect', nextRedirect);
+      }
+
+      router.push(`/login?${loginParams.toString()}`);
     } catch (error) {
       console.error('Register error:', error);
     }
@@ -97,6 +126,7 @@ export default function RegisterPage() {
             {...register('email', {
               setValueAs: (value: string) => value?.trim() || '',
             })}
+            readOnly={!!invitationEmail}
             disabled={isSubmitting}
           />
 
@@ -134,7 +164,11 @@ export default function RegisterPage() {
         <div className="mt-4 text-center text-sm">
           <p className="text-gray-600">{t('auth.register.hasAccount')}</p>
           <Link
-            href="/login"
+            href={
+              redirect
+                ? `/login?redirect=${encodeURIComponent(redirect)}`
+                : '/login'
+            }
             className="text-theme-main hover:text-theme-hover font-medium"
           >
             {t('auth.register.loginLink')}
@@ -142,5 +176,23 @@ export default function RegisterPage() {
         </div>
       </div>
     </form>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mt-24 mx-4 p-6 bg-white rounded-lg shadow-xl animate-pulse">
+          <div className="h-10 w-10 mx-auto rounded-full bg-gray-200 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }
