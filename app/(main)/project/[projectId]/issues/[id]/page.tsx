@@ -3,7 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Pencil, Save, X } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 
 import { Button } from '@/components/ui/button';
 import { DetailSkeleton } from '@/components/ui/skeletons';
@@ -294,7 +295,14 @@ export default function IssueDetailPage() {
           onClick={handleBack}
           className="inline-flex items-center gap-2 text-sm text-theme-main hover:underline mb-6 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> {t('issueDetail.back')}
+          <Image
+            src={Icons.ArrowLeft}
+            alt=""
+            width={16}
+            height={16}
+            className="w-4 h-4"
+          />{' '}
+          {t('issueDetail.back')}
         </button>
         <div className="bg-white rounded-xl border border-theme-neutral-5/60 p-12 text-center">
           <p className="text-theme-neutral-8 text-lg">
@@ -319,7 +327,13 @@ export default function IssueDetailPage() {
               onClick={handleBack}
               className="text-theme-main hover:underline cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <Image
+                src={Icons.ArrowLeft}
+                alt=""
+                width={16}
+                height={16}
+                className="w-4 h-4"
+              />
             </button>
             {issueTypeInfo && (
               <StatusBadge
@@ -383,7 +397,13 @@ export default function IssueDetailPage() {
                   onClick={cancelEditMode}
                   disabled={isUpdating}
                 >
-                  <X className="w-3.5 h-3.5" />{' '}
+                  <Image
+                    src={Icons.X}
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="w-3.5 h-3.5"
+                  />{' '}
                   {t('issueDetail.cancel', 'Cancel')}
                 </Button>
                 <Button
@@ -393,7 +413,13 @@ export default function IssueDetailPage() {
                   onClick={handleSave}
                   disabled={isUpdating || !editFormData.title.trim()}
                 >
-                  <Save className="w-3.5 h-3.5" />
+                  <Image
+                    src={Icons.Save}
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="w-3.5 h-3.5"
+                  />
                   {isUpdating
                     ? t('common.loading', 'Saving...')
                     : t('issueDetail.save', 'Save')}
@@ -407,7 +433,14 @@ export default function IssueDetailPage() {
                 className="border-theme-neutral-5 text-theme-neutral-9 gap-1.5"
                 onClick={enterEditMode}
               >
-                <Pencil className="w-3.5 h-3.5" /> {t('issueDetail.edit')}
+                <Image
+                  src={Icons.Pencil}
+                  alt=""
+                  width={14}
+                  height={14}
+                  className="w-3.5 h-3.5"
+                />{' '}
+                {t('issueDetail.edit')}
               </Button>
             )}
           </div>

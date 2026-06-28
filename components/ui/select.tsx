@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { Select as AntdSelect } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 type NativeOnChange = React.ChangeEventHandler<HTMLSelectElement>;
@@ -121,10 +122,11 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
       mode,
       listHeight = 180,
       showSelectedCount = true,
-      clearAllLabel = 'Unselect',
+      clearAllLabel,
     },
     ref
   ) => {
+    const { t } = useTranslation();
     const isMultiple = mode === 'multiple';
     const [internalValue, setInternalValue] = useState(
       normalizeSelectValue(value ?? defaultValue, isMultiple)
@@ -206,6 +208,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     const selectValue = isMultiple
       ? (internalValue as string[])
       : (internalValue as string) || undefined;
+    const resolvedClearAllLabel = clearAllLabel ?? t('common.unselect');
 
     return (
       <div className="space-y-1">
@@ -227,7 +230,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
                   disabled={disabled}
                   className="cursor-pointer text-sm font-medium text-theme-main transition-colors hover:text-theme-hover disabled:cursor-not-allowed disabled:text-theme-neutral-6"
                 >
-                  {clearAllLabel}
+                  {resolvedClearAllLabel}
                 </button>
               </>
             )}
@@ -271,7 +274,9 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             maxTagPlaceholder={omittedValues =>
               omittedValues.length > 0 ? (
                 <span className="text-theme-neutral-7">
-                  {omittedValues.length} selected
+                  {t('common.selectedCount', {
+                    count: omittedValues.length,
+                  })}
                 </span>
               ) : null
             }

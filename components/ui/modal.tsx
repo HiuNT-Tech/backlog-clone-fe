@@ -3,12 +3,13 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title: ReactNode;
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | '3xl';
   isNoPadding?: boolean;
@@ -63,7 +64,13 @@ export function Modal({
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             >
-              <X className="h-5 w-5" />
+              <Image
+                src={Icons.X}
+                alt=""
+                width={20}
+                height={20}
+                className="h-5 w-5"
+              />
             </button>
           </div>
           <div className={`${isNoPadding ? 'p-0' : 'p-6'}`}>{children}</div>

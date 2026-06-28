@@ -3,13 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import {
-  CheckCircle2,
-  MailOpen,
-  X,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 
 import { Button } from '@/components/ui/button';
 import { BoardInvitationStatus } from '@/config/enum';
@@ -32,7 +27,14 @@ function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
     <div className="group relative flex items-center gap-4 rounded-lg border border-theme-neutral-4/80 bg-theme-neutral-1 px-4 py-3 shadow-sm transition-all duration-200 hover:border-theme-main-3 hover:shadow-md">
       {/* Icon */}
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-theme-main-1">
-        <MailOpen className="h-5 w-5 text-theme-main-6" />
+        <Image
+          src={Icons.MailOpen}
+          alt=""
+          width={20}
+          height={20}
+          className="h-5 w-5 text-theme-main-6"
+          style={{ filter: 'var(--theme-filter-main)' }}
+        />
       </div>
 
       {/* Content */}
@@ -69,7 +71,13 @@ function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
             className="h-8 text-xs"
             onClick={() => router.push(`/project/${invitation.boardId}/issues`)}
           >
-            <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+            <Image
+              src={Icons.CheckCircle2}
+              alt=""
+              width={14}
+              height={14}
+              className="mr-1.5 h-3.5 w-3.5"
+            />
             {t('dashboard.invitations.viewAction')}
           </Button>
         </div>
@@ -108,7 +116,14 @@ export default function MyInvitationsBanner() {
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-theme-main-2">
-            <MailOpen className="h-4 w-4 text-theme-main-7" />
+            <Image
+              src={Icons.MailOpen}
+              alt=""
+              width={16}
+              height={16}
+              className="h-4 w-4 text-theme-main-7"
+              style={{ filter: 'var(--theme-filter-main)' }}
+            />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-theme-neutral-11">
@@ -130,9 +145,21 @@ export default function MyInvitationsBanner() {
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
             {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
+              <Image
+                src={Icons.ChevronUp}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <Image
+                src={Icons.ChevronDown}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
             )}
           </button>
           <button
@@ -141,7 +168,13 @@ export default function MyInvitationsBanner() {
             className="rounded-md p-1.5 text-theme-neutral-7 transition-colors hover:bg-theme-neutral-3 hover:text-theme-neutral-10"
             aria-label="Dismiss"
           >
-            <X className="h-4 w-4" />
+            <Image
+              src={Icons.X}
+              alt=""
+              width={16}
+              height={16}
+              className="h-4 w-4"
+            />
           </button>
         </div>
       </div>

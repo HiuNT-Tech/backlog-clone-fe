@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { StateMessage } from './state-message';
 
 export interface MultiOptionsListOption {
   value: string;
@@ -39,13 +41,16 @@ export const MultiOptionsList: React.FC<MultiOptionsListProps> = ({
   options,
   value = [],
   onChange,
-  placeholder = 'Search...',
-  unselectLabel = 'Unselect',
+  placeholder,
+  unselectLabel,
   listHeight = 160,
   showSearch = true,
   className,
 }) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
+  const resolvedPlaceholder = placeholder ?? t('common.searchPlaceholder');
+  const resolvedUnselectLabel = unselectLabel ?? t('common.unselect');
 
   const filteredOptions = useMemo(() => {
     if (!search.trim()) return options;
@@ -90,7 +95,7 @@ export const MultiOptionsList: React.FC<MultiOptionsListProps> = ({
               onClick={handleUnselectAll}
               className="cursor-pointer text-sm font-medium text-theme-main transition-colors hover:text-theme-hover"
             >
-              {unselectLabel}
+              {resolvedUnselectLabel}
             </button>
           </>
         )}
@@ -117,7 +122,7 @@ export const MultiOptionsList: React.FC<MultiOptionsListProps> = ({
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             className="w-full rounded border border-theme-neutral-5 bg-theme-neutral-2 py-1.5 pl-7 pr-2 text-sm text-theme-neutral-11 outline-none placeholder:text-theme-neutral-6 focus:border-theme-main"
           />
         </div>
@@ -129,9 +134,10 @@ export const MultiOptionsList: React.FC<MultiOptionsListProps> = ({
         style={{ height: listHeight }}
       >
         {filteredOptions.length === 0 ? (
-          <div className="px-3 py-2 text-center text-sm text-theme-neutral-6">
-            No options
-          </div>
+          <StateMessage
+            i18nKey="common.noOptions"
+            className="px-3 py-2 text-center text-theme-neutral-6"
+          />
         ) : (
           filteredOptions.map(opt => {
             const isSelected = value.includes(opt.value);

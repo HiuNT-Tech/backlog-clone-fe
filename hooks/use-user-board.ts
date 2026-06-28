@@ -1,12 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
+import { toastHelpers } from '@/hooks/use-toast';
 import {
+  BoardMemberRole,
   EntityId,
   UsersBoardParams,
   UsersBoardResponse,
 } from '@/config/interface';
 
 export const useUserBoard = (boardId?: EntityId, params?: UsersBoardParams) => {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
   const {
     data = { items: [], total: 0 },
     isLoading,
@@ -19,10 +25,35 @@ export const useUserBoard = (boardId?: EntityId, params?: UsersBoardParams) => {
     enabled: !!boardId,
   });
 
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({
+      userId,
+      role,
+    }: {
+      userId: EntityId;
+      role: BoardMemberRole;
+    }) => await BoardService.updateMemberRole(boardId!, userId, role),
+    onSuccess: () => {
+      toastHelpers.success({
+        title: t('settings.members.editRoleModal.success'),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'board', boardId],
+      });
+    },
+    onError: () => {
+      toastHelpers.error({
+        title: t('settings.members.editRoleModal.error'),
+      });
+    },
+  });
+
   return {
     listUser: data,
     isLoading,
     listError,
     refetchList,
+    updateMemberRole: updateRoleMutation.mutateAsync,
+    isUpdateRolePending: updateRoleMutation.isPending,
   };
 };

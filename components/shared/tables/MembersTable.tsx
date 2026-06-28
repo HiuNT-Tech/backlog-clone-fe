@@ -3,7 +3,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Avatar } from '@/components/ui/avatar';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { renderMemberRoleBadge } from '@/constant/data';
 import Images from '@/assets';
@@ -24,6 +23,7 @@ export interface MembersTableProps {
   limit: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
+  onEditRole?: (member: UserBoardMember) => void;
 }
 
 export const MembersTable: React.FC<MembersTableProps> = ({
@@ -36,6 +36,7 @@ export const MembersTable: React.FC<MembersTableProps> = ({
   limit,
   onPageChange,
   onPageSizeChange,
+  onEditRole,
 }) => {
   const { t } = useTranslation();
 
@@ -96,6 +97,11 @@ export const MembersTable: React.FC<MembersTableProps> = ({
       dataSource={listUser?.items ?? []}
       emptyText={t('settings.members.table.empty')}
       actions={[
+        {
+          icon: Images.IconEdit,
+          title: t('settings.members.table.editRole'),
+          onClick: record => onEditRole?.(record),
+        },
         {
           icon: Images.IconTrash,
           title: t('settings.members.table.delete'),

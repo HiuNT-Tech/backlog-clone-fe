@@ -3,23 +3,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import {
-  Check,
-  Hash,
-  Info,
-  LockKeyhole,
-  MessageSquare,
-  MoreHorizontal,
-  Paperclip,
-  Phone,
-  Plus,
-  Search,
-  SendHorizontal,
-  Smile,
-  UserRoundPlus,
-  Users,
-  Video,
-} from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -238,14 +223,38 @@ const AvatarBadge = ({
 
 const ConversationIcon = ({ conversation }: { conversation: Conversation }) => {
   if (conversation.type === 'direct') {
-    return <LockKeyhole className="h-4 w-4 text-theme-neutral-7" />;
+    return (
+      <Image
+        src={Icons.LockKeyhole}
+        alt=""
+        width={16}
+        height={16}
+        className="h-4 w-4 text-theme-neutral-7"
+      />
+    );
   }
 
   if (conversation.type === 'channel') {
-    return <Hash className="h-4 w-4 text-theme-neutral-7" />;
+    return (
+      <Image
+        src={Icons.Hash}
+        alt=""
+        width={16}
+        height={16}
+        className="h-4 w-4 text-theme-neutral-7"
+      />
+    );
   }
 
-  return <Users className="h-4 w-4 text-theme-neutral-7" />;
+  return (
+    <Image
+      src={Icons.Users}
+      alt=""
+      width={16}
+      height={16}
+      className="h-4 w-4 text-theme-neutral-7"
+    />
+  );
 };
 
 export function ProjectChatClient() {
@@ -494,7 +503,14 @@ export function ProjectChatClient() {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-theme-neutral-3/40 px-6">
         <div className="max-w-md rounded-lg border border-theme-neutral-4 bg-white p-6 text-center shadow-sm">
-          <MessageSquare className="mx-auto h-9 w-9 text-theme-main" />
+          <Image
+            src={Icons.MessageSquare}
+            alt=""
+            width={36}
+            height={36}
+            className="mx-auto h-9 w-9 text-theme-main"
+            style={{ filter: 'var(--theme-filter-main)' }}
+          />
           <h1 className="mt-4 text-xl font-semibold text-theme-neutral-11">
             {t('chat.noBoardTitle')}
           </h1>
@@ -512,7 +528,13 @@ export function ProjectChatClient() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-theme-main text-white">
-              <MessageSquare className="h-5 w-5" />
+              <Image
+                src={Icons.MessageSquare}
+                alt=""
+                width={20}
+                height={20}
+                className="h-5 w-5"
+              />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-xl font-semibold text-theme-neutral-11">
@@ -532,7 +554,13 @@ export function ProjectChatClient() {
               variant="outline"
               className="gap-2 border-theme-neutral-5 bg-white"
             >
-              <Phone className="h-4 w-4" />
+              <Image
+                src={Icons.Phone}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
               {t('chat.call')}
             </Button>
             <Button
@@ -540,7 +568,13 @@ export function ProjectChatClient() {
               variant="outline"
               className="gap-2 border-theme-neutral-5 bg-white"
             >
-              <Video className="h-4 w-4" />
+              <Image
+                src={Icons.Video}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
               {t('chat.meet')}
             </Button>
             <Button
@@ -548,7 +582,14 @@ export function ProjectChatClient() {
               className="gap-2 bg-theme-main text-white hover:bg-theme-hover"
               onClick={() => setIsCreateOpen(true)}
             >
-              <Plus className="h-4 w-4" />
+              <Image
+                src={Icons.Plus}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
               {t('chat.newGroup')}
             </Button>
           </div>
@@ -559,7 +600,13 @@ export function ProjectChatClient() {
         <aside className="min-h-0 border-b border-theme-neutral-4 bg-white xl:border-b-0 xl:border-r">
           <div className="border-b border-theme-neutral-4 px-4 py-4">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-theme-neutral-7" />
+              <Image
+                src={Icons.Search}
+                alt=""
+                width={16}
+                height={16}
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-theme-neutral-7"
+              />
               <Input
                 value={conversationSearch}
                 onChange={event => setConversationSearch(event.target.value)}
@@ -579,7 +626,13 @@ export function ProjectChatClient() {
                 className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-theme-neutral-7 hover:bg-theme-neutral-3 hover:text-theme-neutral-10"
                 onClick={() => setIsCreateOpen(true)}
               >
-                <UserRoundPlus className="h-4 w-4" />
+                <Image
+                  src={Icons.UserRoundPlus}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="h-4 w-4"
+                />
               </button>
             </div>
 
@@ -667,7 +720,13 @@ export function ProjectChatClient() {
                       size="icon"
                       className="border-theme-neutral-5 bg-white text-theme-neutral-8"
                     >
-                      <Search className="h-4 w-4" />
+                      <Image
+                        src={Icons.Search}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="h-4 w-4"
+                      />
                     </Button>
                     <Button
                       type="button"
@@ -675,7 +734,13 @@ export function ProjectChatClient() {
                       size="icon"
                       className="border-theme-neutral-5 bg-white text-theme-neutral-8"
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <Image
+                        src={Icons.MoreHorizontal}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="h-4 w-4"
+                      />
                     </Button>
                   </div>
                 </div>
@@ -761,13 +826,25 @@ export function ProjectChatClient() {
                         type="button"
                         className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md hover:bg-white hover:text-theme-neutral-11"
                       >
-                        <Paperclip className="h-4 w-4" />
+                        <Image
+                          src={Icons.Paperclip}
+                          alt=""
+                          width={16}
+                          height={16}
+                          className="h-4 w-4"
+                        />
                       </button>
                       <button
                         type="button"
                         className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md hover:bg-white hover:text-theme-neutral-11"
                       >
-                        <Smile className="h-4 w-4" />
+                        <Image
+                          src={Icons.Smile}
+                          alt=""
+                          width={16}
+                          height={16}
+                          className="h-4 w-4"
+                        />
                       </button>
                     </div>
 
@@ -778,7 +855,14 @@ export function ProjectChatClient() {
                       disabled={!messageDraft.trim()}
                       onClick={handleSendMessage}
                     >
-                      <SendHorizontal className="h-4 w-4" />
+                      <Image
+                        src={Icons.SendHorizontal}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="h-4 w-4"
+                        style={{ filter: 'brightness(0) invert(1)' }}
+                      />
                       {t('chat.send')}
                     </Button>
                   </div>
@@ -799,13 +883,25 @@ export function ProjectChatClient() {
                   {t('chat.peopleHint')}
                 </p>
               </div>
-              <Info className="h-4 w-4 text-theme-neutral-7" />
+              <Image
+                src={Icons.Info}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4 text-theme-neutral-7"
+              />
             </div>
           </div>
 
           <div className="max-h-[360px] overflow-y-auto px-4 py-4 xl:max-h-none">
             <div className="mb-4 flex items-center gap-2 rounded-lg bg-theme-neutral-2 px-3 py-2">
-              <Users className="h-4 w-4 text-theme-neutral-7" />
+              <Image
+                src={Icons.Users}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4 text-theme-neutral-7"
+              />
               <span className="text-sm text-theme-neutral-8">
                 {t('chat.memberCount', { count: members.length })}
               </span>
@@ -879,7 +975,13 @@ export function ProjectChatClient() {
                 {t('chat.members')}
               </label>
               <div className="relative mt-2">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-theme-neutral-7" />
+                <Image
+                  src={Icons.Search}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-theme-neutral-7"
+                />
                 <Input
                   value={memberSearch}
                   onChange={event => setMemberSearch(event.target.value)}
@@ -923,7 +1025,15 @@ export function ProjectChatClient() {
                               : 'border-theme-neutral-5 bg-white'
                           )}
                         >
-                          {isSelected && <Check className="h-3.5 w-3.5" />}
+                          {isSelected && (
+                            <Image
+                              src={Icons.Check}
+                              alt=""
+                              width={14}
+                              height={14}
+                              className="h-3.5 w-3.5"
+                            />
+                          )}
                         </span>
                       </button>
                     );
