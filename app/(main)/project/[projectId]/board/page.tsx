@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import BoardContent from '@/components/boards/BoardContent/BoardContent';
+import { StateMessage } from '@/components/ui/state-message';
+import type { BoardFilterValue } from '@/components/boards/BoardContent/BoardFilters';
 import { cloneDeep } from 'lodash';
 import {
   fetchBoardDetailsAPI,
@@ -12,6 +14,7 @@ import {
 import type { AppDispatch } from '@/redux/store';
 import type {
   Board,
+  BoardDetailParams,
   Column as ColumnType,
   Card,
   EntityId,
@@ -19,6 +22,22 @@ import type {
 import { useBoard } from '@/hooks/use-board';
 import { useParams } from 'next/navigation';
 import { toPositionPayload, withSequentialPositions } from '@/utils/sorts';
+
+const EMPTY_BOARD_FILTERS: BoardFilterValue = {
+  issueTypeId: '',
+  assigneeUserId: '',
+};
+
+const toPositiveId = (value: string): EntityId | undefined => {
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : undefined;
+};
+
+const countBoardCards = (board: Board): number =>
+  board.columns.reduce(
+    (total, column) => total + (column.cards?.length ?? 0),
+    0
+  );
 
 function BoardPageContent() {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,16 +52,51 @@ function BoardPageContent() {
     moveCardToDifferentColumn: moveCardToDifferentColumnAPI,
   } = useBoard(board?.id);
 
+  const [filters, setFilters] = useState<BoardFilterValue>(EMPTY_BOARD_FILTERS);
+  const [totalCards, setTotalCards] = useState(0);
+
+  // Build the query params sent to the API for server-side filtering
+  const boardDetailParams = useMemo<BoardDetailParams>(() => {
+    const nextParams: BoardDetailParams = {};
+    const issueTypeId = toPositiveId(filters.issueTypeId);
+    const assigneeUserId = toPositiveId(filters.assigneeUserId);
+
+    if (issueTypeId) nextParams.issueTypeId = issueTypeId;
+    if (assigneeUserId) nextParams.assigneeUserId = assigneeUserId;
+
+    return nextParams;
+  }, [filters.issueTypeId, filters.assigneeUserId]);
+
+  // Refetch the board whenever the board or filters change so the BE returns
+  // the already-filtered cards instead of filtering on the client.
   useEffect(() => {
     if (!boardId) return;
-    dispatch(fetchBoardDetailsAPI(parseInt(boardId)));
-  }, [dispatch, boardId]);
+
+    const hasActiveFilter = Object.keys(boardDetailParams).length > 0;
+    const promise = dispatch(
+      fetchBoardDetailsAPI({
+        boardId: parseInt(boardId),
+        params: boardDetailParams,
+      })
+    );
+
+    // Capture the unfiltered total so the "visible / total" badge stays accurate
+    if (!hasActiveFilter) {
+      promise
+        .unwrap()
+        .then(result => setTotalCards(countBoardCards(result)))
+        .catch(() => {});
+    }
+  }, [dispatch, boardId, boardDetailParams]);
 
   if (!board) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
-        <div className="text-theme-neutral-1 text-lg">Loading board...</div>
-      </div>
+      <StateMessage
+        variant="block"
+        spinner
+        i18nKey="board.loading"
+        className="h-[calc(100vh-8rem)] py-0 text-lg text-theme-neutral-1"
+      />
     );
   }
 
@@ -105,6 +159,9 @@ function BoardPageContent() {
   return (
     <BoardContent
       board={board}
+      filters={filters}
+      onFiltersChange={setFilters}
+      totalCards={totalCards}
       moveColumns={moveColumns}
       moveCardInTheSameColumn={moveCardInTheSameColumn}
       moveCardToDifferentColumn={moveCardToDifferentColumn}
@@ -116,9 +173,12 @@ function BoardPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
-          <div className="text-theme-neutral-1 text-lg">Loading board...</div>
-        </div>
+        <StateMessage
+          variant="block"
+          spinner
+          i18nKey="board.loading"
+          className="h-[calc(100vh-8rem)] py-0 text-lg text-theme-neutral-1"
+        />
       }
     >
       <BoardPageContent />

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { StateMessage } from '@/components/ui/state-message';
 import { renderStatusBadge, getIssueTypeBadgeClassName } from '@/constant/data';
 import type { ColorStatusKey } from '@/constant/data';
 import { useIssueType } from '@/hooks/use-issue-type';
@@ -133,13 +134,17 @@ export const IssueTypeCreateForm: React.FC<IssueTypeCreateFormProps> = ({
           </p>
           <div className="flex flex-wrap gap-2">
             {isLoading ? (
-              <p className="text-xs text-theme-neutral-8">
-                {t('common.loading')}
-              </p>
+              <StateMessage
+                as="p"
+                i18nKey="common.loading"
+                className="text-xs text-theme-neutral-8"
+              />
             ) : issueTypes.length === 0 ? (
-              <p className="text-xs text-theme-neutral-8">
-                {t('settings.issueTypes.table.empty')}
-              </p>
+              <StateMessage
+                as="p"
+                i18nKey="settings.issueTypes.table.empty"
+                className="text-xs text-theme-neutral-8"
+              />
             ) : (
               issueTypes.map(type => (
                 <span

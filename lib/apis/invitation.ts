@@ -6,6 +6,7 @@ import type {
   EntityId,
   InvitationListParams,
   InvitationListResponse,
+  MyInvitationListResponse,
 } from '@/config/interface';
 
 export const InvitationService = {
@@ -38,6 +39,15 @@ export const InvitationService = {
     );
   },
 
+  resendBoardInvitation: async (
+    boardId: EntityId,
+    invitationId: EntityId
+  ): Promise<BoardInvitation> => {
+    return await sendPost(
+      `${API_ROOT}/v1/boards/${boardId}/invitations/${invitationId}/resend`
+    );
+  },
+
   getInvitationByToken: async (token: string): Promise<BoardInvitation> => {
     return await sendGet(`${API_ROOT}/v1/invitations/${token}`);
   },
@@ -50,7 +60,7 @@ export const InvitationService = {
     return await sendPost(`${API_ROOT}/v1/invitations/${token}/decline`);
   },
 
-  getMyInvitations: async (): Promise<InvitationListResponse> => {
+  getMyInvitations: async (): Promise<MyInvitationListResponse> => {
     return await sendGet(`${API_ROOT}/v1/me/invitations`);
   },
 };

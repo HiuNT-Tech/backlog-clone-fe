@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Paperclip, Pencil, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
+import { StateMessage } from '@/components/ui/state-message';
 import { format } from '@/constant/format';
 import { toastHelpers } from '@/hooks/use-toast';
 import { useComments } from '@/hooks/use-comment';
@@ -191,9 +193,10 @@ export const CommentList: React.FC<CommentListProps> = ({
       {isLoading ? (
         <div className="h-20 animate-pulse bg-theme-neutral-3 rounded-lg" />
       ) : comments.length === 0 ? (
-        <div className="bg-white rounded-lg border border-theme-neutral-5/60 p-6 text-center text-sm text-theme-neutral-7">
-          {t('issueDetail.comments.empty')}
-        </div>
+        <StateMessage
+          i18nKey="issueDetail.comments.empty"
+          className="bg-white rounded-lg border border-theme-neutral-5/60 p-6 text-center text-sm text-theme-neutral-7"
+        />
       ) : (
         <div className="space-y-3">
           {comments.map(comment => (
@@ -269,7 +272,13 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
       {/* Collapsed bar */}
       {!isEditing && (
         <div className="px-6 py-3 flex items-center gap-3">
-          <Paperclip className="w-4 h-4 text-theme-neutral-7 shrink-0" />
+          <Image
+            src={Icons.Paperclip}
+            alt=""
+            width={16}
+            height={16}
+            className="w-4 h-4 text-theme-neutral-7 shrink-0"
+          />
           <div
             className="flex-1 border border-theme-neutral-5 rounded-md px-3 py-2 text-sm text-theme-neutral-7 cursor-text hover:border-theme-main transition-colors"
             onClick={() => setIsEditing(true)}
@@ -283,7 +292,14 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
             className="border-theme-neutral-5 text-theme-neutral-9 gap-1.5 shrink-0"
             onClick={() => setIsEditing(true)}
           >
-            <Pencil className="w-3.5 h-3.5" /> Change Status
+            <Image
+              src={Icons.Pencil}
+              alt=""
+              width={14}
+              height={14}
+              className="w-3.5 h-3.5"
+            />{' '}
+            Change Status
           </Button>
         </div>
       )}
@@ -301,7 +317,13 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   className="text-theme-neutral-5 hover:text-theme-neutral-8 cursor-pointer"
                   onClick={() => setIsEditing(false)}
                 >
-                  <ChevronDown className="w-4 h-4" />
+                  <Image
+                    src={Icons.ChevronDown}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="w-4 h-4"
+                  />
                 </button>
               </div>
 

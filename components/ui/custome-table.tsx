@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Pagination } from './pagination';
 import { useTranslation } from 'react-i18next';
+import { StateMessage } from './state-message';
 
 export interface TableColumn<T = any> {
   key: string;
@@ -53,8 +54,8 @@ export interface CustomTableProps<T = any> {
 
   // Loading and error states
   emptyText?: React.ReactNode;
-  loadingText?: string;
-  errorText?: string;
+  loadingText?: React.ReactNode;
+  errorText?: React.ReactNode;
   onRetry?: () => void;
 
   // Row props
@@ -77,45 +78,54 @@ export interface CustomTableProps<T = any> {
   }[];
 }
 
-const TableLoading: React.FC<{ text?: string }> = ({ text = 'Loading...' }) => (
-  <div className="flex flex-col items-center justify-center py-16">
-    <div className="w-8 h-8 border-2 border-gray-200 border-t-theme-main rounded-full animate-spin"></div>
-    <p className="mt-4 text-sm text-gray-500">{text}</p>
-  </div>
+const TableLoading: React.FC<{ text: React.ReactNode }> = ({ text }) => (
+  <StateMessage
+    variant="block"
+    spinner
+    className="py-16 text-gray-500"
+    textClassName="mt-1"
+  >
+    {text}
+  </StateMessage>
 );
 
-const TableLoadingOverlay: React.FC<{ text?: string }> = ({
-  text = 'Loading...',
-}) => (
+const TableLoadingOverlay: React.FC<{ text: React.ReactNode }> = ({ text }) => (
   <div className="absolute inset-0 bg-white opacity-50 flex flex-col items-center justify-center z-10">
-    <div className="w-8 h-8 border-2 border-gray-200 border-t-theme-main rounded-full animate-spin"></div>
-    <p className="mt-4 text-sm text-gray-500">{text}</p>
+    <StateMessage
+      variant="block"
+      spinner
+      className="py-0 text-gray-500"
+      textClassName="mt-1"
+    >
+      {text}
+    </StateMessage>
   </div>
 );
 
-const TableError: React.FC<{ text?: string; onRetry?: () => void }> = ({
-  text = 'Error loading data',
-  onRetry,
-}) => (
+const TableError: React.FC<{
+  text: React.ReactNode;
+  retryText: string;
+  onRetry?: () => void;
+}> = ({ text, retryText, onRetry }) => (
   <div className="flex flex-col items-center justify-center py-16">
-    <p className="text-sm text-red-500 mb-4">{text}</p>
+    <StateMessage as="p" tone="danger" className="mb-4">
+      {text}
+    </StateMessage>
     {onRetry && (
       <button
         onClick={onRetry}
         className="px-4 py-2 bg-theme-main text-white rounded-lg hover:bg-theme-hover transition-colors"
       >
-        Retry
+        {retryText}
       </button>
     )}
   </div>
 );
 
-const TableEmpty: React.FC<{ text?: React.ReactNode }> = ({
-  text = 'No data',
-}) => (
-  <div className="flex items-center justify-center py-16">
-    <p className="text-sm text-gray-500">{text}</p>
-  </div>
+const TableEmpty: React.FC<{ text: React.ReactNode }> = ({ text }) => (
+  <StateMessage variant="block" className="py-16 text-gray-500">
+    {text}
+  </StateMessage>
 );
 
 const IconButton = ({
@@ -168,8 +178,8 @@ const CustomTable = <T extends Record<string, any>>({
 
   pagination,
   emptyText,
-  loadingText = 'Loading...',
-  errorText = 'Error loading data',
+  loadingText,
+  errorText,
   onRetry,
   onRow,
   maxHeight,
@@ -177,6 +187,10 @@ const CustomTable = <T extends Record<string, any>>({
   actions,
 }: CustomTableProps<T>) => {
   const { t } = useTranslation();
+  const resolvedLoadingText = loadingText ?? t('common.loading');
+  const resolvedErrorText = errorText ?? t('common.errorLoadingData');
+  const resolvedEmptyText = emptyText ?? t('common.noMatchingResults');
+  const retryText = t('common.retry');
   const getRowKey = React.useCallback(
     (record: T, index: number): string => {
       if (typeof rowKey === 'function') {
@@ -360,21 +374,23 @@ const CustomTable = <T extends Record<string, any>>({
               {loading && dataSource.length === 0 ? (
                 <tr>
                   <td colSpan={flattenedColumns.length}>
-                    <TableLoading text={loadingText} />
+                    <TableLoading text={resolvedLoadingText} />
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
                   <td colSpan={flattenedColumns.length}>
-                    <TableError text={errorText} onRetry={onRetry} />
+                    <TableError
+                      text={resolvedErrorText}
+                      retryText={retryText}
+                      onRetry={onRetry}
+                    />
                   </td>
                 </tr>
               ) : dataSource.length === 0 ? (
                 <tr>
                   <td colSpan={flattenedColumns.length}>
-                    <TableEmpty
-                      text={emptyText || t('common.noMatchingResults')}
-                    />
+                    <TableEmpty text={resolvedEmptyText} />
                   </td>
                 </tr>
               ) : (
@@ -430,7 +446,7 @@ const CustomTable = <T extends Record<string, any>>({
             </tbody>
           </table>
           {loading && dataSource.length > 0 && (
-            <TableLoadingOverlay text={loadingText} />
+            <TableLoadingOverlay text={resolvedLoadingText} />
           )}
         </div>
 

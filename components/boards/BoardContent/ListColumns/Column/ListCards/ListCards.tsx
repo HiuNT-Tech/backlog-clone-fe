@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -14,7 +15,11 @@ interface ListCardsProps {
 }
 
 function ListCards({ cards, columnId }: ListCardsProps) {
-  const realCards = cards.filter(card => !card.FE_PlaceholderCard);
+  const realCards = useMemo(
+    () => cards.filter(card => !card.FE_PlaceholderCard),
+    [cards]
+  );
+  const cardIds = useMemo(() => realCards.map(c => c.id), [realCards]);
 
   // Use unique ID "cards-{columnId}" to avoid conflict with Column sortable ID
   const { setNodeRef } = useDroppable({
@@ -23,10 +28,7 @@ function ListCards({ cards, columnId }: ListCardsProps) {
   });
 
   return (
-    <SortableContext
-      items={realCards.map(c => c.id)}
-      strategy={verticalListSortingStrategy}
-    >
+    <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
       <div
         ref={setNodeRef}
         className="px-1.5 pb-1.5 mx-1.5 flex flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto max-h-[calc(100vh-10.8rem)]"
@@ -43,4 +45,4 @@ function ListCards({ cards, columnId }: ListCardsProps) {
   );
 }
 
-export default ListCards;
+export default memo(ListCards);

@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { Button } from './button';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -76,7 +77,7 @@ export function Pagination({
           <span className="font-medium text-theme-neutral-11">
             {startItem}-{endItem}
           </span>
-          <span className="mx-1">{t('common.of', 'of')}</span>
+          <span className="mx-1">{t('common.of')}</span>
           <span>{totalItems}</span>
         </div>
         <div className="h-5 w-px bg-theme-neutral-5" />
@@ -89,7 +90,13 @@ export function Pagination({
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <Image
+                src={Icons.ChevronLeft}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
             </Button>
 
             {getVisiblePages().map((page, index) => (
@@ -120,7 +127,13 @@ export function Pagination({
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              <ChevronRight className="h-4 w-4" />
+              <Image
+                src={Icons.ChevronRight}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
             </Button>
           </>
         )}
@@ -128,7 +141,7 @@ export function Pagination({
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 text-sm text-theme-neutral-8">
-          <span>{t('common.rowsPerPage', 'Rows per page')}</span>
+          <span>{t('common.rowsPerPage')}</span>
           <div className="relative">
             <button
               type="button"
@@ -136,7 +149,13 @@ export function Pagination({
               onClick={() => setShowPerPageDropdown(prev => !prev)}
             >
               <span className="font-medium">{itemsPerPage || 10}</span>
-              <ChevronDown className="h-4 w-4 text-theme-neutral-7" />
+              <Image
+                src={Icons.ChevronDown}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4 text-theme-neutral-7"
+              />
             </button>
             {showPerPageDropdown && (
               <div className="absolute bottom-full right-0 mb-2 w-28 overflow-hidden rounded-md border border-theme-neutral-5 bg-white shadow-lg z-50">

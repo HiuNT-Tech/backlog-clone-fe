@@ -1,41 +1,35 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Send } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import { Select, type SelectValue } from '@/components/ui/select';
 import { MemberRole } from '@/config/enum';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   invitationFormSchema,
   type InvitationFormData,
 } from '@/validation/invitation-form-schemas';
 
-interface InvitationCreateDialogProps {
+interface InvitationCreatePopupProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: InvitationFormData) => Promise<void>;
   isPending: boolean;
 }
 
-export default function InvitationCreateDialog({
+export default function InvitationCreatePopup({
   open,
   onOpenChange,
   onSubmit,
   isPending,
-}: InvitationCreateDialogProps) {
+}: InvitationCreatePopupProps) {
   const { t } = useTranslation();
 
   const {
@@ -43,7 +37,7 @@ export default function InvitationCreateDialog({
     handleSubmit,
     reset,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<InvitationFormData>({
     resolver: zodResolver(invitationFormSchema),
@@ -81,7 +75,10 @@ export default function InvitationCreateDialog({
     },
   ];
 
-  const selectedRole = watch('role');
+  const selectedRole = useWatch({
+    control,
+    name: 'role',
+  });
 
   const handleRoleChange = (value: SelectValue) => {
     setValue('role', value as InvitationFormData['role'], {
@@ -104,17 +101,28 @@ export default function InvitationCreateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={nextOpen => !nextOpen && handleClose()}>
-      <DialogContent className="bg-theme-neutral-1 sm:max-w-[520px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-theme-neutral-11">
-            <Mail className="h-5 w-5 text-theme-main" />
-            {t('settings.invitations.form.title')}
-          </DialogTitle>
-          <DialogDescription className="text-theme-neutral-8">
-            {t('settings.invitations.form.description')}
-          </DialogDescription>
-        </DialogHeader>
+    <Modal
+      isOpen={open}
+      onClose={handleClose}
+      size="md"
+      title={
+        <span className="flex items-center gap-2 text-theme-neutral-11">
+          <Image
+            src={Icons.Mail}
+            alt=""
+            width={20}
+            height={20}
+            className="h-5 w-5 text-theme-main"
+            style={{ filter: 'var(--theme-filter-main)' }}
+          />
+          {t('settings.invitations.form.title')}
+        </span>
+      }
+    >
+      <div className="space-y-5">
+        <p className="text-sm leading-5 text-theme-neutral-8">
+          {t('settings.invitations.form.description')}
+        </p>
 
         <form
           id="invitation-create-form"
@@ -144,7 +152,7 @@ export default function InvitationCreateDialog({
           />
         </form>
 
-        <DialogFooter>
+        <div className="flex justify-end gap-3 border-t border-theme-neutral-4 pt-4">
           <Button
             type="button"
             variant="outline"
@@ -159,13 +167,20 @@ export default function InvitationCreateDialog({
             variant="primary"
             disabled={isPending}
           >
-            <Send className="mr-2 h-4 w-4" />
+            <Image
+              src={Icons.Send}
+              alt=""
+              width={16}
+              height={16}
+              className="mr-2 h-4 w-4"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
             {isPending
               ? t('common.loading')
               : t('settings.invitations.form.submit')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </Modal>
   );
 }

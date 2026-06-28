@@ -1,7 +1,14 @@
-import { sendGet, sendPost, sendPut, sendDelete } from '@/utils/authorizeAxios';
+import {
+  sendGet,
+  sendPost,
+  sendPut,
+  sendPatch,
+  sendDelete,
+} from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
 import {
   Board,
+  BoardDetailParams,
   BoardListResponse,
   CreateBoardRequest,
   CreateNewColumnRequest,
@@ -21,8 +28,11 @@ export const BoardService = {
     return await sendGet(`${API_ROOT}/v1/boards`);
   },
 
-  getBoardById: async (boardId: EntityId): Promise<Board> => {
-    return await sendGet(`${API_ROOT}/v1/boards/${boardId}`);
+  getBoardById: async (
+    boardId: EntityId,
+    params?: BoardDetailParams
+  ): Promise<Board> => {
+    return await sendGet(`${API_ROOT}/v1/boards/${boardId}`, params);
   },
 
   createNewColumn: async (payload: CreateNewColumnRequest) => {
@@ -102,5 +112,16 @@ export const BoardService = {
     params?: UsersBoardParams
   ): Promise<UsersBoardResponse> => {
     return await sendGet(`${API_ROOT}/v1/boards/${boardId}/usersBoard`, params);
+  },
+
+  updateMemberRole: async (
+    boardId: EntityId,
+    userId: EntityId,
+    role: string
+  ): Promise<{ userId: EntityId; role: string }> => {
+    return await sendPatch(
+      `${API_ROOT}/v1/boards/${boardId}/members/${userId}`,
+      { role }
+    );
   },
 };

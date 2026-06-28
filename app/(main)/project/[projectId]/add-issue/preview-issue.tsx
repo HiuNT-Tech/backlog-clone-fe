@@ -1,6 +1,7 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -68,7 +69,13 @@ export const PreviewIssue: React.FC<PreviewIssueProps> = ({
               onClick={onBack}
               className="cursor-pointer text-theme-main hover:underline"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <Image
+                src={Icons.ArrowLeft}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
             </button>
             {issueTypeInfo && (
               <StatusBadge

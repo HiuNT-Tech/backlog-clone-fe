@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, LayoutDashboard, RefreshCw } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { useDashboard } from '@/hooks/use-dashboard';
 import BoardList from '@/components/dashboard/BoardList';
-import CreateBoardDialog from '@/components/dashboard/CreateBoardDialog';
+import CreateBoardDialog from '@/components/shared/popup/CreateBoardPopup';
 import MyInvitationsBanner from '@/components/shared/invitations/MyInvitationsBanner';
 import { Button } from '@/components/ui/button';
+import { StateMessage } from '@/components/ui/state-message';
 import type { CreateBoardFormData } from '@/validation/create-board-form-schemas';
 
 export default function DashboardPage() {
@@ -50,7 +52,14 @@ export default function DashboardPage() {
           size="md"
           onClick={() => setIsCreateDialogOpen(true)}
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Image
+            src={Icons.Plus}
+            alt=""
+            width={16}
+            height={16}
+            className="mr-2 h-4 w-4"
+            style={{ filter: 'brightness(0) invert(1)' }}
+          />
           {t('dashboard.addNewProject')}
         </Button>
       </div>
@@ -60,14 +69,12 @@ export default function DashboardPage() {
 
       {/* Content */}
       {isLoading && (
-        <div className="flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-theme-neutral-5 border-t-theme-main" />
-            <p className="text-sm text-theme-neutral-7">
-              {t('common.loading')}
-            </p>
-          </div>
-        </div>
+        <StateMessage
+          variant="block"
+          spinner
+          i18nKey="common.loading"
+          className="py-20"
+        />
       )}
 
       {boardListError && !isLoading && (
@@ -81,8 +88,14 @@ export default function DashboardPage() {
               size="sm"
               onClick={() => refetchBoardList()}
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Retry
+              <Image
+                src={Icons.RefreshCw}
+                alt=""
+                width={16}
+                height={16}
+                className="mr-2 h-4 w-4"
+              />
+              {t('common.retry')}
             </Button>
           </div>
         </div>
@@ -92,7 +105,14 @@ export default function DashboardPage() {
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-theme-main-1">
-              <LayoutDashboard className="h-8 w-8 text-theme-main-5" />
+              <Image
+                src={Icons.LayoutDashboard}
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 text-theme-main-5"
+                style={{ filter: 'var(--theme-filter-main)' }}
+              />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-theme-neutral-9">
@@ -107,7 +127,14 @@ export default function DashboardPage() {
               size="md"
               onClick={() => setIsCreateDialogOpen(true)}
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <Image
+                src={Icons.Plus}
+                alt=""
+                width={16}
+                height={16}
+                className="mr-2 h-4 w-4"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
               {t('dashboard.addNewProject')}
             </Button>
           </div>

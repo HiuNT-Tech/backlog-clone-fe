@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 import { format } from '@/constant/format';
 import type { Card, EntityId } from '@/config/interface';
@@ -205,9 +206,21 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = ({
           onClick={() => setMetaCollapsed(!metaCollapsed)}
         >
           {metaCollapsed ? (
-            <ChevronDown className="w-4 h-4" />
+            <Image
+              src={Icons.ChevronDown}
+              alt=""
+              width={16}
+              height={16}
+              className="w-4 h-4"
+            />
           ) : (
-            <ChevronUp className="w-4 h-4" />
+            <Image
+              src={Icons.ChevronUp}
+              alt=""
+              width={16}
+              height={16}
+              className="w-4 h-4"
+            />
           )}
         </button>
       </div>

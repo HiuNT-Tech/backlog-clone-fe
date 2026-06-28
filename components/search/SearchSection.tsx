@@ -35,14 +35,11 @@ export const SearchSection = ({
 }: SearchSectionConfig) => {
   const { t } = useTranslation();
 
-  const finalSearchButtonText =
-    searchButtonText || t('common.search', 'Search');
-  const finalResetButtonText = resetButtonText || t('common.reset', 'Reset');
-  const finalExpandButtonText =
-    expandButtonText || t('common.expand', 'Advanced Search');
-  const finalCollapseButtonText =
-    collapseButtonText || t('common.collapse', 'Hide Advanced Search');
-  const finalTitle = title || t('common.searchTitle', 'Search');
+  const finalSearchButtonText = searchButtonText || t('common.search');
+  const finalResetButtonText = resetButtonText || t('common.reset');
+  const finalExpandButtonText = expandButtonText || t('common.expand');
+  const finalCollapseButtonText = collapseButtonText || t('common.collapse');
+  const finalTitle = title || t('common.searchTitle');
   const {
     values,
     isExpanded,
@@ -101,8 +98,7 @@ export const SearchSection = ({
             showSearch={field.selectMulti ? true : field.props?.showSearch}
             clearAllLabel={
               field.selectMulti
-                ? (field.props?.clearAllLabel ??
-                  t('common.unselect', 'Unselect'))
+                ? (field.props?.clearAllLabel ?? t('common.unselect'))
                 : field.props?.clearAllLabel
             }
             onValueChange={(nextValue: SelectValue) => {
@@ -236,10 +232,7 @@ export const SearchSection = ({
               {finalTitle}
             </p>
             <p className="mt-1 text-sm text-theme-neutral-8">
-              {t(
-                'common.filterHint',
-                'Narrow the list with focused filters before running an action.'
-              )}
+              {t('common.filterHint')}
             </p>
           </div>
         </div>

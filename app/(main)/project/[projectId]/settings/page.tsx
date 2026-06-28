@@ -40,7 +40,7 @@ export default function SettingsPage() {
   // Fetch board context if not already loaded
   useEffect(() => {
     if (boardId && !currentActiveBoard) {
-      dispatch(fetchBoardDetailsAPI(boardId));
+      dispatch(fetchBoardDetailsAPI({ boardId }));
     }
   }, [dispatch, boardId, currentActiveBoard]);
 

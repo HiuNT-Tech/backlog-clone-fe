@@ -27,7 +27,9 @@ interface InvitationsTableProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
   onRevoke: (invitation: BoardInvitation) => void;
+  onResend: (invitation: BoardInvitation) => void;
   isActionPending?: boolean;
+  isResendPending?: boolean;
 }
 
 const formatDateTime = (value?: string | null) => {
@@ -45,7 +47,9 @@ export const InvitationsTable: React.FC<InvitationsTableProps> = ({
   onPageChange,
   onPageSizeChange,
   onRevoke,
+  onResend,
   isActionPending,
+  isResendPending,
 }) => {
   const { t } = useTranslation();
 
@@ -133,6 +137,15 @@ export const InvitationsTable: React.FC<InvitationsTableProps> = ({
       errorText={t('settings.invitations.table.error')}
       onRetry={refetch}
       actions={[
+        {
+          icon: Images.IconResend,
+          title: t('settings.invitations.table.resend'),
+          onClick: record => onResend(record),
+          disabled: isResendPending,
+          hidden: record =>
+            record.status !== BoardInvitationStatus.PENDING &&
+            record.status !== BoardInvitationStatus.EXPIRED,
+        },
         {
           icon: Images.IconTrash,
           title: t('settings.invitations.table.revoke'),

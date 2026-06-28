@@ -12,7 +12,15 @@ const en = {
     search: 'Search',
     reset: 'Reset',
     retry: 'Retry',
+    expand: 'Advanced Search',
+    collapse: 'Hide Advanced Search',
+    searchTitle: 'Search',
+    unselect: 'Unselect',
     unknown: 'Unknown',
+    errorLoadingData: 'Error loading data',
+    noMatchingResults: 'No matching results.',
+    noOptions: 'No options',
+    selectedCount: '{{count}} selected',
     of: 'of',
     rowsPerPage: 'Rows per page',
     filterHint:
@@ -107,6 +115,7 @@ const en = {
       milestonePlaceholder: 'Select milestone',
       assignee: 'Assignee',
       assigneePlaceholder: 'Select assignee',
+      assignedToMe: 'Assigned to me',
       startDate: 'Start Date',
       dueDate: 'Due Date',
       datePlaceholder: 'YYYY/MM/DD',
@@ -226,6 +235,15 @@ const en = {
         empty: 'No members found.',
         delete: 'Delete Member',
         deleteContent: 'Are you sure you want to delete this member?',
+        editRole: 'Edit role',
+      },
+      editRoleModal: {
+        title: 'Change member role',
+        description: 'Select a new role for this member.',
+        roleLabel: 'Role',
+        submit: 'Save',
+        success: 'Member role updated.',
+        error: 'Failed to update member role.',
       },
     },
     invitations: {
@@ -252,6 +270,7 @@ const en = {
         empty: 'No invitations found.',
         error: 'Could not load invitations.',
         revoke: 'Revoke invitation',
+        resend: 'Resend invitation',
       },
       status: {
         pending: 'Pending',
@@ -269,9 +288,15 @@ const en = {
         content: 'Are you sure you want to revoke the invitation to {{email}}?',
         okText: 'Revoke',
       },
+      resendModal: {
+        title: 'Resend invitation',
+        content: 'Resend the invitation email to {{email}}?',
+        okText: 'Resend',
+      },
       toast: {
         created: 'Invitation sent.',
         revoked: 'Invitation revoked.',
+        resent: 'Invitation resent.',
         accepted: 'Invitation accepted.',
         declined: 'Invitation declined.',
       },
@@ -387,6 +412,8 @@ const en = {
       bannerHint: 'You have {{count}} pending board invitation(s).',
       invitedBy: 'Invited by {{name}}',
       viewAction: 'View',
+      acceptAction: 'Accept',
+      declineAction: 'Decline',
     },
     boardCard: {
       noDescription: 'No description',
@@ -424,8 +451,18 @@ const en = {
       boardLoadFailed: 'Failed to load boards. Please try again.',
     },
   },
+  board: {
+    loading: 'Loading board...',
+  },
   column: {
     addNewColumn: 'Add new column',
+    assigneePicker: {
+      searchPlaceholder: 'Search members...',
+      unassign: 'Unassign',
+      empty: 'No members found.',
+      assignedTo: 'Assignee: {{name}}',
+      assign: 'Assign assignee',
+    },
     addNewCard: {
       popup: {
         title: 'Add new Card',

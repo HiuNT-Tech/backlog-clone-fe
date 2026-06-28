@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { StateMessage } from '@/components/ui/state-message';
 import { renderStatusBadge, getIssueTypeBadgeClassName } from '@/constant/data';
 import type { ColorStatusKey } from '@/constant/data';
 import { useColumn } from '@/hooks/use-column';
@@ -130,13 +131,17 @@ export const StatusCreateForm: React.FC<StatusCreateFormProps> = ({
           </p>
           <div className="flex flex-wrap gap-2">
             {isLoading ? (
-              <p className="text-xs text-theme-neutral-8">
-                {t('common.loading')}
-              </p>
+              <StateMessage
+                as="p"
+                i18nKey="common.loading"
+                className="text-xs text-theme-neutral-8"
+              />
             ) : columns?.length === 0 ? (
-              <p className="text-xs text-theme-neutral-8">
-                {t('settings.statuses.table.empty')}
-              </p>
+              <StateMessage
+                as="p"
+                i18nKey="settings.statuses.table.empty"
+                className="text-xs text-theme-neutral-8"
+              />
             ) : (
               columns?.map(column => (
                 <span

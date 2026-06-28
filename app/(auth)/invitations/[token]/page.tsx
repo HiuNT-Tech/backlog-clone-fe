@@ -2,14 +2,8 @@
 
 import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import {
-  CheckCircle2,
-  Clock,
-  LogIn,
-  RefreshCw,
-  UserPlus,
-  XCircle,
-} from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -99,7 +93,13 @@ export default function InvitationDetailPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 py-10">
         <div className="w-full max-w-xl rounded-xl border border-theme-neutral-4 bg-theme-neutral-1 p-8 text-center shadow-xl">
-          <XCircle className="mx-auto h-12 w-12 text-theme-neutral-7" />
+          <Image
+            src={Icons.XCircle}
+            alt=""
+            width={48}
+            height={48}
+            className="mx-auto h-12 w-12 text-theme-neutral-7"
+          />
           <h1 className="mt-4 text-2xl font-semibold text-theme-neutral-11">
             {t('invitation.loadErrorTitle')}
           </h1>
@@ -111,7 +111,13 @@ export default function InvitationDetailPage() {
             variant="primary"
             onClick={() => refetchInvitation()}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <Image
+              src={Icons.RefreshCw}
+              alt=""
+              width={16}
+              height={16}
+              className="mr-2 h-4 w-4"
+            />
             {t('common.retry')}
           </Button>
         </div>
@@ -125,7 +131,13 @@ export default function InvitationDetailPage() {
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-theme-main-2 bg-theme-main-1 px-3 py-1 text-xs font-semibold text-theme-main-6">
-              <Clock className="h-3.5 w-3.5" />
+              <Image
+                src={Icons.Clock}
+                alt=""
+                width={14}
+                height={14}
+                className="h-3.5 w-3.5"
+              />
               {t('invitation.pageLabel')}
             </div>
             <h1 className="mt-4 text-2xl font-semibold tracking-[-0.01em] text-theme-neutral-11">
@@ -207,7 +219,13 @@ export default function InvitationDetailPage() {
                   disabled={isActionPending}
                   onClick={handleDecline}
                 >
-                  <XCircle className="mr-2 h-4 w-4" />
+                  <Image
+                    src={Icons.XCircle}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="mr-2 h-4 w-4"
+                  />
                   {t('invitation.decline')}
                 </Button>
                 <Button
@@ -216,7 +234,14 @@ export default function InvitationDetailPage() {
                   disabled={isActionPending}
                   onClick={handleAccept}
                 >
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  <Image
+                    src={Icons.CheckCircle2}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="mr-2 h-4 w-4"
+                    style={{ filter: 'brightness(0) invert(1)' }}
+                  />
                   {isAcceptInvitationPending
                     ? t('common.loading')
                     : t('invitation.accept')}
@@ -229,7 +254,13 @@ export default function InvitationDetailPage() {
                   variant="outline"
                   onClick={() => router.push(registerHref)}
                 >
-                  <UserPlus className="mr-2 h-4 w-4" />
+                  <Image
+                    src={Icons.UserPlus}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="mr-2 h-4 w-4"
+                  />
                   {t('invitation.createAccount')}
                 </Button>
                 <Button
@@ -237,7 +268,14 @@ export default function InvitationDetailPage() {
                   variant="primary"
                   onClick={() => router.push(loginHref)}
                 >
-                  <LogIn className="mr-2 h-4 w-4" />
+                  <Image
+                    src={Icons.LogIn}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="mr-2 h-4 w-4"
+                    style={{ filter: 'brightness(0) invert(1)' }}
+                  />
                   {t('invitation.signIn')}
                 </Button>
               </>

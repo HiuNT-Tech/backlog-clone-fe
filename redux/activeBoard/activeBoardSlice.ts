@@ -5,18 +5,32 @@ import {
   ActionReducerMapBuilder,
 } from '@reduxjs/toolkit';
 import { sortByPosition } from '@/utils/sorts';
-import type { Board, ActiveBoardState, EntityId } from '@/config/interface';
+import type {
+  Board,
+  ActiveBoardState,
+  BoardDetailParams,
+  EntityId,
+} from '@/config/interface';
 import { BoardService } from '@/lib/apis/board';
 
 // Initial state with proper typing
 const initialState: ActiveBoardState = {
   currentActiveBoard: null,
 };
+
+export interface FetchBoardDetailsArg {
+  boardId: EntityId;
+  params?: BoardDetailParams;
+}
+
 // Async thunk for fetching board details
-export const fetchBoardDetailsAPI = createAsyncThunk<Board, EntityId>(
+export const fetchBoardDetailsAPI = createAsyncThunk<
+  Board,
+  FetchBoardDetailsArg
+>(
   'activeBoard/fetchBoardDetailsAPI',
-  async (boardId: EntityId) => {
-    return await BoardService.getBoardById(boardId);
+  async ({ boardId, params }: FetchBoardDetailsArg) => {
+    return await BoardService.getBoardById(boardId, params);
   }
 );
 // Redux slice for active board

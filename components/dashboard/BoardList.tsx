@@ -2,7 +2,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
-import { LayoutDashboard } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 import type { Board } from '@/config/interface';
 
 interface BoardListProps {
@@ -34,7 +35,13 @@ export default function BoardList({ boards }: BoardListProps) {
 
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-theme-main-1 text-theme-main-5 transition-colors group-hover:bg-theme-main-2">
-              <LayoutDashboard className="h-5 w-5" />
+              <Image
+                src={Icons.LayoutDashboard}
+                alt=""
+                width={20}
+                height={20}
+                className="h-5 w-5"
+              />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="font-semibold text-theme-neutral-10 truncate text-sm leading-5">

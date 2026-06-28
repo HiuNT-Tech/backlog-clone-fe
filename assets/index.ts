@@ -17,10 +17,12 @@ import IconSetting from '@/assets/images/icon-setting.svg';
 import FlagVN from '@/assets/images/flag-vn.svg';
 import FlagUSA from '@/assets/images/flag-usa.svg';
 import IconTrash from '@/assets/images/icon-trash.svg';
+import IconResend from '@/assets/images/icon-resend.svg';
 import IconEdit from '@/assets/images/icon-edit.svg';
 import IconCaretDown from '@/assets/images/caret-down.svg';
 import IconCaretUp from '@/assets/images/caret-up.svg';
 import IconSearch from '@/assets/images/icon-search.svg';
+import IconCalendar from '@/assets/images/icon-calendar.svg';
 
 const Images = {
   defaultAvatar,
@@ -42,10 +44,12 @@ const Images = {
   FlagVN,
   FlagUSA,
   IconTrash,
+  IconResend,
   IconEdit,
   IconCaretDown,
   IconCaretUp,
   IconSearch,
+  IconCalendar,
 };
 
 export default Images;

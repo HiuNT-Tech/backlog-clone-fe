@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import {
   SortableContext,
   horizontalListSortingStrategy,
@@ -12,11 +13,13 @@ interface ListColumnsProps {
 }
 
 function ListColumns({ columns }: ListColumnsProps) {
+  const columnIds = useMemo(
+    () => columns?.map(c => `column-${c.id}`) || [],
+    [columns]
+  );
+
   return (
-    <SortableContext
-      items={columns?.map(c => `column-${c.id}`) || []}
-      strategy={horizontalListSortingStrategy}
-    >
+    <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
       <div className="w-full h-full flex overflow-x-auto overflow-y-hidden">
         {columns?.map(column => (
           <Column key={column.id} column={column} />
@@ -26,4 +29,4 @@ function ListColumns({ columns }: ListColumnsProps) {
   );
 }
 
-export default ListColumns;
+export default memo(ListColumns);

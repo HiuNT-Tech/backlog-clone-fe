@@ -22,6 +22,7 @@ export interface Card {
   cover?: string | null;
   memberIds?: EntityId[];
   comments?: string[];
+  countComment?: number;
   attachments?: string[];
   priority?: number | null;
   assigneeUserId?: EntityId | null;
@@ -102,6 +103,11 @@ export interface Board {
 }
 export interface BoardListResponse {
   boards: Board[];
+}
+
+export interface BoardDetailParams {
+  assigneeUserId?: EntityId;
+  issueTypeId?: EntityId;
 }
 
 export interface CreateBoardRequest {
@@ -301,6 +307,10 @@ export interface BoardInvitation {
   updatedAt: string;
 }
 
+export interface MyBoardInvitation extends BoardInvitation {
+  token: string;
+}
+
 export interface CreateInvitationRequest {
   email: string;
   role: BoardMemberRole;
@@ -310,10 +320,15 @@ export interface InvitationListParams {
   status?: BoardInvitationStatus;
 }
 
-export interface InvitationListResponse {
+export interface InvitationListResponse<
+  TInvitation extends BoardInvitation = BoardInvitation,
+> {
   total: number;
-  items: BoardInvitation[];
+  items: TInvitation[];
 }
+
+export type MyInvitationListResponse =
+  InvitationListResponse<MyBoardInvitation>;
 
 // ─── Comment ───────────────────────────────────────────────────
 

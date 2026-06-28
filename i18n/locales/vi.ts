@@ -12,7 +12,15 @@ const vi = {
     search: 'Tìm kiếm',
     reset: 'Đặt lại',
     retry: 'Thử lại',
+    expand: 'Tìm kiếm nâng cao',
+    collapse: 'Ẩn tìm kiếm nâng cao',
+    searchTitle: 'Tìm kiếm',
+    unselect: 'Bỏ chọn',
     unknown: 'Không xác định',
+    errorLoadingData: 'Có lỗi xảy ra khi tải dữ liệu',
+    noMatchingResults: 'Không có kết quả phù hợp.',
+    noOptions: 'Không có lựa chọn',
+    selectedCount: 'Đã chọn {{count}}',
     of: 'trên',
     rowsPerPage: 'Số hàng mỗi trang',
     filterHint: 'Thu gọn danh sách bằng các bộ lọc phù hợp trước khi thao tác.',
@@ -103,6 +111,7 @@ const vi = {
       milestonePlaceholder: 'Chọn milestone',
       assignee: 'Người được giao',
       assigneePlaceholder: 'Chọn người được giao',
+      assignedToMe: 'Việc của tôi',
       startDate: 'Ngày bắt đầu',
       dueDate: 'Ngày đến hạn',
       datePlaceholder: 'YYYY/MM/DD',
@@ -220,6 +229,15 @@ const vi = {
         empty: 'Không tìm thấy thành viên.',
         delete: 'Xóa thành viên',
         deleteContent: 'Bạn có chắc chắn muốn xóa thành viên này không?',
+        editRole: 'Sửa vai trò',
+      },
+      editRoleModal: {
+        title: 'Thay đổi vai trò thành viên',
+        description: 'Chọn vai trò mới cho thành viên này.',
+        roleLabel: 'Vai trò',
+        submit: 'Lưu',
+        success: 'Đã cập nhật vai trò thành viên.',
+        error: 'Cập nhật vai trò thất bại.',
       },
     },
     invitations: {
@@ -246,6 +264,7 @@ const vi = {
         empty: 'Chưa có lời mời nào.',
         error: 'Không tải được danh sách lời mời.',
         revoke: 'Thu hồi lời mời',
+        resend: 'Gửi lại lời mời',
       },
       status: {
         pending: 'Đang chờ',
@@ -263,9 +282,15 @@ const vi = {
         content: 'Bạn có chắc chắn muốn thu hồi lời mời tới {{email}}?',
         okText: 'Thu hồi',
       },
+      resendModal: {
+        title: 'Gửi lại lời mời',
+        content: 'Gửi lại email lời mời tới {{email}}?',
+        okText: 'Gửi lại',
+      },
       toast: {
         created: 'Đã gửi lời mời.',
         revoked: 'Đã thu hồi lời mời.',
+        resent: 'Đã gửi lại lời mời.',
         accepted: 'Đã chấp nhận lời mời.',
         declined: 'Đã từ chối lời mời.',
       },
@@ -380,6 +405,8 @@ const vi = {
       bannerHint: 'Bạn có {{count}} lời mời tham gia board đang chờ.',
       invitedBy: 'Được mời bởi {{name}}',
       viewAction: 'Xem',
+      acceptAction: 'Chấp nhận',
+      declineAction: 'Từ chối',
     },
     boardCard: {
       noDescription: 'Không có mô tả',
@@ -417,8 +444,18 @@ const vi = {
       boardLoadFailed: 'Tải danh sách board thất bại. Vui lòng thử lại.',
     },
   },
+  board: {
+    loading: 'Đang tải board...',
+  },
   column: {
     addNewColumn: 'Thêm cột mới',
+    assigneePicker: {
+      searchPlaceholder: 'Tìm thành viên...',
+      unassign: 'Bỏ gán',
+      empty: 'Không có thành viên',
+      assignedTo: 'Người phụ trách: {{name}}',
+      assign: 'Gán người phụ trách',
+    },
     addNewCard: {
       popup: {
         title: 'Thêm thẻ mới',

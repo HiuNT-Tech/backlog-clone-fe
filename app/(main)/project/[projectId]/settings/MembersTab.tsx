@@ -1,26 +1,30 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { MailPlus } from 'lucide-react';
+import Image from 'next/image';
+import Icons from '@/assets/icons';
 
 import { Button } from '@/components/ui/button';
 import { MembersTable } from '@/components/shared/tables/MembersTable';
 import MembersFilter from '@/components/shared/filters/MembersFilter';
-import InvitationCreateDialog from '@/components/shared/forms/InvitationCreateDialog';
+import InvitationCreatePopup from '@/components/shared/popup/InvitationCreatePopup';
+import MemberRoleEditPopup from '@/components/shared/popup/MemberRoleEditPopup';
 import InvitationsFilter from '@/components/shared/filters/InvitationsFilter';
 import { InvitationsTable } from '@/components/shared/tables/InvitationsTable';
 import StaticMethodConfirm from '@/components/modal/static-method-confirm';
 import {
   BoardInvitation,
+  BoardMemberRole,
   EntityId,
   InvitationListParams,
+  UserBoardMember,
   UsersBoardParams,
 } from '@/config/interface';
 import { usePagination } from '@/hooks/use-pagination';
 import { useUserBoard } from '@/hooks/use-user-board';
 import { useBoardInvitations } from '@/hooks/use-invitation';
 import type { InvitationFormData } from '@/validation/invitation-form-schemas';
+import { useTranslation } from 'react-i18next';
 
 export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const { t } = useTranslation();
@@ -31,16 +35,24 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const [invitationParams, setInvitationParams] =
     useState<InvitationListParams>();
   const [isInvitationDialogOpen, setIsInvitationDialogOpen] = useState(false);
+  const [isEditRoleDialogOpen, setIsEditRoleDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<UserBoardMember | null>(
+    null
+  );
 
   const staffParams: UsersBoardParams = {
     ...apiParams,
     ...searchParamsState,
   };
 
-  const { listUser, isLoading, listError, refetchList } = useUserBoard(
-    boardId,
-    staffParams
-  );
+  const {
+    listUser,
+    isLoading,
+    listError,
+    refetchList,
+    updateMemberRole,
+    isUpdateRolePending,
+  } = useUserBoard(boardId, staffParams);
 
   const {
     invitationsData,
@@ -52,6 +64,8 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     isCreateInvitationPending,
     revokeInvitation,
     isRevokeInvitationPending,
+    resendInvitation,
+    isResendInvitationPending,
   } = useBoardInvitations(boardId, invitationParams);
 
   const handleSearch = (params: UsersBoardParams) => {
@@ -85,6 +99,34 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     });
   };
 
+  const handleResendInvitation = (invitation: BoardInvitation) => {
+    StaticMethodConfirm.open({
+      title: t('settings.invitations.resendModal.title'),
+      content: t('settings.invitations.resendModal.content', {
+        email: invitation.email,
+      }),
+      okText: t('settings.invitations.resendModal.okText'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        await resendInvitation(invitation.id);
+      },
+    });
+  };
+
+  const handleEditRole = (member: UserBoardMember) => {
+    setEditingMember(member);
+    setIsEditRoleDialogOpen(true);
+  };
+
+  const handleUpdateMemberRole = async (
+    userId: number,
+    role: BoardMemberRole
+  ) => {
+    await updateMemberRole({ userId, role });
+    setIsEditRoleDialogOpen(false);
+    setEditingMember(null);
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4 border-b border-theme-neutral-4 pb-5 md:flex-row md:items-start md:justify-between">
@@ -100,7 +142,14 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
           className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
           onClick={() => setIsInvitationDialogOpen(true)}
         >
-          <MailPlus className="mr-2 h-4 w-4" />
+          <Image
+            src={Icons.MailPlus}
+            alt=""
+            width={16}
+            height={16}
+            className="mr-2 h-4 w-4"
+            style={{ filter: 'brightness(0) invert(1)' }}
+          />
           {t('settings.members.actions.invite')}
         </Button>
       </div>
@@ -118,6 +167,7 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
           limit={limit}
           onPageChange={setPage}
           onPageSizeChange={setLimit}
+          onEditRole={handleEditRole}
         />
       ) : null}
 
@@ -143,15 +193,25 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
           onPageChange={invitationPagination.setPage}
           onPageSizeChange={invitationPagination.setLimit}
           onRevoke={handleRevokeInvitation}
+          onResend={handleResendInvitation}
           isActionPending={isRevokeInvitationPending}
+          isResendPending={isResendInvitationPending}
         />
       </div>
 
-      <InvitationCreateDialog
+      <InvitationCreatePopup
         open={isInvitationDialogOpen}
         onOpenChange={setIsInvitationDialogOpen}
         onSubmit={handleCreateInvitation}
         isPending={isCreateInvitationPending}
+      />
+
+      <MemberRoleEditPopup
+        open={isEditRoleDialogOpen}
+        onOpenChange={setIsEditRoleDialogOpen}
+        member={editingMember}
+        onSubmit={handleUpdateMemberRole}
+        isPending={isUpdateRolePending}
       />
     </div>
   );
