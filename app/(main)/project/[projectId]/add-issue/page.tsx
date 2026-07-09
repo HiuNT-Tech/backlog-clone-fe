@@ -15,6 +15,15 @@ import { useColumn } from '@/hooks/use-column';
 import { useIssueType } from '@/hooks/use-issue-type';
 import { useCardDetail } from '@/hooks/use-card-detail';
 import { useUserBoard } from '@/hooks/use-user-board';
+import { useFileUpload } from '@/hooks/use-file-upload';
+import {
+  AttachmentUploader,
+  ExistingAttachmentsList,
+  ATTACHMENT_ALLOWED_TYPES,
+  ATTACHMENT_MAX_FILE_SIZE,
+  ATTACHMENT_MAX_FILES,
+  buildUploadErrorMessages,
+} from '@/components/shared/attachment-uploader';
 import { BoardService } from '@/lib/apis/board';
 import { CardService } from '@/lib/apis/card';
 import { toastHelpers } from '@/hooks/use-toast';
@@ -25,6 +34,7 @@ import type {
   Card,
   CreateNewCardRequest,
   EntityId,
+  UpdateCardRequest,
   User,
 } from '@/config/interface';
 import {
@@ -95,6 +105,31 @@ export default function AddIssuePage() {
   const [formData, setFormData] = useState<AddIssueFormData>(EMPTY_FORM);
   const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
+
+  const {
+    files: attachmentFiles,
+    previews: attachmentPreviews,
+    error: attachmentError,
+    isProcessing: isAttachmentProcessing,
+    handleFileChange: handleAttachmentChange,
+    removeFile: removeAttachment,
+    clearFiles: clearAttachments,
+  } = useFileUpload({
+    allowedTypes: ATTACHMENT_ALLOWED_TYPES,
+    maxFileSize: ATTACHMENT_MAX_FILE_SIZE,
+    maxFiles: ATTACHMENT_MAX_FILES,
+    errorMessages: buildUploadErrorMessages(t),
+  });
+
+  // Attachment cũ đánh dấu gỡ khi sửa ticket (chỉ áp dụng edit mode)
+  const [removedAttachmentIds, setRemovedAttachmentIds] = useState<EntityId[]>(
+    []
+  );
+  const toggleRemoveExistingAttachment = (id: EntityId) => {
+    setRemovedAttachmentIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
 
   useEffect(() => {
     if (isEditMode && editCard && !isFormInitialized) {
@@ -170,19 +205,22 @@ export default function AddIssuePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards'] });
       queryClient.invalidateQueries({ queryKey: ['cards'] });
+      clearAttachments();
       toastHelpers.success({ title: t('toast.success.cardCreated') });
       router.back();
     },
   });
 
   const { mutateAsync: updateCard } = useMutation({
-    mutationFn: async (data: Record<string, any>) => {
+    mutationFn: async (data: UpdateCardRequest) => {
       return await CardService.update(editId!, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['card-detail', editId] });
       queryClient.invalidateQueries({ queryKey: ['cards'] });
       queryClient.invalidateQueries({ queryKey: ['boards'] });
+      clearAttachments();
+      setRemovedAttachmentIds([]);
       toastHelpers.success({ title: t('issueDetail.updateSuccess') });
       router.back();
     },
@@ -197,7 +235,7 @@ export default function AddIssuePage() {
     setIsSubmitting(true);
     try {
       if (isEditMode) {
-        const updatePayload: Record<string, any> = {
+        const updatePayload: UpdateCardRequest = {
           title: formData.title.trim(),
           ...(formData.status && {
             columnId: toEntityIdOrUndefined(formData.status),
@@ -216,6 +254,12 @@ export default function AddIssuePage() {
         updatePayload.dueDate = formData.dueDate || null;
         updatePayload.estimatedHours = formData.estimatedHours?.trim() || null;
         updatePayload.actualHours = formData.actualHours?.trim() || null;
+        if (attachmentFiles.length > 0) {
+          updatePayload.attachments = attachmentFiles;
+        }
+        if (removedAttachmentIds.length > 0) {
+          updatePayload.removeAttachmentIds = removedAttachmentIds;
+        }
 
         await updateCard(updatePayload);
       } else {
@@ -240,6 +284,7 @@ export default function AddIssuePage() {
             estimatedHours: formData.estimatedHours,
           }),
           ...(formData.actualHours && { actualHours: formData.actualHours }),
+          ...(attachmentFiles.length > 0 && { attachments: attachmentFiles }),
         };
 
         await createNewCard(payload);
@@ -457,6 +502,29 @@ export default function AddIssuePage() {
                 onChange={value => handleChange('description', value)}
                 placeholder={t('addIssue.placeholder.description')}
               />
+
+              {/* Attachments */}
+              <div>
+                <p className="mb-1.5 text-sm font-medium text-theme-neutral-11">
+                  {t('attachments.label')}
+                </p>
+                {isEditMode && (
+                  <ExistingAttachmentsList
+                    className="mb-3"
+                    attachments={editCard?.attachments ?? []}
+                    removedIds={removedAttachmentIds}
+                    onToggleRemove={toggleRemoveExistingAttachment}
+                  />
+                )}
+                <AttachmentUploader
+                  files={attachmentFiles}
+                  previews={attachmentPreviews}
+                  error={attachmentError}
+                  isProcessing={isAttachmentProcessing}
+                  onFileChange={handleAttachmentChange}
+                  onRemove={removeAttachment}
+                />
+              </div>
             </div>
 
             <div className="h-px w-full bg-theme-neutral-4" />

@@ -1,4 +1,9 @@
-import { sendDelete, sendGet, sendPost, sendPut } from '@/utils/authorizeAxios';
+import {
+  sendDelete,
+  sendGet,
+  sendPostFormData,
+  sendPutFormData,
+} from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
 import type {
   Comment,
@@ -21,14 +26,35 @@ export const CommentService = {
     cardId: EntityId,
     data: CreateCommentRequest
   ): Promise<Comment> => {
-    return await sendPost(`${API_ROOT}/v1/cards/${cardId}/comments`, data);
+    // Gửi dưới dạng multipart/form-data vì comment có thể kèm ảnh / file
+    const formData = new FormData();
+    formData.append('content', data.content);
+    (data.attachments ?? []).forEach(file => {
+      formData.append('attachments', file, file.name);
+    });
+    return await sendPostFormData(
+      `${API_ROOT}/v1/cards/${cardId}/comments`,
+      formData
+    );
   },
 
   update: async (
     commentId: EntityId,
     data: UpdateCommentRequest
   ): Promise<Comment> => {
-    return await sendPut(`${API_ROOT}/v1/comments/${commentId}`, data);
+    // Multipart để hỗ trợ đính kèm ảnh / file mới khi chỉnh sửa comment
+    const formData = new FormData();
+    formData.append('content', data.content);
+    (data.attachments ?? []).forEach(file => {
+      formData.append('attachments', file, file.name);
+    });
+    (data.removeAttachmentIds ?? []).forEach(id => {
+      formData.append('removeAttachmentIds', String(id));
+    });
+    return await sendPutFormData(
+      `${API_ROOT}/v1/comments/${commentId}`,
+      formData
+    );
   },
 
   remove: async (commentId: EntityId): Promise<void> => {

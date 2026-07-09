@@ -1,4 +1,11 @@
 const en = {
+  attachments: {
+    label: 'Attachments',
+    attach: 'Attach',
+    invalidType: 'Some files were skipped due to an unsupported type.',
+    fileTooLarge: 'File is too large (max 10MB).',
+    maxFilesExceeded: 'You can attach up to 10 files.',
+  },
   common: {
     add: 'Add',
     cancel: 'Cancel',

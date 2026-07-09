@@ -4,6 +4,7 @@ import {
   sendPut,
   sendPatch,
   sendDelete,
+  sendPostFormData,
 } from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
 import {
@@ -100,7 +101,18 @@ export const BoardService = {
   },
 
   createNewCard: async (card: CreateNewCardRequest) => {
-    return await sendPost(`${API_ROOT}/v1/cards`, card);
+    // Gửi multipart/form-data để hỗ trợ đính kèm ảnh / file khi tạo ticket
+    const { attachments, ...fields } = card;
+    const formData = new FormData();
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+    (attachments ?? []).forEach(file => {
+      formData.append('attachments', file, file.name);
+    });
+    return await sendPostFormData(`${API_ROOT}/v1/cards`, formData);
   },
 
   createNewBoard: async (payload: CreateBoardRequest): Promise<Board> => {

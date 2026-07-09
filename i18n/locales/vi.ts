@@ -1,4 +1,11 @@
 const vi = {
+  attachments: {
+    label: 'Tệp đính kèm',
+    attach: 'Đính kèm',
+    invalidType: 'Một số file bị bỏ qua do định dạng không hỗ trợ.',
+    fileTooLarge: 'File quá lớn (tối đa 10MB).',
+    maxFilesExceeded: 'Chỉ được đính kèm tối đa 10 file.',
+  },
   common: {
     add: 'Thêm',
     cancel: 'Hủy',

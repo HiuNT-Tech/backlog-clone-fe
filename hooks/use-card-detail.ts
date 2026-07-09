@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CardService } from '@/lib/apis/card';
-import type { Card, EntityId } from '@/config/interface';
+import type { Card, EntityId, UpdateCardRequest } from '@/config/interface';
 
 export const useCardDetail = (cardId?: EntityId) => {
   const queryClient = useQueryClient();
@@ -17,7 +17,7 @@ export const useCardDetail = (cardId?: EntityId) => {
   });
 
   const { mutateAsync: updateCard, isPending: isUpdating } = useMutation({
-    mutationFn: (data: Partial<Card>) => CardService.update(cardId!, data),
+    mutationFn: (data: UpdateCardRequest) => CardService.update(cardId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['card-detail', cardId] });
       queryClient.invalidateQueries({ queryKey: ['cards'] });

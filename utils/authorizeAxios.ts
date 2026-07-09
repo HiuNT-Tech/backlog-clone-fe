@@ -188,6 +188,13 @@ export const sendPatchFormData = async (path: string, formData: FormData) => {
   return unwrapItem(res.data);
 };
 
+export const sendPutFormData = async (path: string, formData: FormData) => {
+  const res = await authorizedAxiosInstance.put(path, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return unwrapItem(res.data);
+};
+
 export const sendGetBlob = async (path: string, params: any = {}) => {
   const res = await authorizedAxiosInstance.get(path, {
     params,
