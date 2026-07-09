@@ -8,7 +8,11 @@ import {
   updateCurrentActiveBoard,
 } from '@/redux/activeBoard/activeBoardSlice';
 import { toastHelpers } from '@/hooks/use-toast';
-import type { Card, UserBoardMember } from '@/config/interface';
+import type {
+  Card,
+  UpdateCardRequest,
+  UserBoardMember,
+} from '@/config/interface';
 
 /**
  * Quick inline edits for a card on the board (assignee / due date).
@@ -33,7 +37,10 @@ export const useCardQuickUpdate = (card: Card) => {
     dispatch(updateCurrentActiveBoard(newBoard));
   };
 
-  const runUpdate = async (apiData: Partial<Card>, patch: Partial<Card>) => {
+  const runUpdate = async (
+    apiData: UpdateCardRequest,
+    patch: Partial<Card>
+  ) => {
     if (!board) return;
     const snapshot = board;
     applyPatch(patch);
@@ -53,24 +60,30 @@ export const useCardQuickUpdate = (card: Card) => {
     if (member) {
       const assigneeUserId = Number(member.userId);
       if (assigneeUserId === Number(card.assigneeUserId)) return;
-      return runUpdate({ assigneeUserId } as Partial<Card>, {
-        assigneeUserId,
-        assignee: {
-          id: assigneeUserId,
-          email: member.email,
-          displayName: member.displayName,
-          avatar: member.avatar,
-          isActive: true,
-        },
-      });
+      return runUpdate(
+        { assigneeUserId },
+        {
+          assigneeUserId,
+          assignee: {
+            id: assigneeUserId,
+            email: member.email,
+            displayName: member.displayName,
+            avatar: member.avatar,
+            isActive: true,
+          },
+        }
+      );
     }
 
     // Unassign
     if (card.assigneeUserId == null) return;
-    return runUpdate({ assigneeUserId: null } as Partial<Card>, {
-      assigneeUserId: null,
-      assignee: null,
-    });
+    return runUpdate(
+      { assigneeUserId: null },
+      {
+        assigneeUserId: null,
+        assignee: null,
+      }
+    );
   };
 
   const setDueDate = (date: string | null) => {
@@ -78,7 +91,7 @@ export const useCardQuickUpdate = (card: Card) => {
     if (!date) return;
     const current = card.dueDate ? card.dueDate.slice(0, 10) : null;
     if (date === current) return;
-    return runUpdate({ dueDate: date } as Partial<Card>, { dueDate: date });
+    return runUpdate({ dueDate: date }, { dueDate: date });
   };
 
   return { assign, setDueDate, isUpdating };

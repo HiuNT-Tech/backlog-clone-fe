@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CommentService } from '@/lib/apis/comment';
-import type { CommentListParams, EntityId } from '@/config/interface';
+import type {
+  CommentListParams,
+  CreateCommentRequest,
+  EntityId,
+  UpdateCommentRequest,
+} from '@/config/interface';
 
 export const useComments = (cardId?: EntityId, params?: CommentListParams) => {
   const queryClient = useQueryClient();
@@ -15,19 +20,17 @@ export const useComments = (cardId?: EntityId, params?: CommentListParams) => {
   });
 
   const { mutateAsync: createComment, isPending: isCreating } = useMutation({
-    mutationFn: (content: string) =>
-      CommentService.create(cardId!, { content }),
+    mutationFn: (payload: CreateCommentRequest) =>
+      CommentService.create(cardId!, payload),
     onSuccess: invalidateComments,
   });
 
   const { mutateAsync: updateComment, isPending: isUpdating } = useMutation({
     mutationFn: ({
       commentId,
-      content,
-    }: {
-      commentId: EntityId;
-      content: string;
-    }) => CommentService.update(commentId, { content }),
+      ...payload
+    }: { commentId: EntityId } & UpdateCommentRequest) =>
+      CommentService.update(commentId, payload),
     onSuccess: invalidateComments,
   });
 

@@ -23,7 +23,7 @@ export interface Card {
   memberIds?: EntityId[];
   comments?: string[];
   countComment?: number;
-  attachments?: string[];
+  attachments?: Attachment[];
   priority?: number | null;
   assigneeUserId?: EntityId | null;
   assignee?: User | null;
@@ -208,6 +208,23 @@ export interface CreateNewCardRequest {
   dueDate?: string;
   estimatedHours?: string;
   actualHours?: string;
+  attachments?: File[];
+}
+
+export interface UpdateCardRequest {
+  title?: string;
+  description?: string | null;
+  columnId?: EntityId;
+  priority?: number | null;
+  assigneeUserId?: EntityId | null;
+  issueTypeId?: EntityId | null;
+  versionId?: EntityId | null;
+  startDate?: string | null;
+  dueDate?: string | null;
+  estimatedHours?: string | null;
+  actualHours?: string | null;
+  attachments?: File[];
+  removeAttachmentIds?: EntityId[];
 }
 
 // Auth Request/Response types
@@ -339,11 +356,20 @@ export interface CommentUser {
   avatar: string | null;
 }
 
+export interface Attachment {
+  id: EntityId;
+  fileName: string;
+  fileUrl: string;
+  mimeType?: string;
+  fileSize?: number;
+}
+
 export interface Comment {
   id: EntityId;
   cardId: EntityId;
   content: string;
   user: CommentUser;
+  attachments?: Attachment[];
   createdAt: string;
   updatedAt: string;
 }
@@ -360,8 +386,11 @@ export interface CommentListParams {
 
 export interface CreateCommentRequest {
   content: string;
+  attachments?: File[];
 }
 
 export interface UpdateCommentRequest {
   content: string;
+  attachments?: File[];
+  removeAttachmentIds?: EntityId[];
 }

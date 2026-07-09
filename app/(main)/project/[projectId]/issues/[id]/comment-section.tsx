@@ -12,6 +12,15 @@ import { StateMessage } from '@/components/ui/state-message';
 import { format } from '@/constant/format';
 import { toastHelpers } from '@/hooks/use-toast';
 import { useComments } from '@/hooks/use-comment';
+import { useFileUpload } from '@/hooks/use-file-upload';
+import {
+  AttachmentUploader,
+  ExistingAttachmentsList,
+  ATTACHMENT_ALLOWED_TYPES,
+  ATTACHMENT_MAX_FILE_SIZE,
+  ATTACHMENT_MAX_FILES,
+  buildUploadErrorMessages,
+} from '@/components/shared/attachment-uploader';
 import type { Card, Comment, EntityId } from '@/config/interface';
 
 /* ─── Helpers ─── */
@@ -26,6 +35,15 @@ export interface CommentListProps {
   currentUserId?: number;
 }
 
+interface CommentEditUpload {
+  files: File[];
+  previews: string[];
+  error: string | null;
+  isProcessing: boolean;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeFile: (index: number) => void;
+}
+
 const CommentItem: React.FC<{
   comment: Comment;
   isOwner: boolean;
@@ -37,6 +55,9 @@ const CommentItem: React.FC<{
   onEditSave: () => void;
   onDelete: () => void;
   isSaving: boolean;
+  editUpload: CommentEditUpload;
+  removedAttachmentIds: EntityId[];
+  onToggleRemoveExisting: (id: EntityId) => void;
 }> = ({
   comment,
   isOwner,
@@ -48,6 +69,9 @@ const CommentItem: React.FC<{
   onEditSave,
   onDelete,
   isSaving,
+  editUpload,
+  removedAttachmentIds,
+  onToggleRemoveExisting,
 }) => {
   const { t } = useTranslation();
   const isEdited = comment.updatedAt !== comment.createdAt;
@@ -107,13 +131,35 @@ const CommentItem: React.FC<{
             placeholder={t('issueDetail.comments.placeholder')}
             className="[&_.EasyMDEContainer]:border-theme-neutral-5 [&_.EasyMDEContainer]:rounded-lg [&_.CodeMirror]:min-h-[80px] [&_.CodeMirror]:text-sm"
           />
+
+          {/* Existing attachments (có thể bỏ đi khi lưu) */}
+          <ExistingAttachmentsList
+            className="mt-3"
+            attachments={comment.attachments ?? []}
+            removedIds={removedAttachmentIds}
+            onToggleRemove={onToggleRemoveExisting}
+          />
+
+          {/* New attachments uploader */}
+          <AttachmentUploader
+            className="mt-3"
+            files={editUpload.files}
+            previews={editUpload.previews}
+            error={editUpload.error}
+            isProcessing={editUpload.isProcessing}
+            onFileChange={editUpload.handleFileChange}
+            onRemove={editUpload.removeFile}
+          />
+
           <div className="flex gap-2 mt-2">
             <Button
               type="button"
               size="sm"
               className="bg-theme-main hover:bg-theme-hover text-theme-neutral-1"
               onClick={onEditSave}
-              disabled={!editValue.trim() || isSaving}
+              disabled={
+                (!editValue.trim() && editUpload.files.length === 0) || isSaving
+              }
             >
               {isSaving ? t('common.loading') : t('issueDetail.save')}
             </Button>
@@ -130,9 +176,52 @@ const CommentItem: React.FC<{
           </div>
         </div>
       ) : (
-        <div className={markdownClassName}>
-          <ReactMarkdown>{comment.content}</ReactMarkdown>
-        </div>
+        <>
+          <div className={markdownClassName}>
+            <ReactMarkdown>{comment.content}</ReactMarkdown>
+          </div>
+
+          {comment.attachments && comment.attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {comment.attachments.map(att => {
+                const isImage = att.mimeType?.startsWith('image/');
+                return isImage ? (
+                  <a
+                    key={att.id}
+                    href={att.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={att.fileUrl}
+                      alt={att.fileName}
+                      className="w-20 h-20 rounded-md object-cover border border-theme-neutral-5/60 hover:opacity-90 transition-opacity"
+                    />
+                  </a>
+                ) : (
+                  <a
+                    key={att.id}
+                    href={att.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 border border-theme-neutral-5 rounded-md px-2 py-1.5 text-xs text-theme-neutral-10 hover:border-theme-main transition-colors max-w-[220px]"
+                  >
+                    <Image
+                      src={Icons.Paperclip}
+                      alt=""
+                      width={14}
+                      height={14}
+                      className="w-3.5 h-3.5 shrink-0"
+                    />
+                    <span className="truncate">{att.fileName}</span>
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -154,17 +243,48 @@ export const CommentList: React.FC<CommentListProps> = ({
 
   const [editingId, setEditingId] = useState<EntityId | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [removedAttachmentIds, setRemovedAttachmentIds] = useState<EntityId[]>(
+    []
+  );
+
+  const editUpload = useFileUpload({
+    allowedTypes: ATTACHMENT_ALLOWED_TYPES,
+    maxFileSize: ATTACHMENT_MAX_FILE_SIZE,
+    maxFiles: ATTACHMENT_MAX_FILES,
+    errorMessages: buildUploadErrorMessages(t),
+  });
 
   const handleEditStart = (comment: Comment) => {
     setEditingId(comment.id);
     setEditValue(comment.content);
+    setRemovedAttachmentIds([]);
+    editUpload.clearFiles();
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setRemovedAttachmentIds([]);
+    editUpload.clearFiles();
+  };
+
+  const toggleRemoveExisting = (id: EntityId) => {
+    setRemovedAttachmentIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
   };
 
   const handleEditSave = async (commentId: EntityId) => {
-    if (!editValue.trim()) return;
+    if (!editValue.trim() && editUpload.files.length === 0) return;
     try {
-      await updateComment({ commentId, content: editValue.trim() });
+      await updateComment({
+        commentId,
+        content: editValue.trim(),
+        attachments: editUpload.files,
+        removeAttachmentIds: removedAttachmentIds,
+      });
       setEditingId(null);
+      setRemovedAttachmentIds([]);
+      editUpload.clearFiles();
       toastHelpers.success({ title: t('issueDetail.comments.updateSuccess') });
     } catch {
       toastHelpers.error({ title: t('issueDetail.comments.postError') });
@@ -208,10 +328,20 @@ export const CommentList: React.FC<CommentListProps> = ({
               editValue={editValue}
               setEditValue={setEditValue}
               onEditStart={() => handleEditStart(comment)}
-              onEditCancel={() => setEditingId(null)}
+              onEditCancel={handleEditCancel}
               onEditSave={() => handleEditSave(comment.id)}
               onDelete={() => handleDelete(comment.id)}
               isSaving={isUpdating}
+              editUpload={{
+                files: editUpload.files,
+                previews: editUpload.previews,
+                error: editUpload.error,
+                isProcessing: editUpload.isProcessing,
+                handleFileChange: editUpload.handleFileChange,
+                removeFile: editUpload.removeFile,
+              }}
+              removedAttachmentIds={removedAttachmentIds}
+              onToggleRemoveExisting={toggleRemoveExisting}
             />
           ))}
         </div>
@@ -254,11 +384,34 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
   const { t } = useTranslation();
   const { createComment, isCreating } = useComments(cardId);
 
+  const {
+    files,
+    previews,
+    error: uploadError,
+    isProcessing,
+    handleFileChange,
+    removeFile,
+    clearFiles,
+    dragDropHandlers,
+  } = useFileUpload({
+    allowedTypes: ATTACHMENT_ALLOWED_TYPES,
+    maxFileSize: ATTACHMENT_MAX_FILE_SIZE,
+    maxFiles: ATTACHMENT_MAX_FILES,
+    dragAndDrop: true,
+    errorMessages: buildUploadErrorMessages(t),
+  });
+
+  const canPost = (!!commentValue.trim() || files.length > 0) && !isCreating;
+
   const handlePost = async () => {
-    if (!commentValue.trim()) return;
+    if (!commentValue.trim() && files.length === 0) return;
     try {
-      await createComment(commentValue.trim());
+      await createComment({
+        content: commentValue.trim(),
+        attachments: files,
+      });
       setCommentValue('');
+      clearFiles();
       setIsEditing(false);
       setIsPreviewComment(false);
       toastHelpers.success({ title: t('issueDetail.comments.postSuccess') });
@@ -340,13 +493,35 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   )}
                 </div>
               ) : (
-                <MarkdownEditor
-                  value={commentValue}
-                  onChange={setCommentValue}
-                  placeholder={t('issueDetail.comments.placeholder')}
-                  className="[&_.EasyMDEContainer]:border-theme-neutral-5 [&_.EasyMDEContainer]:rounded-lg [&_.CodeMirror]:min-h-[100px] [&_.CodeMirror]:text-sm"
-                />
+                <div
+                  onDragOver={dragDropHandlers?.onDragOver}
+                  onDragLeave={dragDropHandlers?.onDragLeave}
+                  onDrop={dragDropHandlers?.onDrop}
+                  className={
+                    dragDropHandlers?.isDragOver
+                      ? 'rounded-lg ring-2 ring-theme-main ring-offset-2 transition-shadow'
+                      : ''
+                  }
+                >
+                  <MarkdownEditor
+                    value={commentValue}
+                    onChange={setCommentValue}
+                    placeholder={t('issueDetail.comments.placeholder')}
+                    className="[&_.EasyMDEContainer]:border-theme-neutral-5 [&_.EasyMDEContainer]:rounded-lg [&_.CodeMirror]:min-h-[100px] [&_.CodeMirror]:text-sm"
+                  />
+                </div>
               )}
+
+              {/* Attachments: nút Attach + preview file mới */}
+              <AttachmentUploader
+                className="mt-3"
+                files={files}
+                previews={previews}
+                error={uploadError}
+                isProcessing={isProcessing}
+                onFileChange={handleFileChange}
+                onRemove={removeFile}
+              />
 
               {/* Actions row */}
               <div className="flex items-center justify-center gap-2 mt-3">
@@ -359,6 +534,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                     setIsEditing(false);
                     setCommentValue('');
                     setIsPreviewComment(false);
+                    clearFiles();
                   }}
                 >
                   {t('issueDetail.comments.close')}
@@ -378,7 +554,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   type="button"
                   size="sm"
                   className="bg-theme-main hover:bg-theme-hover text-theme-neutral-1"
-                  disabled={!commentValue.trim() || isCreating}
+                  disabled={!canPost}
                   onClick={handlePost}
                 >
                   {isCreating
