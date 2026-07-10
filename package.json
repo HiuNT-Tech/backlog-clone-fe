@@ -41,6 +41,7 @@
     "easymde": "^2.21.0",
     "husky": "^9.1.7",
     "i18next": "^25.7.3",
+    "jsondiffpatch": "^0.7.6",
     "lodash": "^4.17.21",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
