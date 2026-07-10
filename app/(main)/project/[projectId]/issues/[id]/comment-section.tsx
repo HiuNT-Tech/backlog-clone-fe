@@ -21,6 +21,7 @@ import {
   ATTACHMENT_MAX_FILES,
   buildUploadErrorMessages,
 } from '@/components/shared/attachment-uploader';
+import { SystemCommentDiff } from '@/components/shared/system-comment-diff';
 import type { Card, Comment, EntityId } from '@/config/interface';
 
 /* ─── Helpers ─── */
@@ -74,10 +75,15 @@ const CommentItem: React.FC<{
   onToggleRemoveExisting,
 }) => {
   const { t } = useTranslation();
-  const isEdited = comment.updatedAt !== comment.createdAt;
+  const isSystem = comment.type === 'SYSTEM';
+  const isEdited = !isSystem && comment.updatedAt !== comment.createdAt;
 
   return (
-    <div className="bg-white rounded-lg border border-theme-neutral-5/60 p-4">
+    <div
+      className={`rounded-lg border border-theme-neutral-5/60 p-4 ${
+        isSystem ? 'bg-theme-neutral-2' : 'bg-white'
+      }`}
+    >
       {/* Author row */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 min-w-0">
@@ -96,13 +102,18 @@ const CommentItem: React.FC<{
           <span className="text-sm font-semibold text-theme-neutral-11 truncate">
             {comment.user.displayName}
           </span>
+          {isSystem && (
+            <span className="text-xs text-theme-neutral-8 shrink-0">
+              {t('issueDetail.comments.systemUpdated')}
+            </span>
+          )}
           <span className="text-xs text-theme-neutral-7 shrink-0">
             {format.dateTime(comment.createdAt)}
             {isEdited && ` (${t('issueDetail.comments.edited')})`}
           </span>
         </div>
 
-        {isOwner && !isEditing && (
+        {isOwner && !isSystem && !isEditing && (
           <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
@@ -123,7 +134,9 @@ const CommentItem: React.FC<{
       </div>
 
       {/* Content or inline editor */}
-      {isEditing ? (
+      {isSystem ? (
+        <SystemCommentDiff content={comment.content} />
+      ) : isEditing ? (
         <div>
           <MarkdownEditor
             value={editValue}

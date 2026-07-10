@@ -562,6 +562,7 @@ const vi = {
       comingSoon: 'Tính năng bình luận sắp có.',
       empty: 'Chưa có bình luận nào.',
       edited: 'đã chỉnh sửa',
+      systemUpdated: 'đã cập nhật công việc',
       confirmDelete: 'Xoá bình luận này?',
       postSuccess: 'Đã đăng bình luận',
       postError: 'Đăng bình luận thất bại',

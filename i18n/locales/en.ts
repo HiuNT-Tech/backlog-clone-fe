@@ -569,6 +569,7 @@ const en = {
       comingSoon: 'Comment feature coming soon.',
       empty: 'No comments yet.',
       edited: 'edited',
+      systemUpdated: 'updated this issue',
       confirmDelete: 'Delete this comment?',
       postSuccess: 'Comment posted',
       postError: 'Failed to post comment',

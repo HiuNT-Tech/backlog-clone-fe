@@ -364,10 +364,18 @@ export interface Attachment {
   fileSize?: number;
 }
 
+export type CommentType = 'USER' | 'SYSTEM';
+
 export interface Comment {
   id: EntityId;
   cardId: EntityId;
   content: string;
+  /**
+   * USER: comment do người dùng viết (content là markdown).
+   * SYSTEM: comment tự sinh khi ticket được cập nhật
+   * (content là delta JSON của jsondiffpatch).
+   */
+  type: CommentType;
   user: CommentUser;
   attachments?: Attachment[];
   createdAt: string;
