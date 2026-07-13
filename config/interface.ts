@@ -116,6 +116,15 @@ export interface CreateBoardRequest {
   type: BoardType;
 }
 
+export interface DuplicateBoardRequest {
+  title: string;
+  boardCode: string;
+  /** Bỏ trống để giữ description của board gốc. */
+  description?: string;
+  /** Bỏ trống để giữ type của board gốc. */
+  type?: BoardType;
+}
+
 export interface IssueType {
   id: EntityId;
   boardId?: EntityId;

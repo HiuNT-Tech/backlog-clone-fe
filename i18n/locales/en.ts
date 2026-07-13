@@ -137,6 +137,8 @@ const en = {
       },
     },
     filter: {
+      search: 'Keyword',
+      searchPlaceholder: 'Search by issue title...',
       status: 'Status',
       statusPlaceholder: 'Search status...',
       version: 'Version',
@@ -424,6 +426,7 @@ const en = {
     },
     boardCard: {
       noDescription: 'No description',
+      duplicateAction: 'Duplicate board',
     },
     createProject: {
       title: 'Create New Project',
@@ -435,6 +438,15 @@ const en = {
       submit: 'Create',
       cancel: 'Cancel',
       codeLable: 'Project code',
+    },
+    duplicateProject: {
+      title: 'Duplicate board',
+      description:
+        'Create a new board with the same columns, issue types, milestones and cards as "{{sourceTitle}}". Comments, attachments and edit history are not copied.',
+      nameLabel: 'New board name',
+      codeLable: 'New board code',
+      submit: 'Duplicate',
+      cancel: 'Cancel',
     },
     validation: {
       nameRequired: 'This field is required',
@@ -450,11 +462,13 @@ const en = {
       userLoggedOut: 'Logged out successfully!',
       cardCreated: 'Card created successfully',
       boardCreated: 'Board created successfully!',
+      boardDuplicated: 'Board duplicated successfully!',
     },
     error: {
       userLoginFailed: 'User login failed',
       userVerificationFailed: 'User verification failed',
       boardCreateFailed: 'Failed to create board. Please try again.',
+      boardDuplicateFailed: 'Failed to duplicate board. Please try again.',
       boardLoadFailed: 'Failed to load boards. Please try again.',
     },
   },

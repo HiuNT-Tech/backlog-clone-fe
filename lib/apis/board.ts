@@ -13,6 +13,7 @@ import {
   BoardListResponse,
   CreateBoardRequest,
   CreateNewColumnRequest,
+  DuplicateBoardRequest,
   MoveCardToDifferentColumnRequest,
   UpdateColumnDetailsRequest,
   UpdateBoardDetailRequest,
@@ -117,6 +118,16 @@ export const BoardService = {
 
   createNewBoard: async (payload: CreateBoardRequest): Promise<Board> => {
     return await sendPost(`${API_ROOT}/v1/boards`, payload);
+  },
+
+  duplicateBoard: async (
+    sourceBoardId: EntityId,
+    payload: DuplicateBoardRequest
+  ): Promise<Board> => {
+    return await sendPost(
+      `${API_ROOT}/v1/boards/${sourceBoardId}/duplicate`,
+      payload
+    );
   },
 
   getUsersBoard: async (

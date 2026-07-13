@@ -2,7 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
 import { toastHelpers } from '@/hooks/use-toast';
-import { CreateBoardRequest } from '@/config/interface';
+import {
+  CreateBoardRequest,
+  DuplicateBoardRequest,
+  EntityId,
+} from '@/config/interface';
 
 export const useDashboard = () => {
   const { t } = useTranslation();
@@ -43,6 +47,34 @@ export const useDashboard = () => {
     },
   });
 
+  // Mutation: Nhân bản board (cột, loại issue, milestone, card)
+  const {
+    mutateAsync: duplicateBoard,
+    isPending: isDuplicateBoardPending,
+    error: duplicateBoardError,
+  } = useMutation({
+    mutationFn: async ({
+      sourceBoardId,
+      data,
+    }: {
+      sourceBoardId: EntityId;
+      data: DuplicateBoardRequest;
+    }) => {
+      return await BoardService.duplicateBoard(sourceBoardId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard-boards'] });
+      toastHelpers.success({
+        description: t('toast.success.boardDuplicated'),
+      });
+    },
+    onError: () => {
+      toastHelpers.error({
+        title: t('toast.error.boardDuplicateFailed'),
+      });
+    },
+  });
+
   return {
     boards: boardListData?.items ?? [],
     isLoading,
@@ -52,5 +84,9 @@ export const useDashboard = () => {
     createBoard,
     isCreateBoardPending,
     createBoardError,
+
+    duplicateBoard,
+    isDuplicateBoardPending,
+    duplicateBoardError,
   };
 };

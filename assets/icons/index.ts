@@ -10,6 +10,7 @@ import ChevronLeft from './chevron-left.svg';
 import ChevronRight from './chevron-right.svg';
 import ChevronUp from './chevron-up.svg';
 import Clock from './clock.svg';
+import Copy from './copy.svg';
 import Hash from './hash.svg';
 import Info from './info.svg';
 import LayoutDashboard from './layout-dashboard.svg';
@@ -47,6 +48,7 @@ const Icons = {
   ChevronRight,
   ChevronUp,
   Clock,
+  Copy,
   Hash,
   Info,
   LayoutDashboard,

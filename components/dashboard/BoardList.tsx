@@ -8,14 +8,15 @@ import type { Board } from '@/config/interface';
 
 interface BoardListProps {
   boards: Board[];
+  onDuplicate?: (board: Board) => void;
 }
 
-export default function BoardList({ boards }: BoardListProps) {
+export default function BoardList({ boards, onDuplicate }: BoardListProps) {
   const { t } = useTranslation();
   const router = useRouter();
 
   const handleBoardClick = (id: number) => {
-    router.push(`project/${id}/issues`);
+    router.push(`/project/${id}/issues`);
   };
 
   if (boards.length === 0) {
@@ -32,6 +33,27 @@ export default function BoardList({ boards }: BoardListProps) {
         >
           {/* Color accent bar */}
           <div className="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-linear-to-r from-theme-main to-theme-main-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+
+          {onDuplicate && (
+            <button
+              type="button"
+              title={t('dashboard.boardCard.duplicateAction')}
+              aria-label={t('dashboard.boardCard.duplicateAction')}
+              onClick={e => {
+                e.stopPropagation();
+                onDuplicate(board);
+              }}
+              className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-md text-theme-neutral-6 opacity-0 transition-opacity duration-200 hover:bg-theme-neutral-3 hover:text-theme-main group-hover:opacity-100 cursor-pointer"
+            >
+              <Image
+                src={Icons.Copy}
+                alt=""
+                width={14}
+                height={14}
+                className="h-3.5 w-3.5"
+              />
+            </button>
+          )}
 
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-theme-main-1 text-theme-main-5 transition-colors group-hover:bg-theme-main-2">

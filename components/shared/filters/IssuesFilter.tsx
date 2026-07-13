@@ -58,6 +58,14 @@ const IssuesFilter = ({
 
   const searchFields: SearchField[] = [
     {
+      id: 'search',
+      type: 'text',
+      label: t('issues.filter.search'),
+      props: {
+        placeholder: t('issues.filter.searchPlaceholder'),
+      },
+    },
+    {
       id: 'status',
       type: 'multiOptions',
       label: t('issues.filter.status'),
