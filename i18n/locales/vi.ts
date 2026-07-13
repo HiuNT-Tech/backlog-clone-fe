@@ -133,6 +133,8 @@ const vi = {
       },
     },
     filter: {
+      search: 'Từ khoá',
+      searchPlaceholder: 'Tìm theo tên công việc...',
       status: 'Trạng thái',
       statusPlaceholder: 'Tìm trạng thái...',
       version: 'Phiên bản',
@@ -417,6 +419,7 @@ const vi = {
     },
     boardCard: {
       noDescription: 'Không có mô tả',
+      duplicateAction: 'Nhân bản board',
     },
     createProject: {
       title: 'Tạo project mới',
@@ -428,6 +431,15 @@ const vi = {
       submit: 'Tạo',
       cancel: 'Hủy',
       codeLable: 'Mã Project',
+    },
+    duplicateProject: {
+      title: 'Nhân bản board',
+      description:
+        'Tạo board mới với cột, loại issue, milestone và card giống board "{{sourceTitle}}". Không copy bình luận, file đính kèm và lịch sử chỉnh sửa.',
+      nameLabel: 'Tên board mới',
+      codeLable: 'Mã board mới',
+      submit: 'Nhân bản',
+      cancel: 'Hủy',
     },
     validation: {
       nameRequired: 'Trường này là bắt buộc',
@@ -443,11 +455,13 @@ const vi = {
       userLoggedOut: 'Đăng xuất thành công!',
       cardCreated: 'Thêm công việc thành công',
       boardCreated: 'Tạo board thành công!',
+      boardDuplicated: 'Nhân bản board thành công!',
     },
     error: {
       userLoginFailed: 'Đăng nhập thất bại',
       userVerificationFailed: 'Xác minh người dùng thất bại',
       boardCreateFailed: 'Tạo board thất bại. Vui lòng thử lại.',
+      boardDuplicateFailed: 'Nhân bản board thất bại. Vui lòng thử lại.',
       boardLoadFailed: 'Tải danh sách board thất bại. Vui lòng thử lại.',
     },
   },

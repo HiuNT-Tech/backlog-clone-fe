@@ -1,20 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import Icons from '@/assets/icons';
 import { useDashboard } from '@/hooks/use-dashboard';
 import BoardList from '@/components/dashboard/BoardList';
 import CreateBoardDialog from '@/components/shared/popup/CreateBoardPopup';
+import DuplicateBoardDialog from '@/components/shared/popup/DuplicateBoardPopup';
 import MyInvitationsBanner from '@/components/shared/invitations/MyInvitationsBanner';
 import { Button } from '@/components/ui/button';
 import { StateMessage } from '@/components/ui/state-message';
 import type { CreateBoardFormData } from '@/validation/create-board-form-schemas';
+import type { Board } from '@/config/interface';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [duplicateSource, setDuplicateSource] = useState<Board | null>(null);
 
   const {
     boards,
@@ -23,6 +28,8 @@ export default function DashboardPage() {
     refetchBoardList,
     createBoard,
     isCreateBoardPending,
+    duplicateBoard,
+    isDuplicateBoardPending,
   } = useDashboard();
 
   const handleCreateBoard = async (data: CreateBoardFormData) => {
@@ -32,6 +39,19 @@ export default function DashboardPage() {
       type: 'PUBLIC',
     });
     setIsCreateDialogOpen(false);
+  };
+
+  const handleDuplicateBoard = async (data: CreateBoardFormData) => {
+    if (!duplicateSource) return;
+    const newBoard = await duplicateBoard({
+      sourceBoardId: duplicateSource.id,
+      data: {
+        title: data.title,
+        boardCode: data.boardCode || '',
+      },
+    });
+    setDuplicateSource(null);
+    router.push(`/project/${newBoard.id}/issues`);
   };
 
   return (
@@ -142,7 +162,7 @@ export default function DashboardPage() {
       )}
 
       {!isLoading && !boardListError && boards.length > 0 && (
-        <BoardList boards={boards} />
+        <BoardList boards={boards} onDuplicate={setDuplicateSource} />
       )}
 
       {/* Create Board Dialog */}
@@ -151,6 +171,17 @@ export default function DashboardPage() {
         onOpenChange={setIsCreateDialogOpen}
         onSubmit={handleCreateBoard}
         isPending={isCreateBoardPending}
+      />
+
+      {/* Duplicate Board Dialog */}
+      <DuplicateBoardDialog
+        open={!!duplicateSource}
+        sourceTitle={duplicateSource?.title ?? ''}
+        onOpenChange={open => {
+          if (!open) setDuplicateSource(null);
+        }}
+        onSubmit={handleDuplicateBoard}
+        isPending={isDuplicateBoardPending}
       />
     </div>
   );
