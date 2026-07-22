@@ -9,6 +9,7 @@ import { IssueTypesTable } from '@/components/shared/tables/IssueTypesTable';
 import { IssueTypeCreateForm } from '@/components/shared/forms/IssueTypesCreateForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
 import { useIssueType } from '@/hooks/use-issue-type';
+import { useBoardRole } from '@/hooks/use-board-role';
 import { toastHelpers } from '@/hooks/use-toast';
 import { COLOR_KEY_TO_STATUS } from '@/constant/data';
 import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-form-schemas';
@@ -22,6 +23,7 @@ export const IssueTypesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pagination = usePagination();
+  const { isManager } = useBoardRole(boardId);
 
   const [searchParamsState, setSearchParamsState] =
     useState<Record<string, any>>();
@@ -87,7 +89,7 @@ export const IssueTypesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     } catch {}
   };
 
-  if (isCreatingIssueType) {
+  if (isCreatingIssueType && isManager) {
     return (
       <IssueTypeCreateForm
         boardId={boardId}
@@ -109,23 +111,25 @@ export const IssueTypesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
             {t('settings.issueTypes.hint')}
           </p>
         </div>
-        <Button
-          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
-          onClick={() => {
-            replaceWithUpdatedSearchParams(
-              router,
-              pathname,
-              searchParams,
-              params => {
-                params.set('tab', 'issueTypes');
-                params.set('issueTypesMode', 'create');
-              }
-            );
-            setIsCreatingIssueType(true);
-          }}
-        >
-          {t('settings.issueTypes.actions.add')}
-        </Button>
+        {isManager && (
+          <Button
+            className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
+            onClick={() => {
+              replaceWithUpdatedSearchParams(
+                router,
+                pathname,
+                searchParams,
+                params => {
+                  params.set('tab', 'issueTypes');
+                  params.set('issueTypesMode', 'create');
+                }
+              );
+              setIsCreatingIssueType(true);
+            }}
+          >
+            {t('settings.issueTypes.actions.add')}
+          </Button>
+        )}
       </div>
 
       <IssueTypesFilter onSearch={handleSearch} />
@@ -140,6 +144,7 @@ export const IssueTypesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
         onPageChange={pagination.setPage}
         onPageSizeChange={pagination.setLimit}
         onDelete={handleDelete}
+        canManage={isManager}
       />
     </div>
   );

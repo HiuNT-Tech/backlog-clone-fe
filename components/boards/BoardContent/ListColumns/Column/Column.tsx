@@ -25,6 +25,7 @@ import { toEntityIdOrUndefined } from '@/lib/entity-id';
 import { useTranslation } from 'react-i18next';
 import { sortByPosition } from '@/utils/sorts';
 import { CardPreview } from './ListCards/Card/Card';
+import { useBoardRole } from '@/hooks/use-board-role';
 
 interface ColumnProps {
   column: ColumnType;
@@ -67,6 +68,7 @@ function Column({ column }: ColumnProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const board = useSelector(selectCurrentActiveBoard);
+  const { isContributor } = useBoardRole(board?.id);
   const queryClient = useQueryClient();
 
   const {
@@ -171,18 +173,20 @@ function Column({ column }: ColumnProps) {
               {column?.title}
             </h3>
           </div>
-          <button
-            className="p-2 flex items-center justify-center cursor-pointer hover:bg-theme-main-2 rounded-full transition-colors"
-            onClick={() => setIsAddCardPopupOpen(true)}
-          >
-            <Image
-              src={Icons.Plus}
-              alt=""
-              width={16}
-              height={16}
-              className="h-4 w-4"
-            />
-          </button>
+          {isContributor && (
+            <button
+              className="p-2 flex items-center justify-center cursor-pointer hover:bg-theme-main-2 rounded-full transition-colors"
+              onClick={() => setIsAddCardPopupOpen(true)}
+            >
+              <Image
+                src={Icons.Plus}
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
+            </button>
+          )}
         </div>
 
         {/* List Cards */}

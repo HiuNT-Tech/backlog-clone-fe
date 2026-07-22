@@ -38,16 +38,21 @@ export const invitationQueryKeys = {
 
 export const useBoardInvitations = (
   boardId?: EntityId,
-  params?: InvitationListParams
+  params?: InvitationListParams,
+  options?: { enabled?: boolean }
 ) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+
+  // GET /boards/:id/invitations yêu cầu Manager ở BE → chỉ fetch khi được phép,
+  // tránh 403 lúc member/guest mở trang settings.
+  const isListEnabled = !!boardId && (options?.enabled ?? true);
 
   const listQuery = useQuery<InvitationListResponse>({
     queryKey: invitationQueryKeys.boardList(boardId, params),
     queryFn: async () =>
       await InvitationService.getBoardInvitations(boardId!, params),
-    enabled: !!boardId,
+    enabled: isListEnabled,
     staleTime: 30 * 1000,
     placeholderData: keepPreviousData,
   });

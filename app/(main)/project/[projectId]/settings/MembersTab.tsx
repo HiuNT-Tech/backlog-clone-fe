@@ -22,12 +22,14 @@ import {
 } from '@/config/interface';
 import { usePagination } from '@/hooks/use-pagination';
 import { useUserBoard } from '@/hooks/use-user-board';
+import { useBoardRole } from '@/hooks/use-board-role';
 import { useBoardInvitations } from '@/hooks/use-invitation';
 import type { InvitationFormData } from '@/validation/invitation-form-schemas';
 import { useTranslation } from 'react-i18next';
 
 export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const { t } = useTranslation();
+  const { isManager } = useBoardRole(boardId);
   const { page, limit, setPage, setLimit, apiParams } = usePagination();
   const invitationPagination = usePagination();
   const [searchParamsState, setSearchParamsState] =
@@ -52,6 +54,7 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     refetchList,
     updateMemberRole,
     isUpdateRolePending,
+    removeMember,
   } = useUserBoard(boardId, staffParams);
 
   const {
@@ -66,7 +69,7 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     isRevokeInvitationPending,
     resendInvitation,
     isResendInvitationPending,
-  } = useBoardInvitations(boardId, invitationParams);
+  } = useBoardInvitations(boardId, invitationParams, { enabled: isManager });
 
   const handleSearch = (params: UsersBoardParams) => {
     setSearchParamsState(params);
@@ -118,6 +121,21 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     setIsEditRoleDialogOpen(true);
   };
 
+  const handleRemoveMember = (member: UserBoardMember) => {
+    StaticMethodConfirm.open({
+      title: t('settings.members.removeModal.title'),
+      content: t('settings.members.removeModal.content', {
+        name: member.displayName || member.username,
+      }),
+      okText: t('settings.members.removeModal.okText'),
+      cancelText: t('common.cancel'),
+      type: 'delete',
+      onOk: async () => {
+        await removeMember(member.userId);
+      },
+    });
+  };
+
   const handleUpdateMemberRole = async (
     userId: number,
     role: BoardMemberRole
@@ -138,20 +156,22 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
             {t('settings.members.hint')}
           </p>
         </div>
-        <Button
-          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
-          onClick={() => setIsInvitationDialogOpen(true)}
-        >
-          <Image
-            src={Icons.MailPlus}
-            alt=""
-            width={16}
-            height={16}
-            className="mr-2 h-4 w-4"
-            style={{ filter: 'brightness(0) invert(1)' }}
-          />
-          {t('settings.members.actions.invite')}
-        </Button>
+        {isManager && (
+          <Button
+            className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
+            onClick={() => setIsInvitationDialogOpen(true)}
+          >
+            <Image
+              src={Icons.MailPlus}
+              alt=""
+              width={16}
+              height={16}
+              className="mr-2 h-4 w-4"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+            {t('settings.members.actions.invite')}
+          </Button>
+        )}
       </div>
 
       <MembersFilter onSearch={handleSearch} />
@@ -168,36 +188,40 @@ export const MembersTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
           onPageChange={setPage}
           onPageSizeChange={setLimit}
           onEditRole={handleEditRole}
+          onRemove={handleRemoveMember}
+          canManage={isManager}
         />
       ) : null}
 
-      <div className="space-y-5 border-t border-theme-neutral-4 pt-5">
-        <div>
-          <h3 className="text-lg font-semibold text-theme-neutral-11">
-            {t('settings.invitations.heading')}
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
-            {t('settings.invitations.hint')}
-          </p>
+      {isManager && (
+        <div className="space-y-5 border-t border-theme-neutral-4 pt-5">
+          <div>
+            <h3 className="text-lg font-semibold text-theme-neutral-11">
+              {t('settings.invitations.heading')}
+            </h3>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-theme-neutral-8">
+              {t('settings.invitations.hint')}
+            </p>
+          </div>
+
+          <InvitationsFilter onSearch={handleInvitationSearch} />
+
+          <InvitationsTable
+            data={invitationsData}
+            loading={isInvitationsLoading || isInvitationsFetching}
+            error={invitationListError}
+            refetch={refetchInvitationList}
+            page={invitationPagination.page}
+            limit={invitationPagination.limit}
+            onPageChange={invitationPagination.setPage}
+            onPageSizeChange={invitationPagination.setLimit}
+            onRevoke={handleRevokeInvitation}
+            onResend={handleResendInvitation}
+            isActionPending={isRevokeInvitationPending}
+            isResendPending={isResendInvitationPending}
+          />
         </div>
-
-        <InvitationsFilter onSearch={handleInvitationSearch} />
-
-        <InvitationsTable
-          data={invitationsData}
-          loading={isInvitationsLoading || isInvitationsFetching}
-          error={invitationListError}
-          refetch={refetchInvitationList}
-          page={invitationPagination.page}
-          limit={invitationPagination.limit}
-          onPageChange={invitationPagination.setPage}
-          onPageSizeChange={invitationPagination.setLimit}
-          onRevoke={handleRevokeInvitation}
-          onResend={handleResendInvitation}
-          isActionPending={isRevokeInvitationPending}
-          isResendPending={isResendInvitationPending}
-        />
-      </div>
+      )}
 
       <InvitationCreatePopup
         open={isInvitationDialogOpen}

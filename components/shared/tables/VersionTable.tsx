@@ -18,6 +18,8 @@ export interface VersionTableProps {
   onPageSizeChange: (limit: number) => void;
   onDelete?: (id: EntityId) => void;
   onEdit?: (record: Version) => void;
+  /** Chỉ Manager (ADMIN/PM) mới thấy thao tác sửa / xoá. */
+  canManage?: boolean;
 }
 
 const VersionTable: React.FC<VersionTableProps> = ({
@@ -31,6 +33,7 @@ const VersionTable: React.FC<VersionTableProps> = ({
   onPageSizeChange,
   onDelete,
   onEdit,
+  canManage = false,
 }) => {
   const { t } = useTranslation();
 
@@ -83,20 +86,24 @@ const VersionTable: React.FC<VersionTableProps> = ({
         onChange: onPageChange,
         onShowSizeChange: onPageSizeChange,
       }}
-      actions={[
-        {
-          icon: Images.IconTrash,
-          title: t('settings.versions.table.delete'),
-          onClick: (record: Version) => {
-            if (record?.id) onDelete?.(record.id);
-          },
-        },
-        {
-          icon: Images.IconEdit,
-          title: t('common.edit'),
-          onClick: (record: Version) => onEdit?.(record),
-        },
-      ]}
+      actions={
+        canManage
+          ? [
+              {
+                icon: Images.IconTrash,
+                title: t('settings.versions.table.delete'),
+                onClick: (record: Version) => {
+                  if (record?.id) onDelete?.(record.id);
+                },
+              },
+              {
+                icon: Images.IconEdit,
+                title: t('common.edit'),
+                onClick: (record: Version) => onEdit?.(record),
+              },
+            ]
+          : []
+      }
     />
   );
 };

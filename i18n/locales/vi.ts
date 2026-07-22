@@ -248,6 +248,13 @@ const vi = {
         success: 'Đã cập nhật vai trò thành viên.',
         error: 'Cập nhật vai trò thất bại.',
       },
+      removeModal: {
+        title: 'Xoá thành viên',
+        content: 'Bạn có chắc muốn xoá {{name}} khỏi board này không?',
+        okText: 'Xoá',
+        success: 'Đã xoá thành viên khỏi board.',
+        error: 'Xoá thành viên thất bại.',
+      },
     },
     invitations: {
       heading: 'Lời mời đang gửi',
@@ -568,6 +575,8 @@ const vi = {
     comments: {
       title: 'Bình luận',
       placeholder: 'Viết bình luận, dùng @mention để thông báo đồng nghiệp...',
+      readOnly:
+        'Bạn chỉ có quyền xem board này (GUEST) nên không thể bình luận.',
       post: 'Gửi',
       preview: 'Xem trước',
       close: 'Đóng',

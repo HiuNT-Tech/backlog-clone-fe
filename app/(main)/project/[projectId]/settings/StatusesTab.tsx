@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
 import { useColumn } from '@/hooks/use-column';
+import { useBoardRole } from '@/hooks/use-board-role';
 import { toastHelpers } from '@/hooks/use-toast';
 import { COLOR_KEY_TO_STATUS } from '@/constant/data';
 import type { CreateIssueTypeFormData } from '@/validation/create-issue-type-form-schemas';
@@ -23,6 +24,7 @@ export const StatusesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pagination = usePagination();
+  const { isManager } = useBoardRole(boardId);
 
   const [searchParamsState, setSearchParamsState] =
     useState<Record<string, any>>();
@@ -86,7 +88,7 @@ export const StatusesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
     } catch {}
   };
 
-  if (isCreatingStatus) {
+  if (isCreatingStatus && isManager) {
     return (
       <StatusCreateForm
         onClose={handleCloseCreate}
@@ -107,23 +109,25 @@ export const StatusesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
             {t('settings.statuses.hint')}
           </p>
         </div>
-        <Button
-          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
-          onClick={() => {
-            replaceWithUpdatedSearchParams(
-              router,
-              pathname,
-              searchParams,
-              params => {
-                params.set('tab', 'statuses');
-                params.set('statusesMode', 'create');
-              }
-            );
-            setIsCreatingStatus(true);
-          }}
-        >
-          {t('settings.statuses.actions.add')}
-        </Button>
+        {isManager && (
+          <Button
+            className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
+            onClick={() => {
+              replaceWithUpdatedSearchParams(
+                router,
+                pathname,
+                searchParams,
+                params => {
+                  params.set('tab', 'statuses');
+                  params.set('statusesMode', 'create');
+                }
+              );
+              setIsCreatingStatus(true);
+            }}
+          >
+            {t('settings.statuses.actions.add')}
+          </Button>
+        )}
       </div>
 
       <StatusesFilter onSearch={handleSearch} />
@@ -137,6 +141,7 @@ export const StatusesTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
         onPageChange={pagination.setPage}
         onPageSizeChange={pagination.setLimit}
         onDelete={handleDelete}
+        canManage={isManager}
       />
     </div>
   );

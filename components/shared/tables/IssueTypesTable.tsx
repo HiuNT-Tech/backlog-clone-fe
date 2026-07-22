@@ -18,6 +18,8 @@ export interface IssueTypesTableProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
   onDelete?: (id: EntityId) => void;
+  /** Chỉ Manager (ADMIN/PM) mới thấy thao tác xoá. */
+  canManage?: boolean;
 }
 
 export const IssueTypesTable: React.FC<IssueTypesTableProps> = ({
@@ -30,6 +32,7 @@ export const IssueTypesTable: React.FC<IssueTypesTableProps> = ({
   onPageChange,
   onPageSizeChange,
   onDelete,
+  canManage = false,
 }) => {
   const { t } = useTranslation();
 
@@ -79,13 +82,17 @@ export const IssueTypesTable: React.FC<IssueTypesTableProps> = ({
         onChange: onPageChange,
         onShowSizeChange: onPageSizeChange,
       }}
-      actions={[
-        {
-          icon: Images.IconTrash,
-          title: t('settings.issueTypes.table.delete'),
-          onClick: record => handleDelete(record),
-        },
-      ]}
+      actions={
+        canManage
+          ? [
+              {
+                icon: Images.IconTrash,
+                title: t('settings.issueTypes.table.delete'),
+                onClick: record => handleDelete(record),
+              },
+            ]
+          : []
+      }
     />
   );
 };

@@ -10,6 +10,7 @@ import { VersionForm } from '@/components/shared/forms/VersionForm';
 import { replaceWithUpdatedSearchParams } from '@/lib/url';
 import { usePagination } from '@/hooks/use-pagination';
 import { useVersion } from '@/hooks/use-version';
+import { useBoardRole } from '@/hooks/use-board-role';
 import { toastHelpers } from '@/hooks/use-toast';
 import type { EntityId, Version } from '@/config/interface';
 import type { CreateVersionFormData } from '@/validation/version-form-schema';
@@ -21,6 +22,7 @@ export const VersionsTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pagination = usePagination();
+  const { isManager } = useBoardRole(boardId);
 
   const [searchParamsState, setSearchParamsState] =
     useState<Record<string, any>>();
@@ -102,7 +104,7 @@ export const VersionsTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
 
   const isPending = isCreatePending || isUpdatePending;
 
-  if (isFormOpen) {
+  if (isFormOpen && isManager) {
     return (
       <VersionForm
         editingVersion={editingVersion}
@@ -124,24 +126,26 @@ export const VersionsTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
             {t('settings.versions.hint')}
           </p>
         </div>
-        <Button
-          className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
-          onClick={() => {
-            replaceWithUpdatedSearchParams(
-              router,
-              pathname,
-              searchParams,
-              params => {
-                params.set('tab', 'versions');
-                params.set('versionsMode', 'create');
-              }
-            );
-            setEditingVersion(null);
-            setIsCreatingVersion(true);
-          }}
-        >
-          {t('settings.versions.actions.add')}
-        </Button>
+        {isManager && (
+          <Button
+            className="h-10 rounded-md bg-theme-main px-4 text-theme-neutral-1 shadow-sm hover:bg-theme-hover"
+            onClick={() => {
+              replaceWithUpdatedSearchParams(
+                router,
+                pathname,
+                searchParams,
+                params => {
+                  params.set('tab', 'versions');
+                  params.set('versionsMode', 'create');
+                }
+              );
+              setEditingVersion(null);
+              setIsCreatingVersion(true);
+            }}
+          >
+            {t('settings.versions.actions.add')}
+          </Button>
+        )}
       </div>
 
       <VersionsFilter onSearch={handleSearch} />
@@ -160,6 +164,7 @@ export const VersionsTab: React.FC<{ boardId: EntityId }> = ({ boardId }) => {
           setEditingVersion(record);
           setIsCreatingVersion(false);
         }}
+        canManage={isManager}
       />
     </div>
   );

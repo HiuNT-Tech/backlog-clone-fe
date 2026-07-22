@@ -17,6 +17,8 @@ export interface StatusesTableProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
   onDelete?: (id: EntityId) => void;
+  /** Chỉ Manager (ADMIN/PM) mới thấy thao tác xoá. */
+  canManage?: boolean;
 }
 
 export const StatusesTable: React.FC<StatusesTableProps> = ({
@@ -29,6 +31,7 @@ export const StatusesTable: React.FC<StatusesTableProps> = ({
   onPageChange,
   onPageSizeChange,
   onDelete,
+  canManage = false,
 }) => {
   const { t } = useTranslation();
 
@@ -76,13 +79,17 @@ export const StatusesTable: React.FC<StatusesTableProps> = ({
         onChange: onPageChange,
         onShowSizeChange: onPageSizeChange,
       }}
-      actions={[
-        {
-          icon: Images.IconTrash,
-          title: t('settings.issueTypes.table.delete'),
-          onClick: record => handleDelete(record),
-        },
-      ]}
+      actions={
+        canManage
+          ? [
+              {
+                icon: Images.IconTrash,
+                title: t('settings.issueTypes.table.delete'),
+                onClick: record => handleDelete(record),
+              },
+            ]
+          : []
+      }
     />
   );
 };
