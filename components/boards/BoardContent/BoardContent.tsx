@@ -30,6 +30,7 @@ import type {
   EntityId,
 } from '@/config/interface';
 import { sortByPosition, withSequentialPositions } from '@/utils/sorts';
+import { useBoardRole } from '@/hooks/use-board-role';
 
 const CARD_LIST_ID_PREFIX = 'cards-';
 const COLUMN_ID_PREFIX = 'column-';
@@ -250,7 +251,11 @@ function BoardContent({
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: { delay: 250, tolerance: 500 },
   });
-  const sensors = useSensors(mouseSensor, touchSensor);
+  const allSensors = useSensors(mouseSensor, touchSensor);
+  // GUEST chỉ đọc → không cho kéo-thả card/column (BE cũng chỉ cho Contributor
+  // move card). Truyền mảng sensor rỗng để vô hiệu hoá drag.
+  const { isContributor } = useBoardRole(board?.id);
+  const sensors = isContributor ? allSensors : [];
 
   const [orderedColumns, setOrderedColumns] = useState<ColumnType[]>([]);
   const [activeDragItemType, setActiveDragItemType] =

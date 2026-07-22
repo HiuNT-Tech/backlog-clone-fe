@@ -121,8 +121,10 @@ authorizedAxiosInstance.interceptors.response.use(
       toastHelpers.error({ description: errorMessage });
     }
 
-    // Handle authentication errors - redirect to login
-    if (response?.status === 401 || response?.status === 403) {
+    // Chỉ redirect về login khi 401 (chưa/​hết xác thực).
+    // 403 = đã đăng nhập nhưng không đủ quyền → giữ nguyên trang, chỉ hiện toast
+    // lỗi (đã xử lý ở trên), KHÔNG đá user ra màn login.
+    if (response?.status === 401) {
       // Only redirect if we're in the browser
       if (typeof window !== 'undefined') {
         const currentPath = window.location.pathname + window.location.search;

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
 import { renderMemberRoleBadge } from '@/constant/data';
 import Images from '@/assets';
-import StaticMethodConfirm from '@/components/modal/static-method-confirm';
 import {
   EntityId,
   UserBoardMember,
@@ -24,6 +23,9 @@ export interface MembersTableProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
   onEditRole?: (member: UserBoardMember) => void;
+  onRemove?: (member: UserBoardMember) => void;
+  /** Chỉ Manager (ADMIN/PM) mới thấy các thao tác sửa role / xoá member. */
+  canManage?: boolean;
 }
 
 export const MembersTable: React.FC<MembersTableProps> = ({
@@ -37,18 +39,10 @@ export const MembersTable: React.FC<MembersTableProps> = ({
   onPageChange,
   onPageSizeChange,
   onEditRole,
+  onRemove,
+  canManage = false,
 }) => {
   const { t } = useTranslation();
-
-  const handleDelete = () => {
-    StaticMethodConfirm.open({
-      title: t('settings.members.table.delete'),
-      content: t('settings.members.table.deleteContent'),
-      onOk: () => {
-        console.log('delete');
-      },
-    });
-  };
 
   const columns = useMemo<TableColumn<UserBoardMember>[]>(
     () => [
@@ -96,18 +90,22 @@ export const MembersTable: React.FC<MembersTableProps> = ({
       columns={columns}
       dataSource={listUser?.items ?? []}
       emptyText={t('settings.members.table.empty')}
-      actions={[
-        {
-          icon: Images.IconEdit,
-          title: t('settings.members.table.editRole'),
-          onClick: record => onEditRole?.(record),
-        },
-        {
-          icon: Images.IconTrash,
-          title: t('settings.members.table.delete'),
-          onClick: handleDelete,
-        },
-      ]}
+      actions={
+        canManage
+          ? [
+              {
+                icon: Images.IconEdit,
+                title: t('settings.members.table.editRole'),
+                onClick: record => onEditRole?.(record),
+              },
+              {
+                icon: Images.IconTrash,
+                title: t('settings.members.table.delete'),
+                onClick: record => onRemove?.(record),
+              },
+            ]
+          : []
+      }
       pagination={{
         current: page,
         total: listUser?.total || 0,

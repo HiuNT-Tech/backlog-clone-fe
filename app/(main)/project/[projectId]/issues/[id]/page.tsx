@@ -25,6 +25,7 @@ import type { EditFormData } from './edit-form-fields';
 import { CommentList, StickyCommentBar } from './comment-section';
 import { useAppSelector } from '@/redux/hooks';
 import { selectCurrentUser } from '@/redux/user/userSlice';
+import { getRoleFlags } from '@/hooks/use-board-role';
 import dayjs from 'dayjs';
 
 /* ─── Shared Badge ─── */
@@ -85,6 +86,10 @@ export default function IssueDetailPage() {
     useCardDetail(cardId);
   const { versions } = useVersion(boardId, { skip: 0, limit: 100 });
   const { listUser } = useUserBoard(boardId, { skip: 0, limit: 100 });
+  // Vai trò của người dùng hiện tại trên board (nguồn: danh sách member đã fetch).
+  const myBoardRole =
+    listUser.items.find(m => m.userId === currentUser?.id)?.role ?? null;
+  const { isContributor } = getRoleFlags(myBoardRole);
   const { columns } = useColumn(boardId);
   const { issueTypes } = useIssueType(boardId);
 
@@ -425,7 +430,7 @@ export default function IssueDetailPage() {
                     : t('issueDetail.save', 'Save')}
                 </Button>
               </>
-            ) : (
+            ) : isContributor ? (
               <Button
                 type="button"
                 variant="outline"
@@ -442,7 +447,7 @@ export default function IssueDetailPage() {
                 />{' '}
                 {t('issueDetail.edit')}
               </Button>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -482,6 +487,7 @@ export default function IssueDetailPage() {
           USER_OPTIONS={USER_OPTIONS}
           VERSION_OPTIONS={VERSION_OPTIONS}
           handleFieldUpdate={handleFieldUpdate}
+          canContribute={isContributor}
         />
       )}
     </div>

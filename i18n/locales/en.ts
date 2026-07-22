@@ -254,6 +254,13 @@ const en = {
         success: 'Member role updated.',
         error: 'Failed to update member role.',
       },
+      removeModal: {
+        title: 'Remove member',
+        content: 'Are you sure you want to remove {{name}} from this board?',
+        okText: 'Remove',
+        success: 'Member removed from the board.',
+        error: 'Failed to remove member.',
+      },
     },
     invitations: {
       heading: 'Sent invitations',
@@ -575,6 +582,8 @@ const en = {
     comments: {
       title: 'Comments',
       placeholder: 'Write a comment, use @mention to notify a colleague...',
+      readOnly:
+        'You have read-only access to this board (GUEST) and cannot comment.',
       post: 'Submit',
       preview: 'Preview',
       close: 'Close',

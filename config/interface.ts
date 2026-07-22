@@ -262,7 +262,6 @@ export interface LoginUserResponse {
   email: string;
   displayName: string;
   avatar: string | null;
-  role: string;
   isActive: boolean;
   accessToken: string;
   refreshToken: string;

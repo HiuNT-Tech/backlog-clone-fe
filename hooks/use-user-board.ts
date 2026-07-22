@@ -48,6 +48,24 @@ export const useUserBoard = (boardId?: EntityId, params?: UsersBoardParams) => {
     },
   });
 
+  const removeMemberMutation = useMutation({
+    mutationFn: async (userId: EntityId) =>
+      await BoardService.removeMember(boardId!, userId),
+    onSuccess: () => {
+      toastHelpers.success({
+        title: t('settings.members.removeModal.success'),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['users', 'board', boardId],
+      });
+    },
+    onError: () => {
+      toastHelpers.error({
+        title: t('settings.members.removeModal.error'),
+      });
+    },
+  });
+
   return {
     listUser: data,
     isLoading,
@@ -55,5 +73,7 @@ export const useUserBoard = (boardId?: EntityId, params?: UsersBoardParams) => {
     refetchList,
     updateMemberRole: updateRoleMutation.mutateAsync,
     isUpdateRolePending: updateRoleMutation.isPending,
+    removeMember: removeMemberMutation.mutateAsync,
+    isRemoveMemberPending: removeMemberMutation.isPending,
   };
 };

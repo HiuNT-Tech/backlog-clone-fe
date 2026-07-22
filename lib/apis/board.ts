@@ -147,4 +147,10 @@ export const BoardService = {
       { role }
     );
   },
+
+  removeMember: async (boardId: EntityId, userId: EntityId): Promise<void> => {
+    return await sendDelete(
+      `${API_ROOT}/v1/boards/${boardId}/members/${userId}`
+    );
+  },
 };

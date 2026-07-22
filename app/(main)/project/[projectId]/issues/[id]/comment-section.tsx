@@ -378,6 +378,12 @@ export interface StickyCommentBarProps {
   USER_OPTIONS: any[];
   VERSION_OPTIONS: any[];
   handleFieldUpdate: (field: string, value: any) => void;
+  /**
+   * Contributor (ADMIN/PM/MEMBER) mới được comment và sửa field card.
+   * GUEST = false → chỉ hiện thanh read-only. Khớp với BE (comment + update
+   * card yêu cầu BOARD_CONTRIBUTOR_ROLES).
+   */
+  canContribute?: boolean;
 }
 
 export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
@@ -393,6 +399,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
   USER_OPTIONS,
   VERSION_OPTIONS,
   handleFieldUpdate,
+  canContribute = false,
 }) => {
   const { t } = useTranslation();
   const { createComment, isCreating } = useComments(cardId);
@@ -432,6 +439,16 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
       toastHelpers.error({ title: t('issueDetail.comments.postError') });
     }
   };
+
+  if (!canContribute) {
+    return (
+      <div className="sticky bottom-0 bg-white border-t border-theme-neutral-4/60 z-30">
+        <div className="px-6 py-3 text-sm text-theme-neutral-7 italic">
+          {t('issueDetail.comments.readOnly', 'Bạn chỉ có quyền xem (GUEST).')}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sticky bottom-0 bg-white border-t border-theme-neutral-4/60 z-30">
