@@ -219,7 +219,7 @@ const vi = {
     members: {
       heading: 'Thành viên dự án',
       hint: 'Mời cộng tác viên và quản lý quyền trong dự án.',
-      searchPlaceholder: 'Tìm kiếm theo tên',
+      searchPlaceholder: 'Tìm theo tên, email hoặc mã người dùng',
       roleFilterPlaceholder: 'Lọc theo vai trò',
       actions: {
         invite: 'Mời thành viên',
@@ -233,6 +233,7 @@ const vi = {
       },
       table: {
         member: 'Thành viên',
+        userCode: 'Mã người dùng',
         role: 'Vai trò',
         joinedOn: 'Ngày tham gia',
         empty: 'Không tìm thấy thành viên.',
@@ -410,9 +411,11 @@ const vi = {
     title: 'Bảng điều khiển',
     description: 'Xem và quản lý các board của bạn.',
     addNewProject: 'Thêm Project mới',
+    createSampleProject: 'Tạo project mẫu',
     empty: {
       title: 'Chưa có board nào',
-      description: 'Bạn chưa có board nào. Hãy tạo một board để bắt đầu!',
+      description:
+        'Chưa quen công cụ? Hãy tạo một project mẫu để xem trước cách một dự án được tổ chức. Hoặc tạo board trống nếu bạn muốn bắt đầu từ đầu.',
     },
     invitations: {
       bannerTitle: 'Lời mời đang chờ',
@@ -448,11 +451,31 @@ const vi = {
       submit: 'Nhân bản',
       cancel: 'Hủy',
     },
+    sampleProject: {
+      title: 'Tạo project mẫu',
+      description:
+        'Tạo một project có sẵn dữ liệu để bạn xem thử một dự án thật được tổ chức như thế nào. Bạn có thể sửa hoặc xoá nó bất cứ lúc nào.',
+      defaultTitle: 'Project mẫu',
+      includesColumns: 'Các cột trạng thái mặc định (To Do → Closed)',
+      includesIssueTypes: 'Các loại issue: Bug, Task, Request, Misc',
+      includesMilestones: 'Milestone (phiên bản) kèm ngày bắt đầu và kết thúc',
+      includesTickets:
+        'Ticket mẫu ở nhiều trạng thái, có việc được gán cho bạn và có việc đã quá hạn',
+      nameLabel: 'Tên project',
+      codeLabel: 'Mã project',
+      submit: 'Tạo project mẫu',
+      cancel: 'Hủy',
+    },
     validation: {
       nameRequired: 'Trường này là bắt buộc',
       nameMax: 'Tên board tối đa 50 ký tự',
       nameEmpty: 'Tên board không được để trống',
       descriptionMax: 'Mô tả tối đa 255 ký tự',
+      codeRequired: 'Mã project là bắt buộc',
+      codeMin: 'Mã project tối thiểu 2 ký tự',
+      codeMax: 'Mã project tối đa 16 ký tự',
+      codeFormat:
+        'Mã project chỉ được dùng chữ in hoa không dấu, số, gạch dưới và gạch ngang (ví dụ: WEB-2026)',
     },
   },
   toast: {
@@ -463,12 +486,15 @@ const vi = {
       cardCreated: 'Thêm công việc thành công',
       boardCreated: 'Tạo board thành công!',
       boardDuplicated: 'Nhân bản board thành công!',
+      sampleBoardCreated: 'Đã tạo project mẫu! Hãy thử khám phá xem nhé.',
     },
     error: {
       userLoginFailed: 'Đăng nhập thất bại',
       userVerificationFailed: 'Xác minh người dùng thất bại',
       boardCreateFailed: 'Tạo board thất bại. Vui lòng thử lại.',
       boardDuplicateFailed: 'Nhân bản board thất bại. Vui lòng thử lại.',
+      sampleBoardCreateFailed:
+        'Tạo project mẫu thất bại. Mã project có thể đã tồn tại — hãy thử mã khác.',
       boardLoadFailed: 'Tải danh sách board thất bại. Vui lòng thử lại.',
     },
   },

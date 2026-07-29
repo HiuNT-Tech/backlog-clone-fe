@@ -58,6 +58,20 @@ export const MembersTable: React.FC<MembersTableProps> = ({
         ),
       },
       {
+        key: 'userCode',
+        title: t('settings.members.table.userCode'),
+        dataIndex: 'userCode',
+        render: value =>
+          value ? (
+            <span className="font-mono text-theme-neutral-9">
+              {value as string}
+            </span>
+          ) : (
+            // User tạo trước khi có tính năng mã người dùng thì để trống.
+            <span className="text-theme-neutral-7">—</span>
+          ),
+      },
+      {
         key: 'email',
         title: 'Email',
         dataIndex: 'email',

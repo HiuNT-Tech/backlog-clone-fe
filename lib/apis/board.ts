@@ -13,6 +13,7 @@ import {
   BoardListResponse,
   CreateBoardRequest,
   CreateNewColumnRequest,
+  CreateSampleBoardRequest,
   DuplicateBoardRequest,
   MoveCardToDifferentColumnRequest,
   UpdateColumnDetailsRequest,
@@ -128,6 +129,12 @@ export const BoardService = {
       `${API_ROOT}/v1/boards/${sourceBoardId}/duplicate`,
       payload
     );
+  },
+
+  createSampleBoard: async (
+    payload: CreateSampleBoardRequest
+  ): Promise<Board> => {
+    return await sendPost(`${API_ROOT}/v1/boards/sample`, payload);
   },
 
   getUsersBoard: async (

@@ -17,6 +17,7 @@ import {
   createBoardFormSchema,
   CreateBoardFormData,
 } from '@/validation/create-board-form-schemas';
+import { toBoardCode } from '@/utils/board-code';
 
 interface CreateBoardDialogProps {
   open: boolean;
@@ -38,8 +39,7 @@ export default function CreateBoardDialog({
     handleSubmit,
     reset,
     setValue,
-    watch,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<CreateBoardFormData>({
     resolver: zodResolver(createBoardFormSchema),
     defaultValues: {
@@ -48,10 +48,18 @@ export default function CreateBoardDialog({
     },
   });
 
+  // `setValue` không kèm `shouldDirty` nên cờ này chỉ bật khi chính người dùng
+  // gõ vào ô mã project.
+  const isBoardCodeDirty = !!dirtyFields.boardCode;
+
+  // Gợi ý mã project từ tên, nhưng chỉ khi người dùng chưa tự sửa mã — tránh
+  // ghi đè giá trị họ đã chủ động nhập.
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setValue('title', value);
-    setValue('boardCode', value.toUpperCase());
+    if (!isBoardCodeDirty) {
+      setValue('boardCode', toBoardCode(value), { shouldValidate: true });
+    }
   };
 
   const handleFormSubmit = async (data: CreateBoardFormData) => {
