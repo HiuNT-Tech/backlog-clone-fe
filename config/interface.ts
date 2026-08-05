@@ -125,6 +125,13 @@ export interface DuplicateBoardRequest {
   type?: BoardType;
 }
 
+export interface CreateSampleBoardRequest {
+  title: string;
+  boardCode: string;
+  /** Ngôn ngữ nội dung ticket mẫu. Bỏ trống thì BE dùng mặc định. */
+  locale?: 'vi' | 'en';
+}
+
 export interface IssueType {
   id: EntityId;
   boardId?: EntityId;
@@ -298,6 +305,8 @@ export interface UserBoardMember {
   username: string;
   displayName: string;
   avatar: string | null;
+  /** Mã người dùng công khai (vd `U-000042`). Null với user tạo trước tính năng này. */
+  userCode: string | null;
   createdAt: number;
   updatedAt: number | null;
 }

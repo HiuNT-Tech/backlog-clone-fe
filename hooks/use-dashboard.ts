@@ -4,12 +4,13 @@ import { BoardService } from '@/lib/apis/board';
 import { toastHelpers } from '@/hooks/use-toast';
 import {
   CreateBoardRequest,
+  CreateSampleBoardRequest,
   DuplicateBoardRequest,
   EntityId,
 } from '@/config/interface';
 
 export const useDashboard = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
 
   // Query: Lấy danh sách boards
@@ -75,6 +76,33 @@ export const useDashboard = () => {
     },
   });
 
+  // Mutation: Tạo project mẫu (board demo có sẵn cột, loại issue, milestone,
+  // ticket) cho người dùng chưa quen tool. Nội dung mẫu do BE sinh ra, FE chỉ
+  // gửi kèm ngôn ngữ đang dùng để ticket mẫu đúng tiếng người dùng đang đọc.
+  const {
+    mutateAsync: createSampleBoard,
+    isPending: isCreateSampleBoardPending,
+    error: createSampleBoardError,
+  } = useMutation({
+    mutationFn: async (data: Omit<CreateSampleBoardRequest, 'locale'>) => {
+      return await BoardService.createSampleBoard({
+        ...data,
+        locale: i18n.language.startsWith('vi') ? 'vi' : 'en',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard-boards'] });
+      toastHelpers.success({
+        description: t('toast.success.sampleBoardCreated'),
+      });
+    },
+    onError: () => {
+      toastHelpers.error({
+        title: t('toast.error.sampleBoardCreateFailed'),
+      });
+    },
+  });
+
   return {
     boards: boardListData?.items ?? [],
     isLoading,
@@ -88,5 +116,9 @@ export const useDashboard = () => {
     duplicateBoard,
     isDuplicateBoardPending,
     duplicateBoardError,
+
+    createSampleBoard,
+    isCreateSampleBoardPending,
+    createSampleBoardError,
   };
 };

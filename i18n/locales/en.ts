@@ -225,7 +225,7 @@ const en = {
     members: {
       heading: 'Project Members',
       hint: 'Invite teammates and control their permissions in this project.',
-      searchPlaceholder: 'Search by name',
+      searchPlaceholder: 'Search by name, email or user code',
       roleFilterPlaceholder: 'Filter by role',
       actions: {
         invite: 'Invite member',
@@ -239,6 +239,7 @@ const en = {
       },
       table: {
         member: 'Member',
+        userCode: 'User code',
         role: 'Role',
         joinedOn: 'Joined on',
         empty: 'No members found.',
@@ -417,9 +418,11 @@ const en = {
     title: 'Dashboard',
     description: 'Browse and manage your boards.',
     addNewProject: 'Add New Project',
+    createSampleProject: 'Create sample project',
     empty: {
       title: 'No boards yet',
-      description: "You don't have any boards yet. Create one to get started!",
+      description:
+        'New to the tool? Create a sample project to see how a real one is organised. Or start from an empty board if you prefer.',
     },
     invitations: {
       bannerTitle: 'Pending invitations',
@@ -455,7 +458,27 @@ const en = {
       submit: 'Duplicate',
       cancel: 'Cancel',
     },
+    sampleProject: {
+      title: 'Create a sample project',
+      description:
+        'Create a project filled with example data so you can see how a real project is organised. You can edit or delete it any time.',
+      defaultTitle: 'Sample Project',
+      includesColumns: 'The default status columns (To Do → Closed)',
+      includesIssueTypes: 'Issue types: Bug, Task, Request, Misc',
+      includesMilestones: 'Milestones (versions) with start and end dates',
+      includesTickets:
+        'Example tickets across every status, including some assigned to you and one already overdue',
+      nameLabel: 'Project name',
+      codeLabel: 'Project code',
+      submit: 'Create sample project',
+      cancel: 'Cancel',
+    },
     validation: {
+      codeRequired: 'Project code is required',
+      codeMin: 'Project code must be at least 2 characters',
+      codeMax: 'Project code must be at most 16 characters',
+      codeFormat:
+        'Project code may only use uppercase letters, numbers, underscores and hyphens (e.g. WEB-2026)',
       nameRequired: 'This field is required',
       nameMax: 'Board name must be less than 50 characters',
       nameEmpty: 'Board name cannot be empty',
@@ -470,12 +493,15 @@ const en = {
       cardCreated: 'Card created successfully',
       boardCreated: 'Board created successfully!',
       boardDuplicated: 'Board duplicated successfully!',
+      sampleBoardCreated: 'Sample project created! Have a look around.',
     },
     error: {
       userLoginFailed: 'User login failed',
       userVerificationFailed: 'User verification failed',
       boardCreateFailed: 'Failed to create board. Please try again.',
       boardDuplicateFailed: 'Failed to duplicate board. Please try again.',
+      sampleBoardCreateFailed:
+        'Failed to create the sample project. The project code may already be taken — try another one.',
       boardLoadFailed: 'Failed to load boards. Please try again.',
     },
   },

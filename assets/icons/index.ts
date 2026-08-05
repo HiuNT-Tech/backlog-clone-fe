@@ -32,6 +32,7 @@ import Search from './search.svg';
 import Send from './send.svg';
 import SendHorizontal from './send-horizontal.svg';
 import Smile from './smile.svg';
+import Sparkles from './sparkles.svg';
 import UserPlus from './user-plus.svg';
 import UserRoundPlus from './user-round-plus.svg';
 import Users from './users.svg';
@@ -70,6 +71,7 @@ const Icons = {
   Send,
   SendHorizontal,
   Smile,
+  Sparkles,
   UserPlus,
   UserRoundPlus,
   Users,

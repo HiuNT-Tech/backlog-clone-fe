@@ -9,6 +9,7 @@ import { useDashboard } from '@/hooks/use-dashboard';
 import BoardList from '@/components/dashboard/BoardList';
 import CreateBoardDialog from '@/components/shared/popup/CreateBoardPopup';
 import DuplicateBoardDialog from '@/components/shared/popup/DuplicateBoardPopup';
+import SampleBoardDialog from '@/components/shared/popup/SampleBoardPopup';
 import MyInvitationsBanner from '@/components/shared/invitations/MyInvitationsBanner';
 import { Button } from '@/components/ui/button';
 import { StateMessage } from '@/components/ui/state-message';
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isSampleDialogOpen, setIsSampleDialogOpen] = useState(false);
   const [duplicateSource, setDuplicateSource] = useState<Board | null>(null);
 
   const {
@@ -30,15 +32,26 @@ export default function DashboardPage() {
     isCreateBoardPending,
     duplicateBoard,
     isDuplicateBoardPending,
+    createSampleBoard,
+    isCreateSampleBoardPending,
   } = useDashboard();
 
   const handleCreateBoard = async (data: CreateBoardFormData) => {
     await createBoard({
       title: data.title,
-      boardCode: data.boardCode || '',
+      boardCode: data.boardCode,
       type: 'PUBLIC',
     });
     setIsCreateDialogOpen(false);
+  };
+
+  const handleCreateSampleBoard = async (data: CreateBoardFormData) => {
+    const newBoard = await createSampleBoard({
+      title: data.title,
+      boardCode: data.boardCode,
+    });
+    setIsSampleDialogOpen(false);
+    router.push(`/project/${newBoard.id}/issues`);
   };
 
   const handleDuplicateBoard = async (data: CreateBoardFormData) => {
@@ -47,7 +60,7 @@ export default function DashboardPage() {
       sourceBoardId: duplicateSource.id,
       data: {
         title: data.title,
-        boardCode: data.boardCode || '',
+        boardCode: data.boardCode,
       },
     });
     setDuplicateSource(null);
@@ -66,22 +79,41 @@ export default function DashboardPage() {
             {t('dashboard.description')}
           </p>
         </div>
-        <Button
-          id="add-new-board-btn"
-          variant="primary"
-          size="md"
-          onClick={() => setIsCreateDialogOpen(true)}
-        >
-          <Image
-            src={Icons.Plus}
-            alt=""
-            width={16}
-            height={16}
-            className="mr-2 h-4 w-4"
-            style={{ filter: 'brightness(0) invert(1)' }}
-          />
-          {t('dashboard.addNewProject')}
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Lối vào nhanh cho người chưa quen tool: xem trước một project thật
+              trông như thế nào thay vì bắt đầu từ board trống. */}
+          <Button
+            id="create-sample-board-btn"
+            variant="outline"
+            size="md"
+            onClick={() => setIsSampleDialogOpen(true)}
+          >
+            <Image
+              src={Icons.Sparkles}
+              alt=""
+              width={16}
+              height={16}
+              className="mr-2 h-4 w-4"
+            />
+            {t('dashboard.createSampleProject')}
+          </Button>
+          <Button
+            id="add-new-board-btn"
+            variant="primary"
+            size="md"
+            onClick={() => setIsCreateDialogOpen(true)}
+          >
+            <Image
+              src={Icons.Plus}
+              alt=""
+              width={16}
+              height={16}
+              className="mr-2 h-4 w-4"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+            {t('dashboard.addNewProject')}
+          </Button>
+        </div>
       </div>
 
       {/* Pending Invitations Banner */}
@@ -142,21 +174,39 @@ export default function DashboardPage() {
                 {t('dashboard.empty.description')}
               </p>
             </div>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => setIsCreateDialogOpen(true)}
-            >
-              <Image
-                src={Icons.Plus}
-                alt=""
-                width={16}
-                height={16}
-                className="mr-2 h-4 w-4"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-              {t('dashboard.addNewProject')}
-            </Button>
+            {/* Người dùng mới chưa có board nào — đây là chỗ họ cần gợi ý nhất,
+                nên nút project mẫu được đặt làm hành động chính ở đây. */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => setIsSampleDialogOpen(true)}
+              >
+                <Image
+                  src={Icons.Sparkles}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="mr-2 h-4 w-4"
+                  style={{ filter: 'brightness(0) invert(1)' }}
+                />
+                {t('dashboard.createSampleProject')}
+              </Button>
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => setIsCreateDialogOpen(true)}
+              >
+                <Image
+                  src={Icons.Plus}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="mr-2 h-4 w-4"
+                />
+                {t('dashboard.addNewProject')}
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -171,6 +221,14 @@ export default function DashboardPage() {
         onOpenChange={setIsCreateDialogOpen}
         onSubmit={handleCreateBoard}
         isPending={isCreateBoardPending}
+      />
+
+      {/* Sample Board Dialog */}
+      <SampleBoardDialog
+        open={isSampleDialogOpen}
+        onOpenChange={setIsSampleDialogOpen}
+        onSubmit={handleCreateSampleBoard}
+        isPending={isCreateSampleBoardPending}
       />
 
       {/* Duplicate Board Dialog */}

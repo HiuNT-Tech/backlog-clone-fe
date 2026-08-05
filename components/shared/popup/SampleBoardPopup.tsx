@@ -18,61 +18,49 @@ import {
   createBoardFormSchema,
   CreateBoardFormData,
 } from '@/validation/create-board-form-schemas';
-import { toBoardCode } from '@/utils/board-code';
 
-interface DuplicateBoardDialogProps {
+interface SampleBoardDialogProps {
   open: boolean;
-  sourceTitle: string;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CreateBoardFormData) => Promise<void>;
   isPending: boolean;
 }
 
-export default function DuplicateBoardDialog({
+/** Mã project mặc định — hợp lệ với BE (chữ in hoa, không dấu, không khoảng trắng). */
+const DEFAULT_SAMPLE_BOARD_CODE = 'SAMPLE';
+
+export default function SampleBoardDialog({
   open,
-  sourceTitle,
   onOpenChange,
   onSubmit,
   isPending,
-}: DuplicateBoardDialogProps) {
+}: SampleBoardDialogProps) {
   const { t } = useTranslation();
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm<CreateBoardFormData>({
     resolver: zodResolver(createBoardFormSchema),
     defaultValues: {
       title: '',
-      boardCode: '',
+      boardCode: DEFAULT_SAMPLE_BOARD_CODE,
     },
   });
 
-  // `setValue` không kèm `shouldDirty` nên cờ này chỉ bật khi chính người dùng
-  // gõ vào ô mã board.
-  const isBoardCodeDirty = !!dirtyFields.boardCode;
-
-  // Gợi ý sẵn tên/mã dựa trên board nguồn mỗi khi mở dialog cho 1 board mới.
-  // Mã phải là mã hợp lệ ngay từ đầu, nếu không người dùng bấm "Nhân bản" luôn
-  // sẽ bị BE từ chối.
+  // Điền sẵn tên/mã hợp lệ mỗi lần mở dialog, để người dùng chưa quen tool chỉ
+  // cần bấm "Tạo" là có ngay project mẫu, không phải tự nghĩ ra tên.
   useEffect(() => {
     if (open) {
-      const title = `${sourceTitle} (copy)`;
-      reset({ title, boardCode: toBoardCode(title) });
+      reset({
+        title: t('dashboard.sampleProject.defaultTitle'),
+        boardCode: DEFAULT_SAMPLE_BOARD_CODE,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, sourceTitle]);
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setValue('title', value);
-    if (!isBoardCodeDirty) {
-      setValue('boardCode', toBoardCode(value), { shouldValidate: true });
-    }
-  };
+  }, [open]);
 
   const handleFormSubmit = async (data: CreateBoardFormData) => {
     await onSubmit(data);
@@ -88,27 +76,33 @@ export default function DuplicateBoardDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[480px] bg-white">
         <DialogHeader>
-          <DialogTitle>{t('dashboard.duplicateProject.title')}</DialogTitle>
+          <DialogTitle>{t('dashboard.sampleProject.title')}</DialogTitle>
           <DialogDescription>
-            {t('dashboard.duplicateProject.description', { sourceTitle })}
+            {t('dashboard.sampleProject.description')}
           </DialogDescription>
         </DialogHeader>
+
+        <ul className="flex flex-col gap-1 rounded-md bg-theme-neutral-1 p-3 text-sm text-theme-neutral-8">
+          <li>• {t('dashboard.sampleProject.includesColumns')}</li>
+          <li>• {t('dashboard.sampleProject.includesIssueTypes')}</li>
+          <li>• {t('dashboard.sampleProject.includesMilestones')}</li>
+          <li>• {t('dashboard.sampleProject.includesTickets')}</li>
+        </ul>
 
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
           className="flex flex-col gap-4"
-          id="duplicate-board-form"
+          id="sample-board-form"
         >
           <Input
-            label={t('dashboard.duplicateProject.nameLabel')}
+            label={t('dashboard.sampleProject.nameLabel')}
             error={errors.title?.message}
             requiredIndicator
             {...register('title')}
-            onChange={handleTitleChange}
           />
 
           <Input
-            label={t('dashboard.duplicateProject.codeLable')}
+            label={t('dashboard.sampleProject.codeLabel')}
             error={errors.boardCode?.message}
             requiredIndicator
             {...register('boardCode')}
@@ -122,17 +116,17 @@ export default function DuplicateBoardDialog({
             onClick={handleClose}
             disabled={isPending}
           >
-            {t('dashboard.duplicateProject.cancel')}
+            {t('dashboard.sampleProject.cancel')}
           </Button>
           <Button
             type="submit"
-            form="duplicate-board-form"
+            form="sample-board-form"
             variant="primary"
             disabled={isPending}
           >
             {isPending
               ? t('common.loading')
-              : t('dashboard.duplicateProject.submit')}
+              : t('dashboard.sampleProject.submit')}
           </Button>
         </DialogFooter>
       </DialogContent>
