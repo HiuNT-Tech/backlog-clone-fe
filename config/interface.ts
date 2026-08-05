@@ -278,6 +278,32 @@ export interface RefreshTokenResponse {
   accessToken: string;
 }
 
+/** Trả về từ `GET /v1/me` (UserResponseDto ở BE). */
+export interface MeProfile {
+  id: number;
+  email: string;
+  displayName: string;
+  avatar: string | null;
+  userCode: string | null;
+  phone: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** `PATCH /v1/me` — chỉ gửi field muốn đổi. `avatar` phải là URL hợp lệ. */
+export interface UpdateProfileRequest {
+  displayName?: string;
+  avatar?: string;
+  phone?: string;
+}
+
+/** `PUT /v1/me/password` — trả 204, không có body. */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface User {
   id: number;
   email: string;
