@@ -21,6 +21,8 @@ export interface BaseSearchField {
   label?: string;
   required?: boolean;
   defaultValue?: any;
+  /** Số cột grid mà field chiếm; 'full' để chiếm hết chiều rộng hàng */
+  colSpan?: number | 'full';
 }
 
 export interface TextSearchField extends BaseSearchField {

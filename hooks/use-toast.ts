@@ -6,16 +6,18 @@ import * as React from 'react';
 import type { ToastActionElement, ToastProps } from '@/components/ui/toast';
 
 const TOAST_LIMIT = 2;
-const TOAST_REMOVE_DELAY = 5000;
+// Chỉ cần đủ để animation biến mất (data-[state=closed]:animate-out, ~150ms)
+// chạy xong trước khi gỡ khỏi DOM. Radix tự đóng toast sau 5s (mặc định của
+// ToastProvider); nếu để delay này dài, toast coi như "closed" nhưng vẫn nằm
+// trong DOM thêm cả khoảng đó nữa, tạo cảm giác toast không tự biến mất.
+const TOAST_REMOVE_DELAY = 300;
 
 type ToasterToast = ToastProps & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
-  variant?:
-  | 'success'
-  | 'error';
+  variant?: 'success' | 'error';
 };
 
 const actionTypes = {
@@ -36,21 +38,21 @@ type ActionType = typeof actionTypes;
 
 type Action =
   | {
-    type: ActionType['ADD_TOAST'];
-    toast: ToasterToast;
-  }
+      type: ActionType['ADD_TOAST'];
+      toast: ToasterToast;
+    }
   | {
-    type: ActionType['UPDATE_TOAST'];
-    toast: Partial<ToasterToast>;
-  }
+      type: ActionType['UPDATE_TOAST'];
+      toast: Partial<ToasterToast>;
+    }
   | {
-    type: ActionType['DISMISS_TOAST'];
-    toastId?: ToasterToast['id'];
-  }
+      type: ActionType['DISMISS_TOAST'];
+      toastId?: ToasterToast['id'];
+    }
   | {
-    type: ActionType['REMOVE_TOAST'];
-    toastId?: ToasterToast['id'];
-  };
+      type: ActionType['REMOVE_TOAST'];
+      toastId?: ToasterToast['id'];
+    };
 
 interface State {
   toasts: ToasterToast[];
@@ -108,9 +110,9 @@ export const reducer = (state: State, action: Action): State => {
         toasts: state.toasts.map(t =>
           t.id === toastId || toastId === undefined
             ? {
-              ...t,
-              open: false,
-            }
+                ...t,
+                open: false,
+              }
             : t
         ),
       };
@@ -199,7 +201,9 @@ function useToast() {
         listeners.splice(index, 1);
       }
     };
-  }, [state]);
+    // Đăng ký listener một lần khi mount — không phụ thuộc `state`, tránh
+    // gỡ/thêm lại listener trên mỗi lần dispatch.
+  }, []);
 
   return {
     ...state,

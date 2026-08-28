@@ -304,3 +304,30 @@ export const PRIORITY_OPTIONS = [
     label: t('issues.priority.high'),
   },
 ];
+
+const PRIORITY_CLASS_NAMES: Record<number, string> = {
+  [PRIORITY.LOW]: 'text-blue-600',
+  [PRIORITY.NORMAL]: 'text-yellow-600',
+  [PRIORITY.HIGH]: 'text-red-600',
+};
+
+/** Trả về className màu chữ theo mức độ ưu tiên (1/2/3 từ API) */
+export const getPriorityClassName = (priority?: number | null): string =>
+  (priority != null ? PRIORITY_CLASS_NAMES[priority] : undefined) ?? '';
+
+/**
+ * Render mức độ ưu tiên dạng chữ có màu kèm mũi tên — dùng chung cho màn danh
+ * sách và màn chi tiết ticket để giao diện đồng nhất.
+ */
+export const renderPriorityValue = (
+  priority?: number | null,
+  label?: string | null
+): React.ReactNode => {
+  if (!label) return null;
+
+  return React.createElement(
+    'span',
+    { className: cn('font-medium', getPriorityClassName(priority)) },
+    `→ ${label}`
+  );
+};

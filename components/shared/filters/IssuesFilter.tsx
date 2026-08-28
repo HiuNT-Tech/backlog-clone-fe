@@ -58,11 +58,12 @@ const IssuesFilter = ({
 
   const searchFields: SearchField[] = [
     {
-      id: 'search',
-      type: 'text',
-      label: t('issues.filter.search'),
+      id: 'registeredBy',
+      type: 'multiOptions',
+      label: t('issues.filter.registeredBy'),
+      options: RegisteredBy,
       props: {
-        placeholder: t('issues.filter.searchPlaceholder'),
+        placeholder: t('issues.filter.registerByPlaceholder'),
       },
     },
     {
@@ -111,12 +112,13 @@ const IssuesFilter = ({
       },
     },
     {
-      id: 'registeredBy',
-      type: 'multiOptions',
-      label: t('issues.filter.registeredBy'),
-      options: RegisteredBy,
+      id: 'search',
+      type: 'text',
+      label: t('issues.filter.search'),
+      // Đứng một mình ở hàng cuối nên cho chiếm hết chiều rộng cho cân.
+      colSpan: 'full',
       props: {
-        placeholder: t('issues.filter.registerByPlaceholder'),
+        placeholder: t('issues.filter.searchPlaceholder'),
       },
     },
   ];

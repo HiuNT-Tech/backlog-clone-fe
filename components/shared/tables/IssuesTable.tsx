@@ -4,12 +4,21 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { CustomTable, type TableColumn } from '@/components/ui/custome-table';
-import { getIssueTypeBadgeClassName } from '@/constant/data';
+import {
+  getIssueTypeBadgeClassName,
+  renderPriorityValue,
+} from '@/constant/data';
 import type { EntityId } from '@/config/interface';
 
 export interface IssueBadgeValue {
   label: string;
   statusColor?: string | null;
+}
+
+export interface IssuePriorityValue {
+  label: string;
+  /** Giá trị số từ API (1/2/3) — dùng để tô màu giống màn chi tiết ticket */
+  value?: number | null;
 }
 
 export interface IssueRow {
@@ -19,7 +28,7 @@ export interface IssueRow {
   subject: string;
   assignee: string;
   status: IssueBadgeValue | null;
-  priority: string;
+  priority: IssuePriorityValue | null;
   milestone: string;
   created: string;
   startDate: string;
@@ -64,6 +73,12 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
     );
   }, []);
 
+  const renderPriority = useCallback((value?: IssuePriorityValue | null) => {
+    if (!value?.label) return <span className="text-theme-neutral-7">—</span>;
+
+    return renderPriorityValue(value.value, value.label);
+  }, []);
+
   const columns = useMemo<TableColumn<IssueRow>[]>(
     () => [
       {
@@ -103,6 +118,7 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         title: t('issues.table.priority'),
         dataIndex: 'priority',
         minWidth: 120,
+        render: value => renderPriority(value),
       },
       {
         key: 'milestone',
@@ -147,7 +163,7 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         minWidth: 160,
       },
     ],
-    [renderBadge, t]
+    [renderBadge, renderPriority, t]
   );
 
   const handleRow = useCallback(

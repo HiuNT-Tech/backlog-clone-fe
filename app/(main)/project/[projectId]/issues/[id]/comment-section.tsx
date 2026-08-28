@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ import { MarkdownEditor } from '@/components/ui/markdown-editor';
 import { StateMessage } from '@/components/ui/state-message';
 import { format } from '@/constant/format';
 import { toastHelpers } from '@/hooks/use-toast';
+import { MARKDOWN_PROSE_CLASSNAME } from '@/constant/markdown';
 import { useComments } from '@/hooks/use-comment';
 import { useFileUpload } from '@/hooks/use-file-upload';
 import {
@@ -26,8 +28,7 @@ import type { Card, Comment, EntityId } from '@/config/interface';
 
 /* ─── Helpers ─── */
 
-const markdownClassName =
-  'prose prose-sm max-w-none text-theme-neutral-11 text-sm leading-relaxed [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-2 [&_h1]:mb-1 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-2 [&_h2]:mb-1 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_a]:text-theme-main [&_a]:hover:underline [&_blockquote]:border-l-4 [&_blockquote]:border-theme-neutral-5 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-theme-neutral-8 [&_code]:bg-theme-neutral-3 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-theme-neutral-3 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2';
+const markdownClassName = MARKDOWN_PROSE_CLASSNAME;
 
 /* ═══════════════════════════ Comment List ═══════════════════════════ */
 
@@ -142,7 +143,7 @@ const CommentItem: React.FC<{
             value={editValue}
             onChange={setEditValue}
             placeholder={t('issueDetail.comments.placeholder')}
-            className="[&_.EasyMDEContainer]:border-theme-neutral-5 [&_.EasyMDEContainer]:rounded-lg [&_.CodeMirror]:min-h-[80px] [&_.CodeMirror]:text-sm"
+            rows={4}
           />
 
           {/* Existing attachments (có thể bỏ đi khi lưu) */}
@@ -191,7 +192,9 @@ const CommentItem: React.FC<{
       ) : (
         <>
           <div className={markdownClassName}>
-            <ReactMarkdown>{comment.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {comment.content}
+            </ReactMarkdown>
           </div>
 
           {comment.attachments && comment.attachments.length > 0 && (
@@ -515,7 +518,9 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   className={`${markdownClassName} p-4 border border-theme-neutral-5 rounded-lg min-h-[100px] bg-theme-neutral-2/30 mb-[22px]`}
                 >
                   {commentValue ? (
-                    <ReactMarkdown>{commentValue}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {commentValue}
+                    </ReactMarkdown>
                   ) : (
                     <span className="text-theme-neutral-7 italic">
                       Nothing to preview
@@ -537,7 +542,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                     value={commentValue}
                     onChange={setCommentValue}
                     placeholder={t('issueDetail.comments.placeholder')}
-                    className="[&_.EasyMDEContainer]:border-theme-neutral-5 [&_.EasyMDEContainer]:rounded-lg [&_.CodeMirror]:min-h-[100px] [&_.CodeMirror]:text-sm"
+                    previewable={false}
                   />
                 </div>
               )}

@@ -75,11 +75,12 @@ const IssuesPage: React.FC = () => {
       return userMap.get(userId) ?? '—';
     };
 
-    const getPriorityText = (priorityId?: number | null) => {
-      return (
-        PRIORITY_OPTIONS.find(option => option.value === String(priorityId))
-          ?.label ?? '—'
-      );
+    const getPriority = (priorityId?: number | null) => {
+      const label = PRIORITY_OPTIONS.find(
+        option => option.value === String(priorityId)
+      )?.label;
+
+      return label ? { label, value: priorityId } : null;
     };
 
     const getRegisterBy = (card: Card) => {
@@ -106,7 +107,7 @@ const IssuesPage: React.FC = () => {
             statusColor: card.column.statusColor,
           }
         : null,
-      priority: getPriorityText(card.priority),
+      priority: getPriority(card.priority),
       milestone: card.versionId ? (versionMap.get(card.versionId) ?? '—') : '—',
       created: formatDate(card.createdAt),
       startDate: formatDate(card.startDate),

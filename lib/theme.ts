@@ -2,6 +2,7 @@ import type { ThemeConfig } from 'antd';
 
 const theme: ThemeConfig = {
   token: {
+    fontFamily: 'var(--font-inter), ui-sans-serif, system-ui, sans-serif',
     fontSize: 14,
     // Add other global tokens here if needed
   },
