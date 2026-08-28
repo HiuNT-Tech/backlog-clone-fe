@@ -11,6 +11,7 @@ import { Dropdown, type MenuProps, Select } from 'antd';
 import { Title } from '@/components/ui/title';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { ProjectsDropdown } from '@/components/layout/projects-dropdown';
 
 const LANGUAGE_OPTIONS = [
   {
@@ -115,7 +116,7 @@ export function Header() {
         >
           <Title>{t('appBar.title.dashboard')}</Title>
         </button>
-        <Title>{t('appBar.title.project')}</Title>
+        <ProjectsDropdown />
         <button>
           <Image src={Images.IconAdd} alt="logo" width={24} height={24} />
         </button>

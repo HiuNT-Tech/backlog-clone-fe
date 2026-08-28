@@ -126,21 +126,71 @@ export const renderInvitationStatusBadge = (
 
 // Issue Types - Color status options & renderer
 
+// `className` phải là chuỗi literal để Tailwind quét được, nên `hex` được khai
+// báo tường minh bên cạnh (dùng cho chỗ cần màu inline: progress bar, Gantt).
 export const COLOR_STATUS_OPTIONS = [
-  { key: 'red', className: 'bg-[#E52E00] text-[#ffffff] border-[#E52E00]' },
-  { key: 'orange', className: 'bg-[#E68A40] text-[#ffffff] border-[#E68A40]' },
-  { key: 'pink', className: 'bg-[#DB7F9B] text-[#ffffff] border-[#DB7F9B]' },
-  { key: 'indigo', className: 'bg-[#868DB8] text-[#ffffff] border-[#868DB8]' },
-  { key: 'blue', className: 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]' },
-  { key: 'teal', className: 'bg-[#45AC94] text-[#ffffff] border-[#45AC94]' },
-  { key: 'green', className: 'bg-[#90A631] text-[#ffffff] border-[#90A631]' },
-  { key: 'yellow', className: 'bg-[#D8921B] text-[#ffffff] border-[#D8921B]' },
+  {
+    key: 'red',
+    hex: '#E52E00',
+    className: 'bg-[#E52E00] text-[#ffffff] border-[#E52E00]',
+  },
+  {
+    key: 'orange',
+    hex: '#E68A40',
+    className: 'bg-[#E68A40] text-[#ffffff] border-[#E68A40]',
+  },
+  {
+    key: 'pink',
+    hex: '#DB7F9B',
+    className: 'bg-[#DB7F9B] text-[#ffffff] border-[#DB7F9B]',
+  },
+  {
+    key: 'indigo',
+    hex: '#868DB8',
+    className: 'bg-[#868DB8] text-[#ffffff] border-[#868DB8]',
+  },
+  {
+    key: 'blue',
+    hex: '#3B9DB7',
+    className: 'bg-[#3B9DB7] text-[#ffffff] border-[#3B9DB7]',
+  },
+  {
+    key: 'teal',
+    hex: '#45AC94',
+    className: 'bg-[#45AC94] text-[#ffffff] border-[#45AC94]',
+  },
+  {
+    key: 'green',
+    hex: '#90A631',
+    className: 'bg-[#90A631] text-[#ffffff] border-[#90A631]',
+  },
+  {
+    key: 'yellow',
+    hex: '#D8921B',
+    className: 'bg-[#D8921B] text-[#ffffff] border-[#D8921B]',
+  },
   {
     key: 'bright-red',
+    hex: '#F2245F',
     className: 'bg-[#F2245F] text-[#ffffff] border-[#F2245F]',
   },
-  { key: 'black', className: 'bg-[#333333] text-[#ffffff] border-[#333333]' },
+  {
+    key: 'black',
+    hex: '#333333',
+    className: 'bg-[#333333] text-[#ffffff] border-[#333333]',
+  },
 ] as const;
+
+/** Màu hex theo statusColor (API) — dùng cho style inline (bar, Gantt, chart) */
+export const getStatusColorHex = (statusColor?: string | null): string => {
+  const key =
+    statusColor != null
+      ? ((STATUS_TO_COLOR_KEY as Record<string, ColorStatusKey>)[statusColor] ??
+        'blue')
+      : 'blue';
+
+  return COLOR_STATUS_OPTIONS.find(o => o.key === key)?.hex ?? '#3B9DB7';
+};
 
 export type ColorStatusKey = (typeof COLOR_STATUS_OPTIONS)[number]['key'];
 
@@ -254,3 +304,30 @@ export const PRIORITY_OPTIONS = [
     label: t('issues.priority.high'),
   },
 ];
+
+const PRIORITY_CLASS_NAMES: Record<number, string> = {
+  [PRIORITY.LOW]: 'text-blue-600',
+  [PRIORITY.NORMAL]: 'text-yellow-600',
+  [PRIORITY.HIGH]: 'text-red-600',
+};
+
+/** Trả về className màu chữ theo mức độ ưu tiên (1/2/3 từ API) */
+export const getPriorityClassName = (priority?: number | null): string =>
+  (priority != null ? PRIORITY_CLASS_NAMES[priority] : undefined) ?? '';
+
+/**
+ * Render mức độ ưu tiên dạng chữ có màu kèm mũi tên — dùng chung cho màn danh
+ * sách và màn chi tiết ticket để giao diện đồng nhất.
+ */
+export const renderPriorityValue = (
+  priority?: number | null,
+  label?: string | null
+): React.ReactNode => {
+  if (!label) return null;
+
+  return React.createElement(
+    'span',
+    { className: cn('font-medium', getPriorityClassName(priority)) },
+    `→ ${label}`
+  );
+};

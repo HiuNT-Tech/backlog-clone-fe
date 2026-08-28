@@ -6,10 +6,15 @@ const vi = {
     fileTooLarge: 'File quá lớn (tối đa 10MB).',
     maxFilesExceeded: 'Chỉ được đính kèm tối đa 10 file.',
   },
+  imageUpload: {
+    invalidType: 'Chỉ hỗ trợ ảnh JPG, PNG, WEBP hoặc GIF.',
+    fileTooLarge: 'Ảnh quá lớn (tối đa 5MB).',
+  },
   common: {
     add: 'Thêm',
     cancel: 'Hủy',
     edit: 'Sửa',
+    change: 'Đổi ảnh',
     loading: 'Đang tải...',
     preview: 'Xem trước',
     actions: 'Hành động',
@@ -55,6 +60,9 @@ const vi = {
       personalSettings: 'Cài đặt tài khoản',
       logout: 'Đăng xuất',
     },
+    projects: {
+      empty: 'Chưa có dự án nào.',
+    },
   },
   tooltip: {
     notification: 'Thông báo',
@@ -66,6 +74,29 @@ const vi = {
     chat: 'Chat',
     board: 'Bảng',
     settings: 'Cài đặt',
+  },
+  projectHome: {
+    newIssue: 'Thêm công việc',
+    recentIssues: 'Công việc gần đây',
+    viewAll: 'Xem tất cả →',
+    noIssues: 'Chưa có công việc nào.',
+    team: 'Thành viên',
+    openInProgress: '{{open}} đang mở · {{inProgress}} đang thực hiện',
+    quickAccess: 'Truy cập nhanh',
+    sprint: {
+      active: 'Đang chạy',
+      daysLeft: 'Còn {{count}} ngày',
+      closedOfTotal: '{{done}}/{{total}} công việc đã đóng',
+      complete: 'hoàn thành',
+    },
+    gantt: {
+      title: 'Biểu đồ Gantt',
+      issueColumn: 'Công việc',
+      today: 'Hôm nay',
+      empty: 'Chưa có công việc nào có ngày bắt đầu và kết thúc để hiển thị.',
+      truncated:
+        'Hiển thị {{shown}}/{{total}} công việc gần nhất có lịch trình.',
+    },
   },
   chat: {
     title: 'Chat dự án',
@@ -476,6 +507,37 @@ const vi = {
       codeMax: 'Mã project tối đa 16 ký tự',
       codeFormat:
         'Mã project chỉ được dùng chữ in hoa không dấu, số, gạch dưới và gạch ngang (ví dụ: WEB-2026)',
+    },
+  },
+  accountSettings: {
+    title: 'Cài đặt tài khoản',
+    description: 'Quản lý thông tin cá nhân và mật khẩu đăng nhập của bạn.',
+    tabs: {
+      profile: 'Hồ sơ',
+      password: 'Mật khẩu',
+    },
+    profile: {
+      heading: 'Thông tin cá nhân',
+      hint: 'Cập nhật tên hiển thị, ảnh đại diện và số điện thoại của bạn.',
+      emailLabel: 'Email',
+      userCodeLabel: 'Mã người dùng',
+      displayNameLabel: 'Tên hiển thị',
+      displayNamePlaceholder: 'Nhập tên hiển thị',
+      phoneLabel: 'Số điện thoại',
+      phonePlaceholder: 'Nhập số điện thoại',
+      success: 'Cập nhật hồ sơ thành công.',
+      avatarSuccess: 'Cập nhật ảnh đại diện thành công.',
+      validation: {
+        displayNameMin: 'Tên hiển thị tối thiểu 2 ký tự.',
+      },
+    },
+    password: {
+      heading: 'Đổi mật khẩu',
+      hint: 'Chọn mật khẩu mới mạnh và không dùng lại mật khẩu cũ.',
+      currentPasswordLabel: 'Mật khẩu hiện tại',
+      newPasswordLabel: 'Mật khẩu mới',
+      confirmPasswordLabel: 'Xác nhận mật khẩu mới',
+      success: 'Đổi mật khẩu thành công.',
     },
   },
   toast: {

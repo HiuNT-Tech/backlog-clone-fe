@@ -286,6 +286,30 @@ export interface User {
   isActive: boolean;
 }
 
+// Personal settings ("/me") types
+export interface MeProfile {
+  id: number;
+  email: string;
+  displayName: string;
+  avatar: string | null;
+  userCode: string | null;
+  phone: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateProfileRequest {
+  displayName?: string;
+  avatar?: string;
+  phone?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface UsersBoardParams {
   search?: string;
   role?: BoardMemberRole | null;

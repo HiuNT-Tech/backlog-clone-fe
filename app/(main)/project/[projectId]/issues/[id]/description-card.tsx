@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 import { format } from '@/constant/format';
+import { MARKDOWN_PROSE_CLASSNAME } from '@/constant/markdown';
+import { renderPriorityValue } from '@/constant/data';
 import type { Card, EntityId } from '@/config/interface';
 import type { EditFormData, SelectOption } from './edit-form-fields';
 import { EditableDescription, EditableMetadata } from './edit-form-fields';
-
-const PRIORITY_STYLES: Record<number, string> = {
-  1: 'text-blue-600',
-  2: 'text-yellow-600',
-  3: 'text-red-600',
-};
 
 interface MetaRowProps {
   label: string;
@@ -95,8 +92,10 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = ({
             onChange={v => onFieldChange('description', v)}
           />
         ) : card.description ? (
-          <div className="prose prose-sm max-w-none text-theme-neutral-11 leading-relaxed [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2 [&_li]:mb-1 [&_strong]:font-bold [&_em]:italic [&_a]:text-theme-main [&_a]:hover:underline [&_blockquote]:border-l-4 [&_blockquote]:border-theme-neutral-5 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-theme-neutral-8 [&_code]:bg-theme-neutral-3 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_pre]:bg-theme-neutral-3 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2">
-            <ReactMarkdown>{card.description}</ReactMarkdown>
+          <div className={MARKDOWN_PROSE_CLASSNAME}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {card.description}
+            </ReactMarkdown>
           </div>
         ) : (
           <p className="text-sm text-theme-neutral-7 italic">
@@ -127,13 +126,8 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = ({
                   <MetaRow
                     label={t('issueDetail.metadata.priority')}
                     value={
-                      priorityLabel ? (
-                        <span
-                          className={`font-medium ${PRIORITY_STYLES[card.priority!] ?? ''}`}
-                        >
-                          → {priorityLabel}
-                        </span>
-                      ) : undefined
+                      renderPriorityValue(card.priority, priorityLabel) ??
+                      undefined
                     }
                   />
                   <MetaRow

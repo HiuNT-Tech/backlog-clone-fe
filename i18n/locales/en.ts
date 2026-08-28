@@ -6,10 +6,15 @@ const en = {
     fileTooLarge: 'File is too large (max 10MB).',
     maxFilesExceeded: 'You can attach up to 10 files.',
   },
+  imageUpload: {
+    invalidType: 'Only JPG, PNG, WEBP or GIF images are supported.',
+    fileTooLarge: 'Image is too large (max 5MB).',
+  },
   common: {
     add: 'Add',
     cancel: 'Cancel',
     edit: 'Edit',
+    change: 'Change photo',
     loading: 'Loading...',
     preview: 'Preview',
     actions: 'Actions',
@@ -60,6 +65,9 @@ const en = {
       personalSettings: 'Personal settings',
       logout: 'Logout',
     },
+    projects: {
+      empty: 'No projects yet.',
+    },
   },
   tooltip: {
     notification: 'Notification',
@@ -71,6 +79,29 @@ const en = {
     chat: 'Chat',
     board: 'Board',
     settings: 'Settings',
+  },
+  projectHome: {
+    newIssue: 'New Issue',
+    recentIssues: 'Recent Issues',
+    viewAll: 'View all →',
+    noIssues: 'No issues yet.',
+    team: 'Team',
+    openInProgress: '{{open}} open · {{inProgress}} in progress',
+    quickAccess: 'Quick Access',
+    sprint: {
+      active: 'Active',
+      daysLeft: '{{count}} days left',
+      closedOfTotal: '{{done}} of {{total}} issues closed',
+      complete: 'complete',
+    },
+    gantt: {
+      title: 'Gantt Chart',
+      issueColumn: 'Issue',
+      today: 'Today',
+      empty: 'No issues with both a start and due date to display yet.',
+      truncated:
+        'Showing the {{shown}} most recent of {{total}} scheduled issues.',
+    },
   },
   chat: {
     title: 'Project chat',
@@ -483,6 +514,37 @@ const en = {
       nameMax: 'Board name must be less than 50 characters',
       nameEmpty: 'Board name cannot be empty',
       descriptionMax: 'Description must be less than 255 characters',
+    },
+  },
+  accountSettings: {
+    title: 'Account settings',
+    description: 'Manage your personal information and login password.',
+    tabs: {
+      profile: 'Profile',
+      password: 'Password',
+    },
+    profile: {
+      heading: 'Personal information',
+      hint: 'Update your display name, avatar and phone number.',
+      emailLabel: 'Email',
+      userCodeLabel: 'User code',
+      displayNameLabel: 'Display name',
+      displayNamePlaceholder: 'Enter your display name',
+      phoneLabel: 'Phone number',
+      phonePlaceholder: 'Enter your phone number',
+      success: 'Profile updated successfully.',
+      avatarSuccess: 'Avatar updated successfully.',
+      validation: {
+        displayNameMin: 'Display name must be at least 2 characters.',
+      },
+    },
+    password: {
+      heading: 'Change password',
+      hint: 'Choose a strong new password different from your current one.',
+      currentPasswordLabel: 'Current password',
+      newPasswordLabel: 'New password',
+      confirmPasswordLabel: 'Confirm new password',
+      success: 'Password changed successfully.',
     },
   },
   toast: {

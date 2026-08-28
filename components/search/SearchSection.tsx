@@ -247,13 +247,25 @@ export const SearchSection = ({
             }}
           >
             {fields.map(field => (
-              <div key={field.id} className="">
+              <div
+                key={field.id}
+                style={
+                  field.colSpan
+                    ? {
+                        gridColumn:
+                          field.colSpan === 'full'
+                            ? '1 / -1'
+                            : `span ${field.colSpan} / span ${field.colSpan}`,
+                      }
+                    : undefined
+                }
+              >
                 {renderField(field)}
               </div>
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-center gap-2">
             <Button
               variant="outline"
               onClick={handleReset}
