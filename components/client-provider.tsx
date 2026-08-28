@@ -23,6 +23,9 @@ export default function ClientProviders({
   withLayout = true,
 }: ClientProvidersProps) {
   const pathname = usePathname();
+  // Sidebar chỉ có nghĩa trong phạm vi một project — ngoài đó các link của nó
+  // (add-issue, issues, chat, board) không có boardId nên sẽ dẫn tới route lỗi.
+  const showSidebar = pathname.startsWith('/project/');
 
   if (withLayout) {
     return (
@@ -32,7 +35,7 @@ export default function ClientProviders({
             <div className="h-screen flex flex-col overflow-hidden">
               <Header />
               <div className="flex flex-1 overflow-hidden">
-                {pathname !== '/dashboard' && <Sidebar />}
+                {showSidebar && <Sidebar />}
                 <div className="flex-1 overflow-auto">{children}</div>
               </div>
               <ModalConfirmInstance />

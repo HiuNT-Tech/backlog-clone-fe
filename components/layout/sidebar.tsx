@@ -22,6 +22,14 @@ import {
 
 export const getMenuItems = (boardId?: string) => [
   {
+    titleKey: 'sidebar.home',
+    icon: Images.IconHome,
+    href: boardId ? `/project/${boardId}` : '/dashboard',
+    // href là tiền tố của mọi mục còn lại (/project/:id/issues, /board, ...)
+    // nên phải so khớp chính xác, không thì Home sẽ "active" trên mọi trang con.
+    exact: true,
+  },
+  {
     titleKey: 'sidebar.addIssue',
     icon: Images.IconCreate,
     href: boardId ? `/project/${boardId}/add-issue` : '/add-issue',
@@ -48,7 +56,11 @@ export const getMenuItems = (boardId?: string) => [
   },
 ];
 
-const isPathActive = (href: string, currentPath: string): boolean => {
+const isPathActive = (
+  href: string,
+  currentPath: string,
+  exact?: boolean
+): boolean => {
   const normalizedHref = href.split('?')[0].split('#')[0];
 
   if (href.startsWith('#')) {
@@ -56,6 +68,8 @@ const isPathActive = (href: string, currentPath: string): boolean => {
   }
 
   if (normalizedHref.startsWith('/')) {
+    if (exact) return currentPath === normalizedHref;
+
     return (
       currentPath === normalizedHref ||
       currentPath.startsWith(normalizedHref + '/')
@@ -73,12 +87,13 @@ const RowItem = ({
     titleKey: string;
     icon: string;
     href: string;
+    exact?: boolean;
   };
   isCollapsed: boolean;
 }) => {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const isActive = isPathActive(item.href, pathname);
+  const isActive = isPathActive(item.href, pathname, item.exact);
   const router = useRouter();
 
   const handleRedirectLink = (

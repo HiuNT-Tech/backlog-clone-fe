@@ -60,6 +60,9 @@ const vi = {
       personalSettings: 'Cài đặt tài khoản',
       logout: 'Đăng xuất',
     },
+    projects: {
+      empty: 'Chưa có dự án nào.',
+    },
   },
   tooltip: {
     notification: 'Thông báo',
@@ -71,6 +74,29 @@ const vi = {
     chat: 'Chat',
     board: 'Bảng',
     settings: 'Cài đặt',
+  },
+  projectHome: {
+    newIssue: 'Thêm công việc',
+    recentIssues: 'Công việc gần đây',
+    viewAll: 'Xem tất cả →',
+    noIssues: 'Chưa có công việc nào.',
+    team: 'Thành viên',
+    openInProgress: '{{open}} đang mở · {{inProgress}} đang thực hiện',
+    quickAccess: 'Truy cập nhanh',
+    sprint: {
+      active: 'Đang chạy',
+      daysLeft: 'Còn {{count}} ngày',
+      closedOfTotal: '{{done}}/{{total}} công việc đã đóng',
+      complete: 'hoàn thành',
+    },
+    gantt: {
+      title: 'Biểu đồ Gantt',
+      issueColumn: 'Công việc',
+      today: 'Hôm nay',
+      empty: 'Chưa có công việc nào có ngày bắt đầu và kết thúc để hiển thị.',
+      truncated:
+        'Hiển thị {{shown}}/{{total}} công việc gần nhất có lịch trình.',
+    },
   },
   chat: {
     title: 'Chat dự án',

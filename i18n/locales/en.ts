@@ -65,6 +65,9 @@ const en = {
       personalSettings: 'Personal settings',
       logout: 'Logout',
     },
+    projects: {
+      empty: 'No projects yet.',
+    },
   },
   tooltip: {
     notification: 'Notification',
@@ -76,6 +79,29 @@ const en = {
     chat: 'Chat',
     board: 'Board',
     settings: 'Settings',
+  },
+  projectHome: {
+    newIssue: 'New Issue',
+    recentIssues: 'Recent Issues',
+    viewAll: 'View all →',
+    noIssues: 'No issues yet.',
+    team: 'Team',
+    openInProgress: '{{open}} open · {{inProgress}} in progress',
+    quickAccess: 'Quick Access',
+    sprint: {
+      active: 'Active',
+      daysLeft: '{{count}} days left',
+      closedOfTotal: '{{done}} of {{total}} issues closed',
+      complete: 'complete',
+    },
+    gantt: {
+      title: 'Gantt Chart',
+      issueColumn: 'Issue',
+      today: 'Today',
+      empty: 'No issues with both a start and due date to display yet.',
+      truncated:
+        'Showing the {{shown}} most recent of {{total}} scheduled issues.',
+    },
   },
   chat: {
     title: 'Project chat',
