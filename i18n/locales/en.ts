@@ -6,10 +6,15 @@ const en = {
     fileTooLarge: 'File is too large (max 10MB).',
     maxFilesExceeded: 'You can attach up to 10 files.',
   },
+  imageUpload: {
+    invalidType: 'Only JPG, PNG, WEBP or GIF images are supported.',
+    fileTooLarge: 'Image is too large (max 5MB).',
+  },
   common: {
     add: 'Add',
     cancel: 'Cancel',
     edit: 'Edit',
+    change: 'Change photo',
     loading: 'Loading...',
     preview: 'Preview',
     actions: 'Actions',
@@ -483,6 +488,37 @@ const en = {
       nameMax: 'Board name must be less than 50 characters',
       nameEmpty: 'Board name cannot be empty',
       descriptionMax: 'Description must be less than 255 characters',
+    },
+  },
+  accountSettings: {
+    title: 'Account settings',
+    description: 'Manage your personal information and login password.',
+    tabs: {
+      profile: 'Profile',
+      password: 'Password',
+    },
+    profile: {
+      heading: 'Personal information',
+      hint: 'Update your display name, avatar and phone number.',
+      emailLabel: 'Email',
+      userCodeLabel: 'User code',
+      displayNameLabel: 'Display name',
+      displayNamePlaceholder: 'Enter your display name',
+      phoneLabel: 'Phone number',
+      phonePlaceholder: 'Enter your phone number',
+      success: 'Profile updated successfully.',
+      avatarSuccess: 'Avatar updated successfully.',
+      validation: {
+        displayNameMin: 'Display name must be at least 2 characters.',
+      },
+    },
+    password: {
+      heading: 'Change password',
+      hint: 'Choose a strong new password different from your current one.',
+      currentPasswordLabel: 'Current password',
+      newPasswordLabel: 'New password',
+      confirmPasswordLabel: 'Confirm new password',
+      success: 'Password changed successfully.',
     },
   },
   toast: {

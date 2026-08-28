@@ -9,6 +9,7 @@ import Icons from '@/assets/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { getInitials } from '@/components/ui/user-avatar';
 import {
   Dialog,
   DialogContent,
@@ -69,16 +70,6 @@ const avatarPalette = [
   'bg-[#DB7F9B]',
   'bg-[#90A631]',
 ];
-
-const getInitials = (name: string) => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  return parts
-    .slice(0, 2)
-    .map(part => part[0])
-    .join('')
-    .toUpperCase();
-};
 
 const getRoleLabel = (role: BoardMemberRole) => {
   switch (role) {

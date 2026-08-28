@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { Popover } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BoardService } from '@/lib/apis/board';
 import { StateMessage } from '@/components/ui/state-message';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import type {
   EntityId,
   UserBoardMember,
@@ -21,16 +21,6 @@ interface AssigneePickerProps {
   disabled?: boolean;
   onPick: (member: UserBoardMember | null) => void;
 }
-
-const getInitials = (name: string): string => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  return parts
-    .slice(0, 2)
-    .map(part => part[0])
-    .join('')
-    .toUpperCase();
-};
 
 function AssigneePicker({
   boardId,
@@ -121,21 +111,7 @@ function AssigneePicker({
                   selected ? 'bg-theme-neutral-3' : ''
                 }`}
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-theme-neutral-10">
-                  {member.avatar ? (
-                    <Image
-                      src={member.avatar}
-                      alt={name}
-                      width={28}
-                      height={28}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-[11px] font-semibold text-white">
-                      {getInitials(name)}
-                    </span>
-                  )}
-                </span>
+                <UserAvatar name={name} src={member.avatar} />
                 <span className="truncate text-theme-neutral-11">{name}</span>
               </button>
             </li>
@@ -166,21 +142,7 @@ function AssigneePicker({
         className="shrink-0 rounded-full outline-none focus:ring-2 focus:ring-theme-main"
       >
         {assigneeUserId != null ? (
-          <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-theme-neutral-10">
-            {assigneeAvatar ? (
-              <Image
-                src={assigneeAvatar}
-                alt={assigneeName || ''}
-                width={28}
-                height={28}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="text-[11px] font-semibold text-white">
-                {getInitials(assigneeName || '?')}
-              </span>
-            )}
-          </span>
+          <UserAvatar name={assigneeName} src={assigneeAvatar} />
         ) : (
           <span className="flex h-7 w-7 items-center justify-center rounded-full border border-dashed border-theme-neutral-6 text-theme-neutral-7 hover:border-theme-main hover:text-theme-main">
             +

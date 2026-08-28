@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import Image from 'next/image';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { Select, type SelectOption } from '@/components/ui/select';
+import { getInitials, UserAvatar } from '@/components/ui/user-avatar';
 import { renderIssueTypeBadge } from '@/constant/data';
 import { useIssueType } from '@/hooks/use-issue-type';
 import { useUserBoard } from '@/hooks/use-user-board';
@@ -31,25 +31,12 @@ const getDisplayName = (user: UserBoardMember): string => {
   return user.displayName || user.username || user.email || String(user.userId);
 };
 
-const getInitials = (name: string): string => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-
-  return parts
-    .slice(0, 2)
-    .map(part => part[0])
-    .join('')
-    .toUpperCase();
-};
-
 const renderAssigneeOption = (user: UserBoardMember) => {
   const displayName = getDisplayName(user);
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-theme-neutral-10 text-[10px] font-semibold text-white">
-        {getInitials(displayName)}
-      </span>
+      <UserAvatar name={displayName} size={20} />
       <span className="truncate">{displayName}</span>
     </div>
   );
@@ -164,11 +151,10 @@ function BoardFilters({
               }`}
             >
               {currentUser.avatar ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={currentUser.avatar}
                   alt={t('issues.filters.assignedToMe')}
-                  width={40}
-                  height={40}
                   className="h-full w-full object-cover"
                 />
               ) : (

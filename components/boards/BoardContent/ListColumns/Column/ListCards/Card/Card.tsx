@@ -8,6 +8,7 @@ import type { Card as CardType } from '@/config/interface';
 import dayjs from 'dayjs';
 import { renderIssueTypeBadge } from '@/constant/data';
 import Images from '@/assets';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { useCardQuickUpdate } from '@/hooks/use-card-quick-update';
 import AssigneePicker from './AssigneePicker';
 import DueDatePicker from './DueDatePicker';
@@ -24,16 +25,6 @@ interface CardInnerProps {
 
 const isOverdue = (dateStr: string): boolean =>
   dayjs(dateStr).endOf('day').isBefore(dayjs());
-
-const getInitials = (name: string): string => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  return parts
-    .slice(0, 2)
-    .map(part => part[0])
-    .join('')
-    .toUpperCase();
-};
 
 const CARD_CLASS =
   'rounded-lg border border-transparent bg-theme-neutral-1 px-3 py-2.5 shadow-sm transition-colors hover:border-theme-main flex flex-col gap-1.5 h-32 shrink-0 w-full min-w-[256px] overflow-hidden';
@@ -111,23 +102,7 @@ const StaticAssignee = memo(function StaticAssignee({
     );
   }
 
-  return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-theme-neutral-10">
-      {card.assignee?.avatar ? (
-        <Image
-          src={card.assignee.avatar}
-          alt={assigneeName || ''}
-          width={28}
-          height={28}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-[11px] font-semibold text-white">
-          {getInitials(assigneeName || '?')}
-        </span>
-      )}
-    </span>
-  );
+  return <UserAvatar name={assigneeName} src={card.assignee?.avatar} />;
 });
 
 const StaticDueDate = memo(function StaticDueDate({
