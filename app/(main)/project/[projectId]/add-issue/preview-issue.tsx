@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { getIssueTypeBadgeClassName } from '@/constant/data';
 import { format } from '@/constant/format';
+import { isOverdue, OVERDUE_TEXT_CLASS } from '@/utils/due-date';
 import type {
   Card,
   CardIssueType,
@@ -97,7 +98,13 @@ export const PreviewIssue: React.FC<PreviewIssueProps> = ({
             </span>
             <span>
               Due Date:{' '}
-              <strong className="text-theme-neutral-11">
+              <strong
+                className={
+                  isOverdue(card.dueDate)
+                    ? OVERDUE_TEXT_CLASS
+                    : 'text-theme-neutral-11'
+                }
+              >
                 {format.date(card.dueDate)}
               </strong>
             </span>

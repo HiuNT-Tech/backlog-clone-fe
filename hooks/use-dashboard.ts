@@ -113,12 +113,12 @@ export const useDashboard = () => {
     isCreateBoardPending,
     createBoardError,
 
-    duplicateBoard,
-    isDuplicateBoardPending,
-    duplicateBoardError,
-
     createSampleBoard,
     isCreateSampleBoardPending,
     createSampleBoardError,
+
+    duplicateBoard,
+    isDuplicateBoardPending,
+    duplicateBoardError,
   };
 };

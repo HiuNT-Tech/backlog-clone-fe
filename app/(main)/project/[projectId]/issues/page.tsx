@@ -112,6 +112,7 @@ const IssuesPage: React.FC = () => {
       created: formatDate(card.createdAt),
       startDate: formatDate(card.startDate),
       dueDate: formatDate(card.dueDate),
+      dueDateRaw: card.dueDate ?? null,
       estimatedHours: card.estimatedHours ?? '—',
       actualHours: card.actualHours ?? '—',
       registerBy: getRegisterBy(card),

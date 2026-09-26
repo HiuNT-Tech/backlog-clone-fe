@@ -9,6 +9,7 @@ import {
   renderPriorityValue,
 } from '@/constant/data';
 import type { EntityId } from '@/config/interface';
+import { isOverdue, OVERDUE_TEXT_CLASS } from '@/utils/due-date';
 
 export interface IssueBadgeValue {
   label: string;
@@ -33,6 +34,8 @@ export interface IssueRow {
   created: string;
   startDate: string;
   dueDate: string;
+  /** Giá trị gốc từ API — dùng để so với thời điểm hiện tại và bôi đỏ khi quá hạn */
+  dueDateRaw?: string | null;
   estimatedHours: string;
   actualHours: string;
   registerBy: string;
@@ -143,6 +146,13 @@ export const IssuesTable: React.FC<IssuesTableProps> = ({
         title: t('issues.table.dueDate'),
         dataIndex: 'dueDate',
         minWidth: 140,
+        render: (value, record) => (
+          <span
+            className={isOverdue(record.dueDateRaw) ? OVERDUE_TEXT_CLASS : ''}
+          >
+            {value}
+          </span>
+        ),
       },
       {
         key: 'estimatedHours',

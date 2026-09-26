@@ -24,7 +24,7 @@ export default function ClientProviders({
 }: ClientProvidersProps) {
   const pathname = usePathname();
   // Sidebar chỉ có nghĩa trong phạm vi một project — ngoài đó các link của nó
-  // (add-issue, issues, chat, board) không có boardId nên sẽ dẫn tới route lỗi.
+  // (add-issue, issues, board) không có boardId nên sẽ dẫn tới route lỗi.
   const showSidebar = pathname.startsWith('/project/');
 
   if (withLayout) {

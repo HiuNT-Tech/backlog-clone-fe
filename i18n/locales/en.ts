@@ -502,7 +502,6 @@ const en = {
       nameLabel: 'Project name',
       codeLabel: 'Project code',
       submit: 'Create sample project',
-      cancel: 'Cancel',
     },
     validation: {
       codeRequired: 'Project code is required',

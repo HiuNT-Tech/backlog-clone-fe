@@ -30,10 +30,10 @@ export default function DashboardPage() {
     refetchBoardList,
     createBoard,
     isCreateBoardPending,
-    duplicateBoard,
-    isDuplicateBoardPending,
     createSampleBoard,
     isCreateSampleBoardPending,
+    duplicateBoard,
+    isDuplicateBoardPending,
   } = useDashboard();
 
   const handleCreateBoard = async (data: CreateBoardFormData) => {
@@ -69,8 +69,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-theme-neutral-10">
             {t('dashboard.title')}
@@ -116,10 +115,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Pending Invitations Banner */}
       <MyInvitationsBanner />
 
-      {/* Content */}
       {isLoading && (
         <StateMessage
           variant="block"
@@ -215,7 +212,6 @@ export default function DashboardPage() {
         <BoardList boards={boards} onDuplicate={setDuplicateSource} />
       )}
 
-      {/* Create Board Dialog */}
       <CreateBoardDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}

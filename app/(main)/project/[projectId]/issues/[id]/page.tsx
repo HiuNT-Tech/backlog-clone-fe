@@ -19,6 +19,7 @@ import { toastHelpers } from '@/hooks/use-toast';
 import type { EntityId, User as UserType } from '@/config/interface';
 import { toEntityIdOrNull, toEntityIdOrUndefined } from '@/lib/entity-id';
 import { format } from '@/constant/format';
+import { isOverdue, OVERDUE_TEXT_CLASS } from '@/utils/due-date';
 import { DescriptionCard } from './description-card';
 import { EditableTitle } from './edit-form-fields';
 import type { EditFormData } from './edit-form-fields';
@@ -360,7 +361,13 @@ export default function IssueDetailPage() {
             </span>
             <span>
               Due Date:{' '}
-              <strong className="text-theme-neutral-11">
+              <strong
+                className={
+                  isOverdue(card.dueDate)
+                    ? OVERDUE_TEXT_CLASS
+                    : 'text-theme-neutral-11'
+                }
+              >
                 {format.date(card.dueDate)}
               </strong>
             </span>

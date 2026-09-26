@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
@@ -11,8 +10,12 @@ import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 import { StateMessage } from '@/components/ui/state-message';
 import { format } from '@/constant/format';
+import { isOverdue, OVERDUE_INPUT_CLASS } from '@/utils/due-date';
 import { toastHelpers } from '@/hooks/use-toast';
-import { MARKDOWN_PROSE_CLASSNAME } from '@/constant/markdown';
+import {
+  MARKDOWN_PROSE_CLASSNAME,
+  MARKDOWN_REMARK_PLUGINS,
+} from '@/constant/markdown';
 import { useComments } from '@/hooks/use-comment';
 import { useFileUpload } from '@/hooks/use-file-upload';
 import {
@@ -192,7 +195,7 @@ const CommentItem: React.FC<{
       ) : (
         <>
           <div className={markdownClassName}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS}>
               {comment.content}
             </ReactMarkdown>
           </div>
@@ -518,7 +521,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   className={`${markdownClassName} p-4 border border-theme-neutral-5 rounded-lg min-h-[100px] bg-theme-neutral-2/30 mb-[22px]`}
                 >
                   {commentValue ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS}>
                       {commentValue}
                     </ReactMarkdown>
                   ) : (
@@ -600,7 +603,7 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
             </div>
 
             {/* Right: status sidebar */}
-            <div className="w-64 shrink-0 space-y-3 text-sm">
+            <div className="w-75 shrink-0 space-y-3 text-sm">
               {/* Status */}
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -667,7 +670,9 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                   label={t('issueDetail.metadata.dueDate')}
                   value={format.dateInput(card.dueDate)}
                   onChange={e => handleFieldUpdate('dueDate', e.target.value)}
-                  className="[&.ant-picker]:h-8!"
+                  className={`[&.ant-picker]:h-8! ${
+                    isOverdue(card.dueDate) ? OVERDUE_INPUT_CLASS : ''
+                  }`}
                 />
               </div>
 
@@ -678,7 +683,8 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                     {t('issueDetail.metadata.estimatedHours')}
                   </label>
                   <Input
-                    value={card.estimatedHours ?? ''}
+                    key={`estimatedHours-${cardId}-${card.estimatedHours ?? ''}`}
+                    defaultValue={card.estimatedHours ?? ''}
                     placeholder="—"
                     className="h-8 text-sm"
                     onBlur={e => {
@@ -696,7 +702,8 @@ export const StickyCommentBar: React.FC<StickyCommentBarProps> = ({
                     {t('issueDetail.metadata.actualHours')}
                   </label>
                   <Input
-                    value={card.actualHours ?? ''}
+                    key={`actualHours-${cardId}-${card.actualHours ?? ''}`}
+                    defaultValue={card.actualHours ?? ''}
                     placeholder="—"
                     className="h-8 text-sm"
                     onBlur={e => {

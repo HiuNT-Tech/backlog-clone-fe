@@ -44,6 +44,7 @@ import {
 } from '@/lib/entity-id';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import { isOverdue, OVERDUE_INPUT_CLASS } from '@/utils/due-date';
 
 type AddIssueFormData = {
   title: string;
@@ -601,6 +602,9 @@ export default function AddIssuePage() {
                       label={t('addIssue.label.dueDate')}
                       value={formData.dueDate}
                       onChange={e => handleChange('dueDate', e.target.value)}
+                      className={
+                        isOverdue(formData.dueDate) ? OVERDUE_INPUT_CLASS : ''
+                      }
                     />
                   </div>
 

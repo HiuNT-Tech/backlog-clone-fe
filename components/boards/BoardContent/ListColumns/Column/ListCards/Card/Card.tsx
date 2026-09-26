@@ -10,6 +10,7 @@ import { renderIssueTypeBadge } from '@/constant/data';
 import Images from '@/assets';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { useCardQuickUpdate } from '@/hooks/use-card-quick-update';
+import { isOverdue, OVERDUE_BADGE_CLASS } from '@/utils/due-date';
 import AssigneePicker from './AssigneePicker';
 import DueDatePicker from './DueDatePicker';
 
@@ -22,9 +23,6 @@ interface CardInnerProps {
   assigneeControl: ReactNode;
   dueDateControl: ReactNode;
 }
-
-const isOverdue = (dateStr: string): boolean =>
-  dayjs(dateStr).endOf('day').isBefore(dayjs());
 
 const CARD_CLASS =
   'rounded-lg border border-transparent bg-theme-neutral-1 px-3 py-2.5 shadow-sm transition-colors hover:border-theme-main flex flex-col gap-1.5 h-32 shrink-0 w-full min-w-[256px] overflow-hidden';
@@ -117,7 +115,7 @@ const StaticDueDate = memo(function StaticDueDate({
       className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
         value
           ? overdue
-            ? 'bg-red-100 text-red-600'
+            ? OVERDUE_BADGE_CLASS
             : 'bg-theme-neutral-3 text-theme-neutral-8'
           : 'text-theme-neutral-6 opacity-60'
       }`}
@@ -131,7 +129,7 @@ const StaticDueDate = memo(function StaticDueDate({
 const InteractiveCardInner = memo(function InteractiveCardInner({
   card,
 }: CardProps) {
-  const overdue = card.dueDate ? isOverdue(card.dueDate) : false;
+  const overdue = isOverdue(card.dueDate);
   const { assign, setDueDate, isUpdating } = useCardQuickUpdate(card);
 
   return (
@@ -160,7 +158,7 @@ const InteractiveCardInner = memo(function InteractiveCardInner({
 });
 
 export const CardPreview = memo(function CardPreview({ card }: CardProps) {
-  const overdue = card.dueDate ? isOverdue(card.dueDate) : false;
+  const overdue = isOverdue(card.dueDate);
 
   return (
     <div className={`${CARD_CLASS} pointer-events-none`}>

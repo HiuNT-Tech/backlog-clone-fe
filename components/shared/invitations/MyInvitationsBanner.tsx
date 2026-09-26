@@ -13,15 +13,38 @@ import {
   renderMemberRoleBadge,
 } from '@/constant/data';
 import { useMyInvitations } from '@/hooks/use-invitation';
-import type { BoardInvitation } from '@/config/interface';
+import type { BoardInvitation, MyBoardInvitation } from '@/config/interface';
 
 /* ─── Single invitation card ──────────────────────────────────────────── */
 
-function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
+function InvitationCard({
+  invitation,
+  onAccept,
+  isAcceptPending,
+}: {
+  invitation: MyBoardInvitation;
+  onAccept: (token: string) => Promise<BoardInvitation>;
+  isAcceptPending: boolean;
+}) {
   const { t } = useTranslation();
   const router = useRouter();
+  const [isAccepting, setIsAccepting] = useState(false);
 
   const isPending = invitation.status === BoardInvitationStatus.PENDING;
+
+  const handleAccept = async () => {
+    if (isAcceptPending || isAccepting) return;
+
+    setIsAccepting(true);
+    try {
+      const accepted = await onAccept(invitation.token);
+      router.push(`/project/${accepted.boardId}/issues`);
+    } catch {
+      return;
+    } finally {
+      setIsAccepting(false);
+    }
+  };
 
   return (
     <div className="group relative flex items-center gap-4 rounded-lg border border-theme-neutral-4/80 bg-theme-neutral-1 px-4 py-3 shadow-sm transition-all duration-200 hover:border-theme-main-3 hover:shadow-md">
@@ -61,7 +84,6 @@ function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
         {renderInvitationStatusBadge(invitation.status, t)}
       </div>
 
-      {/* Actions – for pending invitations, show a "View" button */}
       {isPending && (
         <div className="shrink-0">
           <Button
@@ -69,7 +91,8 @@ function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
             variant="primary"
             size="sm"
             className="h-8 text-xs"
-            onClick={() => router.push(`/project/${invitation.boardId}/issues`)}
+            disabled={isAcceptPending || isAccepting}
+            onClick={() => void handleAccept()}
           >
             <Image
               src={Icons.CheckCircle2}
@@ -78,7 +101,7 @@ function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
               height={14}
               className="mr-1.5 h-3.5 w-3.5"
             />
-            {t('dashboard.invitations.viewAction')}
+            {t('dashboard.invitations.acceptAction')}
           </Button>
         </div>
       )}
@@ -90,7 +113,12 @@ function InvitationCard({ invitation }: { invitation: BoardInvitation }) {
 
 export default function MyInvitationsBanner() {
   const { t } = useTranslation();
-  const { myInvitationsData, isMyInvitationsLoading } = useMyInvitations(true);
+  const {
+    myInvitationsData,
+    isMyInvitationsLoading,
+    acceptMyInvitation,
+    isAcceptMyInvitationPending,
+  } = useMyInvitations(true);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -98,7 +126,6 @@ export default function MyInvitationsBanner() {
     inv => inv.status === BoardInvitationStatus.PENDING
   );
 
-  // Don't render if no pending invitations, loading, or dismissed
   if (
     isMyInvitationsLoading ||
     pendingInvitations.length === 0 ||
@@ -179,11 +206,15 @@ export default function MyInvitationsBanner() {
         </div>
       </div>
 
-      {/* Invitation list (collapsible) */}
       {isExpanded && (
         <div className="space-y-2 px-5 pb-4">
           {pendingInvitations.map(invitation => (
-            <InvitationCard key={invitation.id} invitation={invitation} />
+            <InvitationCard
+              key={invitation.id}
+              invitation={invitation}
+              onAccept={acceptMyInvitation}
+              isAcceptPending={isAcceptMyInvitationPending}
+            />
           ))}
         </div>
       )}
