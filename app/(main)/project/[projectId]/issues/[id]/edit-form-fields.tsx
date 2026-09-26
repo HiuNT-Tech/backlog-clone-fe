@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { TimePicker } from '@/components/ui/time-picker';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
+import { isOverdue, OVERDUE_INPUT_CLASS } from '@/utils/due-date';
 
 /* ─────────────────── Types ─────────────────── */
 
@@ -152,6 +153,7 @@ export const EditableMetadata: React.FC<EditFormFieldsProps> = ({
               label={t('addIssue.label.dueDate', 'Due Date')}
               value={formData.dueDate}
               onChange={e => onChange('dueDate', e.target.value)}
+              className={isOverdue(formData.dueDate) ? OVERDUE_INPUT_CLASS : ''}
             />
           </div>
 

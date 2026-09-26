@@ -466,11 +466,6 @@ export default function ProjectHomePage() {
                   href: `/project/${boardId}/issues`,
                   icon: Images.IconList,
                 },
-                {
-                  label: t('sidebar.chat'),
-                  href: `/project/${boardId}/chat`,
-                  icon: Images.IconChat,
-                },
               ].map(link => (
                 <button
                   key={link.href}

@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import {
   Bold,
   Italic,
@@ -15,7 +14,10 @@ import {
   Link2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MARKDOWN_PROSE_CLASSNAME } from '@/constant/markdown';
+import {
+  MARKDOWN_PROSE_CLASSNAME,
+  MARKDOWN_REMARK_PLUGINS,
+} from '@/constant/markdown';
 
 export interface MarkdownEditorProps {
   value: string;
@@ -242,7 +244,9 @@ export function MarkdownEditor({
             )}
           >
             {value ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS}>
+                {value}
+              </ReactMarkdown>
             ) : (
               <span className="text-theme-neutral-7 italic">
                 Nothing to preview

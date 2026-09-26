@@ -4,14 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,14 +78,17 @@ export default function DuplicateBoardDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[480px] bg-white">
-        <DialogHeader>
-          <DialogTitle>{t('dashboard.duplicateProject.title')}</DialogTitle>
-          <DialogDescription>
-            {t('dashboard.duplicateProject.description', { sourceTitle })}
-          </DialogDescription>
-        </DialogHeader>
+    <Modal
+      isOpen={open}
+      onClose={handleClose}
+      size="md"
+      title={t('dashboard.duplicateProject.title')}
+      closeOnOverlayClick={!isPending}
+    >
+      <div className="space-y-5">
+        <p className="text-sm leading-5 text-theme-neutral-8">
+          {t('dashboard.duplicateProject.description', { sourceTitle })}
+        </p>
 
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
@@ -115,7 +111,7 @@ export default function DuplicateBoardDialog({
           />
         </form>
 
-        <DialogFooter>
+        <div className="flex justify-end gap-3 border-t border-theme-neutral-4 pt-4">
           <Button
             type="button"
             variant="outline"
@@ -134,8 +130,8 @@ export default function DuplicateBoardDialog({
               ? t('common.loading')
               : t('dashboard.duplicateProject.submit')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </Modal>
   );
 }

@@ -117,9 +117,6 @@ export function Header() {
           <Title>{t('appBar.title.dashboard')}</Title>
         </button>
         <ProjectsDropdown />
-        <button>
-          <Image src={Images.IconAdd} alt="logo" width={24} height={24} />
-        </button>
       </div>
       <div className="flex gap-5 items-center p-3">
         <Input

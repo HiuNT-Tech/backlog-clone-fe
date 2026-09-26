@@ -22,6 +22,7 @@ function LoginForm() {
   const registeredEmail = searchParams.get('registeredEmail');
   const verifiedEmail = searchParams.get('verifiedEmail');
   const redirect = searchParams.get('redirect');
+  const prefilledEmail = verifiedEmail || registeredEmail || '';
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -30,7 +31,11 @@ function LoginForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginUserRequest>();
+  } = useForm<LoginUserRequest>({
+    defaultValues: {
+      email: prefilledEmail,
+    },
+  });
 
   const submitLogin = async (data: LoginUserRequest) => {
     try {

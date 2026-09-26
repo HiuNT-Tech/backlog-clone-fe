@@ -4,14 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,8 +19,8 @@ interface SampleBoardDialogProps {
   isPending: boolean;
 }
 
-/** Mã project mặc định — hợp lệ với BE (chữ in hoa, không dấu, không khoảng trắng). */
-const DEFAULT_SAMPLE_BOARD_CODE = 'SAMPLE';
+const createDefaultSampleBoardCode = () =>
+  `SAMPLE-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 
 export default function SampleBoardDialog({
   open,
@@ -46,21 +39,18 @@ export default function SampleBoardDialog({
     resolver: zodResolver(createBoardFormSchema),
     defaultValues: {
       title: '',
-      boardCode: DEFAULT_SAMPLE_BOARD_CODE,
+      boardCode: '',
     },
   });
 
-  // Điền sẵn tên/mã hợp lệ mỗi lần mở dialog, để người dùng chưa quen tool chỉ
-  // cần bấm "Tạo" là có ngay project mẫu, không phải tự nghĩ ra tên.
   useEffect(() => {
     if (open) {
       reset({
         title: t('dashboard.sampleProject.defaultTitle'),
-        boardCode: DEFAULT_SAMPLE_BOARD_CODE,
+        boardCode: createDefaultSampleBoardCode(),
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, reset, t]);
 
   const handleFormSubmit = async (data: CreateBoardFormData) => {
     await onSubmit(data);
@@ -73,14 +63,17 @@ export default function SampleBoardDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[480px] bg-white">
-        <DialogHeader>
-          <DialogTitle>{t('dashboard.sampleProject.title')}</DialogTitle>
-          <DialogDescription>
-            {t('dashboard.sampleProject.description')}
-          </DialogDescription>
-        </DialogHeader>
+    <Modal
+      isOpen={open}
+      onClose={handleClose}
+      size="md"
+      title={t('dashboard.sampleProject.title')}
+      closeOnOverlayClick={!isPending}
+    >
+      <div className="space-y-5">
+        <p className="text-sm leading-5 text-theme-neutral-8">
+          {t('dashboard.sampleProject.description')}
+        </p>
 
         <ul className="flex flex-col gap-1 rounded-md bg-theme-neutral-1 p-3 text-sm text-theme-neutral-8">
           <li>• {t('dashboard.sampleProject.includesColumns')}</li>
@@ -109,14 +102,14 @@ export default function SampleBoardDialog({
           />
         </form>
 
-        <DialogFooter>
+        <div className="flex justify-end gap-3 border-t border-theme-neutral-4 pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
             disabled={isPending}
           >
-            {t('dashboard.sampleProject.cancel')}
+            {t('common.cancel')}
           </Button>
           <Button
             type="submit"
@@ -128,8 +121,8 @@ export default function SampleBoardDialog({
               ? t('common.loading')
               : t('dashboard.sampleProject.submit')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </Modal>
   );
 }

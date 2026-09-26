@@ -13,6 +13,7 @@ import { useVersion } from '@/hooks/use-version';
 import { useColumn } from '@/hooks/use-column';
 import { useIssueType } from '@/hooks/use-issue-type';
 import { PRIORITY } from '@/config/enum';
+import { isOverdue, OVERDUE_INPUT_CLASS } from '@/utils/due-date';
 
 interface AddNewCardPopupProps {
   isOpen: boolean;
@@ -207,6 +208,7 @@ const AddNewCardPopup: React.FC<AddNewCardPopupProps> = ({
             label={t('column.addNewCard.popup.dueDateLabel')}
             value={formData.dueDate || ''}
             onChange={e => updateField('dueDate', e.target.value)}
+            className={isOverdue(formData.dueDate) ? OVERDUE_INPUT_CLASS : ''}
           />
         </div>
 

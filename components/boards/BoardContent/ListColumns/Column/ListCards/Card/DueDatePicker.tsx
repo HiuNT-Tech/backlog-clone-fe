@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { DatePicker as AntdDatePicker } from 'antd';
 import dayjs from 'dayjs';
 import Images from '@/assets';
+import { OVERDUE_BADGE_CLASS } from '@/utils/due-date';
 
 interface DueDatePickerProps {
   value?: string | null;
@@ -33,7 +34,7 @@ function DueDatePicker({
         className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
           value
             ? overdue
-              ? 'bg-red-100 text-red-600'
+              ? OVERDUE_BADGE_CLASS
               : 'bg-theme-neutral-3 text-theme-neutral-8'
             : 'text-theme-neutral-6 opacity-60 hover:opacity-100'
         }`}

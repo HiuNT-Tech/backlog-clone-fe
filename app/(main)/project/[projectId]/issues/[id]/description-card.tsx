@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 import Icons from '@/assets/icons';
 import { useTranslation } from 'react-i18next';
 import { format } from '@/constant/format';
-import { MARKDOWN_PROSE_CLASSNAME } from '@/constant/markdown';
+import {
+  MARKDOWN_PROSE_CLASSNAME,
+  MARKDOWN_REMARK_PLUGINS,
+} from '@/constant/markdown';
 import { renderPriorityValue } from '@/constant/data';
 import type { Card, EntityId } from '@/config/interface';
 import type { EditFormData, SelectOption } from './edit-form-fields';
@@ -93,7 +95,7 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = ({
           />
         ) : card.description ? (
           <div className={MARKDOWN_PROSE_CLASSNAME}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={MARKDOWN_REMARK_PLUGINS}>
               {card.description}
             </ReactMarkdown>
           </div>

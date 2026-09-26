@@ -210,6 +210,46 @@ const moveCardAcrossColumns = ({
   return hasSameBoardPlacement(columns, nextColumns) ? columns : nextColumns;
 };
 
+interface ReorderCardWithinColumnArgs {
+  columns: ColumnType[];
+  columnId: EntityId;
+  activeCardId: EntityId;
+  overCardId: UniqueIdentifier;
+}
+
+// Sắp xếp lại card trong MỘT cột theo đúng ngữ nghĩa mà dnd-kit sortable đang
+// preview trong lúc kéo: card active nhảy tới vị trí của card đang được over
+// (arrayMove(activeIndex, overIndex)). Nếu `over` không phải là card (vd.
+// droppable "cards-<id>") thì sortable cũng không dịch chuyển gì → giữ nguyên.
+const reorderCardWithinColumn = ({
+  columns,
+  columnId,
+  activeCardId,
+  overCardId,
+}: ReorderCardWithinColumnArgs): ColumnType[] => {
+  const column = columns.find(item => item.id === columnId);
+  if (!column) return columns;
+
+  const realCards = column.cards.filter(isRealCard);
+  const oldCardIndex = realCards.findIndex(card => card.id === activeCardId);
+  const overCardEntityId = toPositiveEntityId(overCardId);
+  const newCardIndex = overCardEntityId
+    ? realCards.findIndex(card => card.id === overCardEntityId)
+    : -1;
+
+  if (oldCardIndex < 0 || newCardIndex < 0 || oldCardIndex === newCardIndex) {
+    return columns;
+  }
+
+  const reorderedCards = withSequentialPositions(
+    arrayMove(realCards, oldCardIndex, newCardIndex)
+  );
+
+  return columns.map(item =>
+    item.id === columnId ? { ...item, cards: reorderedCards } : item
+  );
+};
+
 // Drag item type constants
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -412,66 +452,69 @@ function BoardContent({
           const { id: overCardId } = over;
 
           const activeCardId = toPositiveEntityId(activeDraggingCardId);
+          // Cột HIỆN TẠI đang chứa card trong `orderedColumns` (handleDragOver
+          // đã di chuyển card sang cột đích ngay khi con trỏ đi vào cột đó),
+          // khác với `oldColumnWhenDraggingCard` là cột lúc bắt đầu kéo.
+          const activeColumn = findOrderedColumnByCardId(activeDraggingCardId);
           const overColumn = findOrderedColumnByDroppableId(overCardId);
-          const oldColumnId = oldColumnWhenDraggingCard?.id;
+          const oldColumn = oldColumnWhenDraggingCard;
 
           if (
             !activeCardId ||
             !activeDraggingCardData ||
+            !activeColumn ||
             !overColumn ||
-            !oldColumnId
+            !oldColumn
           ) {
             return;
           }
 
-          if (oldColumnId !== overColumn.id) {
-            const nextColumns = moveCardAcrossColumns({
-              columns: orderedColumns,
-              overColumnId: overColumn.id,
-              overCardId,
-              active,
-              over,
-              activeCardId,
-              activeCard: activeDraggingCardData as CardType,
-            });
+          // Nếu card đã nằm trong cột được thả (trường hợp thường gặp, kể cả khi
+          // kéo sang cột khác vì handleDragOver đã chèn sẵn), dnd-kit đang
+          // preview thứ tự bằng arrayMove(activeIndex, overIndex) → commit đúng
+          // như preview. Không được chạy lại moveCardAcrossColumns ở đây: nó
+          // chèn theo toạ độ overlay so với rect của card over (đã bị đẩy xuống
+          // vì card active được chèn phía trên), khiến card bị "tụt" lên vị trí
+          // gần cuối khi thả vào cuối cột khác.
+          const nextColumns =
+            activeColumn.id !== overColumn.id
+              ? moveCardAcrossColumns({
+                  columns: orderedColumns,
+                  overColumnId: overColumn.id,
+                  overCardId,
+                  active,
+                  over,
+                  activeCardId,
+                  activeCard: activeDraggingCardData as CardType,
+                })
+              : reorderCardWithinColumn({
+                  columns: orderedColumns,
+                  columnId: overColumn.id,
+                  activeCardId,
+                  overCardId,
+                });
 
-            setOrderedColumns(nextColumns);
+          setOrderedColumns(nextColumns);
+
+          if (oldColumn.id !== overColumn.id) {
             moveCardToDifferentColumn?.(
               activeCardId,
-              oldColumnId,
+              oldColumn.id,
               overColumn.id,
               nextColumns
             );
           } else {
-            const overCardEntityId = toPositiveEntityId(overCardId);
-            const realCards =
-              oldColumnWhenDraggingCard.cards.filter(isRealCard);
-            const oldCardIndex = realCards.findIndex(
-              c => c.id === activeCardId
-            );
-            const newCardIndex = overCardEntityId
-              ? realCards.findIndex(c => c.id === overCardEntityId)
-              : realCards.length - 1;
+            // Card kết thúc ở đúng cột ban đầu (có thể đã đi qua cột khác rồi
+            // quay lại). So với snapshot lúc bắt đầu kéo để biết thứ tự có thực
+            // sự đổi không; chỉ gọi API khi có thay đổi.
+            const originalCards = oldColumn.cards.filter(isRealCard);
+            const finalCards =
+              nextColumns
+                .find(column => column.id === overColumn.id)
+                ?.cards.filter(isRealCard) ?? [];
 
-            if (
-              oldCardIndex >= 0 &&
-              newCardIndex >= 0 &&
-              oldCardIndex !== newCardIndex
-            ) {
-              const dndOrderedCards = arrayMove(
-                realCards,
-                oldCardIndex,
-                newCardIndex
-              );
-              const positionedCards = withSequentialPositions(dndOrderedCards);
-              const nextColumns = orderedColumns.map(column =>
-                column.id === overColumn.id
-                  ? { ...column, cards: positionedCards }
-                  : column
-              );
-
-              setOrderedColumns(nextColumns);
-              moveCardInTheSameColumn?.(positionedCards, oldColumnId);
+            if (!haveSameCardPlacement(originalCards, finalCards)) {
+              moveCardInTheSameColumn?.(finalCards, oldColumn.id);
             }
           }
         }
@@ -509,6 +552,7 @@ function BoardContent({
     },
     [
       activeDragItemType,
+      findOrderedColumnByCardId,
       findOrderedColumnByDroppableId,
       moveCardInTheSameColumn,
       moveCardToDifferentColumn,

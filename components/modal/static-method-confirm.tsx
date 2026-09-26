@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import Icons from '@/assets/icons';
 import Image from 'next/image';
@@ -56,47 +49,40 @@ const ModalConfirm = ({
   const { t } = useTranslation();
 
   return (
-    <Dialog open={isOpen} onOpenChange={open => !open && onCancel?.()}>
-      <DialogContent
-        className={`${bodyContent ? 'w-fit' : 'max-w-[600px]'} !pt-2 bg-theme-neutral-1 border-none`}
-        showCloseButton={true}
-      >
-        <DialogHeader className="space-y-2">
-          <DialogTitle
-            className={
-              'inline-flex items-center gap-2 text-lg font-bold text-theme-neutral-11 pb-2 border-b -mx-6 px-6'
-            }
+    <Modal
+      isOpen={isOpen}
+      onClose={() => onCancel?.()}
+      size={bodyContent ? 'lg' : 'md'}
+      title={title || '　'}
+      closeOnOverlayClick={!loadingOnOk}
+    >
+      <div className="space-y-4">
+        {icon && (
+          <div
+            className={cn(
+              'flex items-center justify-center py-4',
+              iconClassName
+            )}
           >
-            {title || '　'}
-          </DialogTitle>
-          {icon && (
-            <div
-              className={cn(
-                'flex items-center justify-center py-4',
-                iconClassName
-              )}
-            >
-              <Image src={icon} alt="icon" width={64} height={64} />
-            </div>
-          )}
-          {content && (
-            <DialogDescription
-              className={cn(
-                'text-base text-theme-neutral-11 leading-relaxed whitespace-break-spaces flex justify-center text-center',
-                classNameContent
-              )}
-              dangerouslySetInnerHTML={{
-                __html: content,
-              }}
-            />
-          )}
-          {/* Body content */}
-          {bodyContent && <div className={classNameContent}>{bodyContent}</div>}
-        </DialogHeader>
+            <Image src={icon} alt="icon" width={64} height={64} />
+          </div>
+        )}
+        {content && (
+          <div
+            className={cn(
+              'text-base text-theme-neutral-11 leading-relaxed whitespace-break-spaces flex justify-center text-center',
+              classNameContent
+            )}
+            dangerouslySetInnerHTML={{
+              __html: content,
+            }}
+          />
+        )}
+        {bodyContent && <div className={classNameContent}>{bodyContent}</div>}
 
         {(completed || !noCancel || !noSubmit) && (
-          <DialogFooter
-            className={`flex flex-row justify-center gap-3 mt-4 ${completed ? 'justify-center' : 'justify-end'}`}
+          <div
+            className={`flex flex-row gap-3 mt-4 ${completed ? 'justify-center' : 'justify-end'}`}
           >
             {completed ? (
               <Button
@@ -142,10 +128,10 @@ const ModalConfirm = ({
                 )}
               </>
             )}
-          </DialogFooter>
+          </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </Modal>
   );
 };
 
